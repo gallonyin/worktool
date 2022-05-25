@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding"
+                android:text="使用流程"
+                android:textColor="@color/float_time_color"
+                android:textSize="@dimen/setting_end_font_size"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_marginEnd="@dimen/setting_end_padding"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1.申请链接号后在下方填写并点击保存"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/setting_vertical_padding"
+                        android:text="2.开启主功能在无障碍栏目里找到WorkTool并开启"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/setting_vertical_padding"
+                        android:text="3.让本程序放在后台运行，点击进入企业微信保持手机不动屏幕常亮即可"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding"
+                android:text="环境信息"
+                android:textColor="@color/float_time_color"
+                android:textSize="@dimen/setting_end_font_size"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_marginEnd="@dimen/setting_end_padding"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="当前运行host"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:id="@+id/tv_host"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="127.0.0.1"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/setting_end_font_size" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_marginEnd="@dimen/setting_end_padding"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="当前运行版本"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:id="@+id/tv_version"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1.0"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/setting_end_font_size" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding"
+                android:text="控制台"
+                android:textColor="@color/float_time_color"
+                android:textSize="@dimen/setting_end_font_size"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <Switch
+                    android:id="@+id/sw_accessibility"
+                    android:layout_width="@dimen/setting_end_font_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_end_start_padding" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_toStartOf="@id/sw_accessibility"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="开启主功能"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <Switch
+                    android:id="@+id/sw_encrypt"
+                    android:layout_width="@dimen/setting_end_font_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_end_start_padding" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_toStartOf="@id/sw_encrypt"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="开启通讯加密"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_marginEnd="@dimen/setting_end_padding"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="链接号"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <EditText
+                        android:id="@+id/et_channel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="请输入申请的链接号"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/setting_end_font_size" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/comment_red_btn"
+                    android:id="@+id/bt_save"
+                    android:text="保存" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
