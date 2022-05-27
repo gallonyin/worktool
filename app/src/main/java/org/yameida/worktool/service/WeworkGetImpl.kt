@@ -115,7 +115,7 @@ object WeworkGetImpl {
         val weworkMessageBean = WeworkMessageBean()
         weworkMessageBean.type = WeworkMessageBean.GET_GROUP_INFO
         val tvManagerFlag =
-            AccessibilityUtil.findOneByText(getRoot(), "由企业微信用户创建，可邀请微信用户进群", "该群由企业微信用户创建")
+            AccessibilityUtil.findOneByText(getRoot(), "微信用户创建")
         val button = AccessibilityUtil.findFrontNode(tvManagerFlag)
         val tvGroupName = AccessibilityUtil.findOneByClazz(button, Views.TextView)
         if (tvGroupName != null && tvGroupName.text != null) {

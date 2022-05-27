@@ -1,8 +1,10 @@
 package org.yameida.worktool.service
 
+import android.graphics.Rect
 import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.ScreenUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
@@ -31,6 +33,14 @@ fun goHomeTab(title: String): Boolean {
         val list = getRoot().findAccessibilityNodeInfosByText("消息")
         for (item in list) {
             if (item.parent.parent.parent.childCount == 5) {
+                //处理侧边栏抽屉打开
+                if (title == "消息") {
+                    val rect = Rect()
+                    item.getBoundsInScreen(rect)
+                    if (rect.left > ScreenUtils.getScreenWidth() / 2) {
+                        goHomeTab("工作台")
+                    }
+                }
                 atHome = true
                 val tempList = getRoot().findAccessibilityNodeInfosByText(title)
                 for (tempItem in tempList) {

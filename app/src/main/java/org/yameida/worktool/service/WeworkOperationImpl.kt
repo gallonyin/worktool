@@ -485,7 +485,7 @@ object WeworkOperationImpl {
     private fun groupRename(groupName: String): Boolean {
         if (WeworkRoomUtil.intoGroupManager()) {
             val textView =
-                AccessibilityUtil.findOneByText(getRoot(), "由企业微信用户创建，可邀请微信用户进群", "该群由企业微信用户创建")
+                AccessibilityUtil.findOneByText(getRoot(), "微信用户创建")
             val button = AccessibilityUtil.findFrontNode(textView)
             if (button != null) {
                 AccessibilityUtil.performClick(button)

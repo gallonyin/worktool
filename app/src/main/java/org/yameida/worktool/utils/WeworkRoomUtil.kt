@@ -119,11 +119,7 @@ object WeworkRoomUtil {
      * @return true 成功进入群管理页
      */
     fun intoGroupManager(): Boolean {
-        if (AccessibilityUtil.findOneByText(
-                getRoot(),
-                "由企业微信用户创建，可邀请微信用户进群",
-                "该群由企业微信用户创建"
-            ) != null) {
+        if (AccessibilityUtil.findOneByText(getRoot(), "微信用户创建") != null) {
             return true
         }
         val list = findOneByClazz(getRoot(), Views.ListView)
