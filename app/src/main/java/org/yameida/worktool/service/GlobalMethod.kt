@@ -107,9 +107,8 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
  */
 fun backPress() {
     val textView = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
-    if (textView != null && textView.text.isNullOrBlank()) {
-        LogUtils.d("找到回退按钮")
-        AccessibilityUtil.performClick(textView)
+    if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView)) {
+        LogUtils.v("找到回退按钮")
     } else {
         val ivButton = AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
         if (ivButton != null && ivButton.isClickable && AccessibilityUtil.findFrontNode(ivButton) == null) {
@@ -120,8 +119,13 @@ fun backPress() {
             val button = AccessibilityUtil.findOneByClazz(getRoot(), Views.Button)
             if (button != null && button.childCount > 0) {
                 AccessibilityUtil.performClick(button.getChild(0))
-            } else {
+            } else if (button != null) {
                 AccessibilityUtil.performClick(button)
+            } else {
+                LogUtils.d("未找到BT按钮")
+                if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+                    LogUtils.d("尝试点击确定")
+                }
             }
         }
     }
