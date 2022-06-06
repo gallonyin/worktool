@@ -81,41 +81,4 @@ object Demo {
 //        })
     }
 
-    //通过好友请求后执行三中院脚本
-    fun test2(name: String) {
-        val groupName = "(北)诉前调解群05011"
-        val json = """
-            {
-              "socketType": 2,
-              "messageId": "",
-              "list": [
-                {
-                  "type": 203,
-                  "titleList": [
-                    "$name"
-                  ],
-                  "receivedContent": "您好，您好我是某某法院机器人助理，很高兴为您服务，请先填写个人信息，我们将为您联系案件相关法官。\nhttps://www.wjx.cn/vj/OjVAA02.aspx"
-                },
-                {
-                  "type": 203,
-                  "titleList": [
-                    "$name"
-                  ],
-                  "receivedContent": "您好，已为您查询到本案法官，开始建群中，请稍后..."
-                },
-                {
-                  "type": 206,
-                  "groupName": "$groupName",
-                  "selectList": [
-                    "$name",
-                    "尹甲仑"
-                  ],
-                  "groupAnnouncement": "本群为诉前调解官方微信群"
-                }
-              ]
-            }
-        """.trimIndent()
-        MyLooper.onMessage(null, json)
-    }
-
 }

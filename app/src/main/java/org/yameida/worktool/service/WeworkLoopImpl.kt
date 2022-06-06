@@ -17,37 +17,6 @@ object WeworkLoopImpl {
 
     var logIndex = 0
 
-//    @Synchronized
-//    fun mainLoop() {
-//        mainLoopRunning = true
-//        if (!threadStart) {
-//            threadStart = true
-//            thread {
-//                while (true) {
-//                    try {
-//                        if (mainLoopRunning) {
-//                            goHomeTab("消息")
-//                            //todo 下上滚动
-//                            if (mainLoopRunning && getChatroomList()) {
-//                                if (mainLoopRunning)
-//                                    getChatMessageList()
-//                                mainLoopRunning = false
-//                            }
-//                            if (mainLoopRunning) {
-//                                getFriendRequest()
-//                            }
-//                        }
-//                        sleep(1000)
-//                    } catch (e: Exception) {
-//                        LogUtils.e(e)
-//                        error(e.printStackTrace())
-//                        mainLoopRunning = false
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     fun mainLoop() {
         mainLoopRunning = true
         try {
@@ -99,7 +68,6 @@ object WeworkLoopImpl {
                             if (nameList.isEmpty())
                                 break
                             //TODO nameList 通过的好友加入演示脚本
-                            Demo.test2(nameList[0])
                         }
                         return true
                     } else {
@@ -337,7 +305,9 @@ object WeworkLoopImpl {
                 val text = item.text.toString()
                 sb.append(text).append("/t")
                 val itemMessage = WeworkMessageBean.ItemMessageBean(0, text)
-                itemMessageList.add(itemMessage)
+                if (itemMessageList.count { it.feature == 0 && it.text == text } == 0) {
+                    itemMessageList.add(itemMessage)
+                }
             }
             LogUtils.d(sb.toString())
             message = WeworkMessageBean.SubMessageBean(2, 0, itemMessageList, nameList)
