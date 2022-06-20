@@ -7,7 +7,7 @@
 
 **发送消息**
 
-<img src="https://api.apifox.cn/api/v1/projects/1035094/resources/344444/image-preview"  height="500" width="280">
+<img src="https://github.com/gallonyin/worktool/blob/master/images/send_message.gif"  height="500" width="280">
 
 注：动图为机器人自动运行
 
@@ -16,7 +16,7 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 
 ## 快速使用
 
-[快速入门文档 https://www.apifox.cn/web/project/1035094](https://www.apifox.cn/web/project/1035094)
+[快速入门文档](https://www.apifox.cn/apidoc/project-1035094/doc-850007)
 
 1. 准备一台无人使用的可联网安卓手机（本APP兼容99%安卓机型）
 2. 手机登录企业微信（账号需要提前实名认证，不然很多功能无法正常使用）
@@ -25,7 +25,7 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-1.1.apk)
 6. 打开WorkTool APP，按照APP提示保存链接号，开启主功能，并打开到企业微信界面，不要关闭屏幕即可。
 
-如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://www.apifox.cn/apidoc/project-1035094/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://www.apifox.cn/web/project/1035094)提交您的机器人id和回调接口地址
+如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://www.apifox.cn/apidoc/project-1035094/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://www.apifox.cn/apidoc/project-1035094/api-22587884)提交您的机器人id和回调接口地址
 
 ## 文档
 
@@ -50,3 +50,9 @@ Apache License, Version 2.0
 - Email: gallonyin@163.com
 - QQ群：764377820（链接号申请/问题反馈）
 - 如果遇到问题欢迎在群里提问，个人能力也有限，希望一起学习一起进步。
+
+# 版本更新
+
+tag 1.1 2022-06-20 大幅度提高系统稳定性和响应速度
+
+tag 1.0 2022-05-27 首次可用版本更新
