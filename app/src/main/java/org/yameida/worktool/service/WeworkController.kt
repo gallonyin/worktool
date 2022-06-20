@@ -12,6 +12,7 @@ import org.yameida.worktool.model.WeworkMessageBean
 object WeworkController {
 
     lateinit var weworkService: WeworkService
+    var enableLoopRunning = false
     var mainLoopRunning = false
 
     /**
@@ -21,6 +22,7 @@ object WeworkController {
     @RequestMapping
     fun stopAndGoHome() {
         LogUtils.d("stopAndGoHome()")
+        enableLoopRunning = false
         mainLoopRunning = false
         goHome()
     }
@@ -60,7 +62,7 @@ object WeworkController {
      */
     @RequestMapping
     fun replyMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("replyMessage(): ${message.receivedContent}")
+        LogUtils.d("replyMessage(): ${message.receivedName} ${message.originalContent} ${message.receivedContent}")
         return WeworkOperationImpl.replyMessage(
             message.titleList,
             message.receivedName,
@@ -212,6 +214,17 @@ object WeworkController {
             message.objectName,
             message.extraText
         )
+    }
+
+    /**
+     * 按手机号添加好友
+     * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
+     * @param message#friend 待添加用户列表
+     */
+    @RequestMapping
+    fun addFriendByPhone(message: WeworkMessageBean): Boolean {
+        LogUtils.d("addFriendByPhone(): ${message.friend}")
+        return WeworkOperationImpl.addFriendByPhone(message.friend)
     }
 
     /**

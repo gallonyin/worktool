@@ -4,9 +4,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.getRoot
-import org.yameida.worktool.service.sleep
-import org.yameida.worktool.utils.AccessibilityUtil.findOneByClazz
 import org.yameida.worktool.utils.AccessibilityUtil.findAllByClazz
+import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 import java.util.*
 
 /**
@@ -204,9 +203,9 @@ object WeworkTextUtil {
      * @see WeworkMessageBean.TEXT_TYPE
      */
     fun getTextType(node: AccessibilityNodeInfo, isGroup: Boolean = true): Int {
-        val tvList = findAllByClazz(node, Views.TextView)
+        val tvList = findAllOnceByClazz(node, Views.TextView)
         val tvCount = tvList.size
-        val ivCount = findAllByClazz(node, Views.ImageView).size
+        val ivCount = findAllOnceByClazz(node, Views.ImageView).size
         return when {
             tvCount == 1 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_PLAIN
             tvCount == 0 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_IMAGE
@@ -258,9 +257,9 @@ object WeworkTextUtil {
      */
     fun getNameList(item: AccessibilityNodeInfo): List<String> {
         val nameList = ArrayList<String>()
-        val node = findOneByClazz(item, Views.ViewGroup)
+        val node = AccessibilityUtil.findOnceByClazz(item, Views.ViewGroup)
         if (node != null) {
-            val textViewList = findAllByClazz(node, Views.TextView)
+            val textViewList = findAllOnceByClazz(node, Views.TextView)
             for (textView in textViewList) {
                 if (textView.text != null) {
                     nameList.add(textView.text.toString())
@@ -289,13 +288,13 @@ object WeworkTextUtil {
     ): Boolean {
         if (node == null) return false
         for (i in 0 until node.childCount) {
-            val item = node.getChild(i)
+            val item = node.getChild(node.childCount - 1 - i) ?: continue
             val nameList = getNameList(item)
-            for (name in nameList.reversed()) {
+            for (name in nameList) {
                 if (name == replyNick) {
                     val backNode = getMessageListNode(item)
                     if (backNode != null) {
-                        val textNode = AccessibilityUtil.findOneByText(backNode, replyContent)
+                        val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
                         if (textNode != null) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                             return longClickMessageItem(item, key)
@@ -310,10 +309,9 @@ object WeworkTextUtil {
     private fun longClickMessageItem(item: AccessibilityNodeInfo, key: String): Boolean {
         val backNode = getMessageListNode(item)
         AccessibilityUtil.performLongClickWithSon(backNode)
-        sleep(1000)
-        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView)
+        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, root = true)
         for (optionRv in optionRvList) {
-            val optionTvList = findAllByClazz(optionRv, Views.TextView)
+            val optionTvList = findAllOnceByClazz(optionRv, Views.TextView)
             for (optionTv in optionTvList) {
                 if (optionTv.text == key) {
                     AccessibilityUtil.performClick(optionTv)
@@ -330,7 +328,7 @@ object WeworkTextUtil {
      * @param item 消息item节点
      */
     private fun getMessageListNode(item: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        val node = findOneByClazz(item, Views.ViewGroup)
+        val node = AccessibilityUtil.findOnceByClazz(item, Views.ViewGroup)
         if (node != null) {
             return AccessibilityUtil.findBackNode(node)
         }

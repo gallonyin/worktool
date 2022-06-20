@@ -78,6 +78,7 @@ object MyLooper {
             for (message in LinkedHashSet(messageList.list)) {
                 getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
                 if (message.type == WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE) {
+                    WeworkController.enableLoopRunning = true
                     if (!WeworkController.mainLoopRunning) {
                         getInstance().sendMessage(Message.obtain().apply {
                             what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
@@ -134,6 +135,7 @@ object MyLooper {
             WeworkMessageBean.PASS_ALL_FRIEND_REQUEST -> {
             }
             WeworkMessageBean.ADD_FRIEND_BY_PHONE -> {
+                WeworkController.addFriendByPhone(message)
             }
             WeworkMessageBean.SHOW_GROUP_INFO -> {
                 WeworkController.showGroupInfo(message)

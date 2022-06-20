@@ -167,6 +167,9 @@ public class WeworkMessageBean {
     //对象名称(图片、文件、小程序等)
     public String objectName;
 
+    //添加好友
+    public Friend friend;
+
     public WeworkMessageBean() {}
 
     public WeworkMessageBean(String receivedName, String receivedContent, int type, Integer roomType, List<String> titleList, List<SubMessageBean> messageList, String log) {
@@ -222,6 +225,22 @@ public class WeworkMessageBean {
         public String corporation;
         public String phone;
         public String job;
+    }
+
+    //添加好友
+    public static class Friend {
+        //按手机号搜索
+        public String phone;
+        //好友姓名
+        public String name;
+        //备注名
+        public String markName;
+        //备注企业
+        public String markCorp;
+        //备注更多描述
+        public String markExtra;
+        //备注标签(推荐)
+        public List<String> tagList;
     }
 
     @Override

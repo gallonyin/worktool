@@ -47,7 +47,7 @@ object WeworkGetImpl {
         if (!goHomeTab("我")) {
             LogUtils.d("未找到我的信息")
             goHomeTab("消息")
-            val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
+            val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView, root = true)
                 .firstOrNull { it.text == null }
             AccessibilityUtil.performClick(firstTv)
             sleep(1000)
@@ -67,11 +67,10 @@ object WeworkGetImpl {
             }
         }
         AccessibilityUtil.performClick(AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView))
-        sleep(1500)
-        val relativeLayoutList = AccessibilityUtil.findAllByClazz(getRoot(), Views.RelativeLayout)
+        val relativeLayoutList = AccessibilityUtil.findAllByClazz(getRoot(), Views.RelativeLayout, minSize = 70)
         val myInfo = WeworkMessageBean.MyInfo()
         for (relativeLayout in relativeLayoutList.filter { it.childCount >= 2 }) {
-            val textViewList = AccessibilityUtil.findAllByClazz(relativeLayout, Views.TextView)
+            val textViewList = AccessibilityUtil.findAllOnceByClazz(relativeLayout, Views.TextView)
             if (textViewList.size >= 2) {
                 val firstText = textViewList[0].text?.toString()
                 if (firstText == "姓名" && myInfo.name == null) {
@@ -105,6 +104,7 @@ object WeworkGetImpl {
         weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
         weworkMessageBean.myInfo = myInfo
         WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
+        WeworkLoopImpl.startLoop()
         return true
     }
 
@@ -114,30 +114,44 @@ object WeworkGetImpl {
     fun getGroupInfoDetail(): WeworkMessageBean {
         val weworkMessageBean = WeworkMessageBean()
         weworkMessageBean.type = WeworkMessageBean.GET_GROUP_INFO
-        val tvManagerFlag =
-            AccessibilityUtil.findOneByText(getRoot(), "微信用户创建")
+        val tvManagerFlag = AccessibilityUtil.findOneByText(getRoot(), "微信用户创建", timeout = 2000)
+        //不是管理员的群可能没有微信用户创建 todo
+//            AccessibilityUtil.findOneByText(getRoot(), "全部群成员", timeout = 2000)
         val button = AccessibilityUtil.findFrontNode(tvManagerFlag)
-        val tvGroupName = AccessibilityUtil.findOneByClazz(button, Views.TextView)
+        val tvGroupName = AccessibilityUtil.findOnceByClazz(button, Views.TextView)
         if (tvGroupName != null && tvGroupName.text != null) {
             LogUtils.d("群名: " + tvGroupName.text)
             weworkMessageBean.groupName = tvGroupName.text.toString()
+        } else {
+            val groupNameTv = AccessibilityUtil.findOnceByText(getRoot(), "群聊名称")
+            if (groupNameTv != null) {
+                val tvList = AccessibilityUtil.findAllOnceByClazz(
+                    groupNameTv.parent.parent.parent,
+                    Views.TextView
+                )
+                if (tvList.size >= 2) {
+                    val groupName = tvList[1]
+                    LogUtils.d("群名: " + groupName.text)
+                    weworkMessageBean.groupName = groupName.text.toString()
+                }
+            }
         }
         val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
         if (gridView != null && gridView.childCount >= 2) {
-            val tvOwnerName = AccessibilityUtil.findOneByClazz(gridView.getChild(0), Views.TextView)
+            val tvOwnerName = AccessibilityUtil.findOnceByClazz(gridView.getChild(0), Views.TextView)
             if (tvOwnerName != null && tvOwnerName.text != null) {
                 LogUtils.d("群主: " + tvOwnerName.text)
                 weworkMessageBean.groupOwner = tvOwnerName.text.toString()
             }
         }
-        val tvCountFlag = AccessibilityUtil.findOneByText(getRoot(), "查看全部群成员")
+        val tvCountFlag = AccessibilityUtil.findOnceByText(getRoot(), "查看全部群成员")
         val tvCount = AccessibilityUtil.findBackNode(tvCountFlag)
         if (tvCount != null && tvCount.text != null) {
             LogUtils.d("群成员: " + tvCount.text)
             val count = tvCount.text.toString().replace("人", "")
             weworkMessageBean.groupNumber = count.toIntOrNull()
         }
-        val tvAnnouncementFlag = AccessibilityUtil.findOneByText(getRoot(), "群公告")
+        val tvAnnouncementFlag = AccessibilityUtil.findOnceByText(getRoot(), "群公告")
         val tvAnnouncement = AccessibilityUtil.findBackNode(tvAnnouncementFlag)
         if (tvAnnouncement != null && tvAnnouncement.text != null) {
             LogUtils.d("群公告: " + tvAnnouncement.text)

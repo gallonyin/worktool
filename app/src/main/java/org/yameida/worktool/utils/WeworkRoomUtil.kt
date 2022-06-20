@@ -9,7 +9,7 @@ import org.yameida.worktool.service.backPress
 import org.yameida.worktool.service.getRoot
 import org.yameida.worktool.service.goHome
 import org.yameida.worktool.service.sleep
-import org.yameida.worktool.utils.AccessibilityUtil.findAllByClazz
+import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 
 /**
  * 房间特征分析工具类
@@ -56,10 +56,10 @@ object WeworkRoomUtil {
      */
     fun getRoomTitle(root: AccessibilityNodeInfo): ArrayList<String> {
         val titleList = arrayListOf<String>()
-        val list = findOneByClazz(root, Views.ListView)
+        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list.parent.parent)
-            val textViewList = findAllByClazz(frontNode, Views.TextView)
+            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             for (textView in textViewList) {
                 if (!textView.text.isNullOrBlank()) {
                     titleList.add(textView.text.toString().replace("\\(\\d+\\)$".toRegex(), ""))
@@ -78,7 +78,11 @@ object WeworkRoomUtil {
         val titleList = getRoomTitle(getRoot())
         val roomType = getRoomType(getRoot())
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && titleList.count { it.replace("…", "") == title.replace("…", "") } > 0) {
+            && titleList.count {
+                it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
+                    .replace("\\(.*?\\)".toRegex(), "")
+            } > 0
+        ) {
             LogUtils.d("当前正在房间")
             return true
         }
@@ -86,25 +90,16 @@ object WeworkRoomUtil {
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list)
-            val textViewList = findAllByClazz(frontNode, Views.TextView)
+            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(searchButton)
-                sleep(1000)
                 AccessibilityUtil.findTextInput(getRoot(), title.replace("…", ""))
                 sleep(1000)
-                var selectListView: AccessibilityNodeInfo? = null
-                while (selectListView == null) {
-                    LogUtils.d("未找到搜索结果列表")
-                    selectListView = findOneByClazz(getRoot(), Views.ListView)
-                    sleep(500)
-                }
-                val imageView = findOneByClazz(selectListView, Views.ImageView)
-                if (imageView != null) {
-                    AccessibilityUtil.performClick(imageView)
-                }
-                sleep(2000)
+                val selectListView = findOneByClazz(getRoot(), Views.ListView)
+                val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
+                AccessibilityUtil.performClick(imageView)
                 return true
             } else {
                 LogUtils.e("未找到搜索按钮")
@@ -119,17 +114,17 @@ object WeworkRoomUtil {
      * @return true 成功进入群管理页
      */
     fun intoGroupManager(): Boolean {
-        if (AccessibilityUtil.findOneByText(getRoot(), "微信用户创建") != null) {
+        if (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员") != null
+            || AccessibilityUtil.findOnceByText(getRoot(), "微信用户创建") != null) {
             return true
         }
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
-            val textViewList = findAllByClazz(frontNode, Views.TextView)
+            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val multiButton = textViewList.lastOrNull()
                 AccessibilityUtil.performClick(multiButton)
-                sleep(2000)
                 return true
             } else {
                 LogUtils.e("未找到群管理按钮")
@@ -149,11 +144,10 @@ object WeworkRoomUtil {
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
-            val textViewList = findAllByClazz(frontNode, Views.TextView)
+            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val multiButton = textViewList.lastOrNull()
                 AccessibilityUtil.performClick(multiButton)
-                sleep(2000)
                 return true
             } else {
                 LogUtils.e("未找到好友详情按钮")
@@ -172,7 +166,7 @@ object WeworkRoomUtil {
         if (intoFriendDetail()) {
             val gridView = findOneByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
-                val tvList = findAllByClazz(gridView.getChild(0), Views.TextView)
+                val tvList = findAllOnceByClazz(gridView.getChild(0), Views.TextView)
                 for (textView in tvList) {
                     if (textView.text != null) {
                         titleList.add(textView.text.toString())
@@ -189,12 +183,12 @@ object WeworkRoomUtil {
      * 群右上角有两个按钮（快速会议按钮、更多按钮）
      */
     private fun isGroupChat(root: AccessibilityNodeInfo): Boolean {
-        val list = findOneByClazz(root, Views.ListView)
+        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list.parent.parent)
-            val textViewList = findAllByClazz(frontNode, Views.TextView)
+            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
-                val buttonList = findAllByClazz(textViewList.last().parent.parent, Views.TextView)
+                val buttonList = findAllOnceByClazz(textViewList.last().parent.parent, Views.TextView)
                 return buttonList.size == 2
             } else {
                 LogUtils.d("未找到群管理按钮")
@@ -210,12 +204,12 @@ object WeworkRoomUtil {
      * listview前兄弟控件 && text包含外部群
      */
     private fun isExternalGroup(root: AccessibilityNodeInfo): Boolean {
-        val listView = findOneByClazz(root, Views.ListView, null, 0)
+        val listView = AccessibilityUtil.findOnceByClazz(root, Views.ListView, null, 0)
         if (listView != null) {
             val frontNode = findFrontNode(listView)
             if (frontNode != null) {
-                val nodeList = frontNode.findAccessibilityNodeInfosByText("外部群")
-                return nodeList.size > 0
+                val nodeList = AccessibilityUtil.findAllByText(frontNode, "外部群", timeout = 0)
+                return nodeList.isNotEmpty()
             }
         }
         return false
@@ -226,8 +220,8 @@ object WeworkRoomUtil {
      * 有列表和输入框
      */
     private fun isSingleChat(root: AccessibilityNodeInfo): Boolean {
-        val list = findOneByClazz(root, Views.ListView)
-        val editText = findOneByClazz(root, Views.EditText)
+        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
+        val editText = AccessibilityUtil.findOnceByClazz(root, Views.EditText)
         if (list != null && editText != null) {
             return true
         }

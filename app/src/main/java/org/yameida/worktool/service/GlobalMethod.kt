@@ -30,7 +30,7 @@ fun goHomeTab(title: String): Boolean {
     var atHome = false
     var find = false
     while (!atHome) {
-        val list = getRoot().findAccessibilityNodeInfosByText("消息")
+        val list = AccessibilityUtil.findAllByText(getRoot(), "消息", timeout = 0)
         for (item in list) {
             if (item.parent.parent.parent.childCount == 5) {
                 //处理侧边栏抽屉打开
@@ -42,7 +42,7 @@ fun goHomeTab(title: String): Boolean {
                     }
                 }
                 atHome = true
-                val tempList = getRoot().findAccessibilityNodeInfosByText(title)
+                val tempList = AccessibilityUtil.findAllByText(getRoot(), title, timeout = 0)
                 for (tempItem in tempList) {
                     if (tempItem.parent.parent.parent.childCount == 5) {
                         AccessibilityUtil.performClick(tempItem)
@@ -54,7 +54,6 @@ fun goHomeTab(title: String): Boolean {
         }
         if (!atHome) {
             backPress()
-            sleep(1500)
         }
     }
     LogUtils.v("进入首页-${title}页")
@@ -65,7 +64,7 @@ fun goHomeTab(title: String): Boolean {
  * 当前是否在首页
  */
 fun isAtHome(): Boolean {
-    val list = getRoot().findAccessibilityNodeInfosByText("消息")
+    val list = AccessibilityUtil.findAllByText(getRoot(), "消息", timeout = 0)
     return list.count { it.parent.parent.parent.childCount == 5 } > 0
 }
 
@@ -106,30 +105,32 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
  * 后退
  */
 fun backPress() {
-    val textView = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
+    val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
     if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView)) {
         LogUtils.v("找到回退按钮")
     } else {
-        val ivButton = AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
+        val ivButton = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ImageView)
         if (ivButton != null && ivButton.isClickable && AccessibilityUtil.findFrontNode(ivButton) == null) {
             LogUtils.d("未找到回退按钮 点击第一个IV按钮")
             AccessibilityUtil.performClick(ivButton)
         } else {
             LogUtils.d("未找到回退按钮 点击第一个BT按钮")
-            val button = AccessibilityUtil.findOneByClazz(getRoot(), Views.Button)
+            val button = AccessibilityUtil.findOnceByClazz(getRoot(), Views.Button)
             if (button != null && button.childCount > 0) {
                 AccessibilityUtil.performClick(button.getChild(0))
             } else if (button != null) {
                 AccessibilityUtil.performClick(button)
             } else {
                 LogUtils.d("未找到BT按钮")
-                if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定")
+                if (confirm != null) {
                     LogUtils.d("尝试点击确定")
+                    AccessibilityUtil.performClick(confirm)
                 }
             }
         }
     }
-    sleep(1000)
+    sleep(500)
 }
 
 /**

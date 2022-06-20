@@ -20,6 +20,15 @@ object Demo {
         //打印当前视图树
 //        AccessibilityUtil.printNodeClazzTree(getRoot())
 
+        //手机号添加好友
+//        WeworkOperationImpl.addFriendByPhone(WeworkMessageBean.Friend().apply {
+//            this.phone = "13010001000"
+//            this.markName = "hhh"
+//            this.markCorp = "corp"
+//            this.markExtra = "ex"
+//            this.tagList = arrayListOf("tag1", "tag2")
+//        })
+
         //自动通过好友
 //        WeworkLoopImpl.getFriendRequest()
 
