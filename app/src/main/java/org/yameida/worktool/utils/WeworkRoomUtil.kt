@@ -100,6 +100,7 @@ object WeworkRoomUtil {
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
                 AccessibilityUtil.performClick(imageView)
+                sleep(1000)
                 return true
             } else {
                 LogUtils.e("未找到搜索按钮")

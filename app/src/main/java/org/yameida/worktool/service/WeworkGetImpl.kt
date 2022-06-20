@@ -67,7 +67,8 @@ object WeworkGetImpl {
             }
         }
         AccessibilityUtil.performClick(AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView))
-        val relativeLayoutList = AccessibilityUtil.findAllByClazz(getRoot(), Views.RelativeLayout, minSize = 70)
+        sleep(1000)
+        val relativeLayoutList = AccessibilityUtil.findAllByClazz(getRoot(), Views.RelativeLayout, minSize = 50)
         val myInfo = WeworkMessageBean.MyInfo()
         for (relativeLayout in relativeLayoutList.filter { it.childCount >= 2 }) {
             val textViewList = AccessibilityUtil.findAllOnceByClazz(relativeLayout, Views.TextView)
