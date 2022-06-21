@@ -5,6 +5,7 @@ import org.yameida.worktool.utils.AccessibilityUtil.findOneByClazz
 import org.yameida.worktool.utils.AccessibilityUtil.findFrontNode
 import org.yameida.worktool.model.WeworkMessageBean
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 import org.yameida.worktool.service.backPress
 import org.yameida.worktool.service.getRoot
 import org.yameida.worktool.service.goHome
@@ -20,7 +21,7 @@ object WeworkRoomUtil {
      * 房间类型 ROOM_TYPE
      * @see WeworkMessageBean.ROOM_TYPE
      */
-    fun getRoomType(root: AccessibilityNodeInfo): Int {
+    fun getRoomType(root: AccessibilityNodeInfo, print: Boolean = true): Int {
         when {
             isExternalSingleChat(root) -> {
                 LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_CONTACT")
@@ -40,7 +41,7 @@ object WeworkRoomUtil {
                 return WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
             }
             else -> {
-                LogUtils.d("ROOM_TYPE: ROOM_TYPE_UNKNOWN")
+                if (print) LogUtils.d("ROOM_TYPE: ROOM_TYPE_UNKNOWN")
                 return WeworkMessageBean.ROOM_TYPE_UNKNOWN
             }
         }
@@ -66,7 +67,7 @@ object WeworkRoomUtil {
                 }
             }
         }
-        LogUtils.d("getRoomTitle: ", titleList)
+        LogUtils.v("getRoomTitle: ", titleList)
         return titleList
     }
 
@@ -96,11 +97,11 @@ object WeworkRoomUtil {
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(searchButton)
                 AccessibilityUtil.findTextInput(getRoot(), title.replace("…", ""))
-                sleep(1000)
+                sleep(Constant.CHANGE_PAGE_INTERVAL)
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
                 AccessibilityUtil.performClick(imageView)
-                sleep(1000)
+                sleep(Constant.CHANGE_PAGE_INTERVAL)
                 return true
             } else {
                 LogUtils.e("未找到搜索按钮")
@@ -192,7 +193,7 @@ object WeworkRoomUtil {
                 val buttonList = findAllOnceByClazz(textViewList.last().parent.parent, Views.TextView)
                 return buttonList.size == 2
             } else {
-                LogUtils.d("未找到群管理按钮")
+                LogUtils.v("未找到群管理按钮")
             }
         } else {
             LogUtils.d("未找到消息列表")

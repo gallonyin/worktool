@@ -1,6 +1,7 @@
 package org.yameida.worktool.service
 
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.Views
@@ -47,10 +48,10 @@ object WeworkGetImpl {
         if (!goHomeTab("我")) {
             LogUtils.d("未找到我的信息")
             goHomeTab("消息")
-            val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView, root = true)
+            val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
                 .firstOrNull { it.text == null }
             AccessibilityUtil.performClick(firstTv)
-            sleep(1000)
+            sleep(Constant.CHANGE_PAGE_INTERVAL)
             val newFirstTv = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
             val nickname = newFirstTv?.text?.toString()
             AccessibilityUtil.performClick(firstTv)
@@ -67,7 +68,7 @@ object WeworkGetImpl {
             }
         }
         AccessibilityUtil.performClick(AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView))
-        sleep(1000)
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
         val relativeLayoutList = AccessibilityUtil.findAllByClazz(getRoot(), Views.RelativeLayout, minSize = 50)
         val myInfo = WeworkMessageBean.MyInfo()
         for (relativeLayout in relativeLayoutList.filter { it.childCount >= 2 }) {

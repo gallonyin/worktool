@@ -2,6 +2,7 @@ package org.yameida.worktool.service
 
 import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.Views
@@ -58,7 +59,7 @@ object WeworkOperationImpl {
                         "回复"
                     )
                 ) {
-                    LogUtils.d("开始回复")
+                    LogUtils.v("开始回复")
                     sendChatMessage(receivedContent, "[自动回复]")
                     LogUtils.d("$title: 回复成功")
                     WeworkLoopImpl.getChatMessageList()
@@ -203,11 +204,11 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
             AccessibilityUtil.performClick(node)
-            val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button, root = true)
+            val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
                 AccessibilityUtil.findTextInput(getRoot(), objectName)
-                val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView, root = true)
+                val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView)
                 if (imageViewList.size >= 2) {
                     AccessibilityUtil.performClick(imageViewList[1])
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "以原文件分享")
@@ -245,11 +246,11 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
             AccessibilityUtil.performClick(node)
-            val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button, root = true)
+            val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
                 AccessibilityUtil.findTextInput(getRoot(), objectName)
-                val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView, root = true)
+                val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView)
                 if (imageViewList.size >= 2) {
                     AccessibilityUtil.performClick(imageViewList[1])
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
@@ -283,7 +284,7 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "用过的小程序")
         if (node != null) {
             AccessibilityUtil.performClick(node)
-            val textViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView, root = true)
+            val textViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
             if (textViewList.size > 3) {
                 AccessibilityUtil.performClick(textViewList[2])
                 AccessibilityUtil.findTextInput(getRoot(), objectName)
@@ -325,11 +326,11 @@ object WeworkOperationImpl {
             return false
         }
         AccessibilityUtil.performClick(myFileButton)
-        val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button, root = true)
+        val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
         if (buttonList.size >= 4) {
             AccessibilityUtil.performClick(buttonList[3])
             AccessibilityUtil.findTextInput(getRoot(), objectName)
-            val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView, root = true)
+            val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView)
             if (imageViewList.size >= 2) {
                 AccessibilityUtil.performClick(imageViewList[1])
                 val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
@@ -362,26 +363,21 @@ object WeworkOperationImpl {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(multiButton)
-                sleep(500)
-                val listViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView, root = true)
+                sleep(Constant.POP_WINDOW_INTERVAL)
+                val listViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView)
                 if (!listViewList.isNullOrEmpty()) {
                     if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加客户")) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {
-                            val bothUsedTv = AccessibilityUtil.findOneByText(getRoot(), "对方同时使用")
+                            val bothUsedTv = AccessibilityUtil.findOneByText(getRoot(), "对方同时使用", timeout = 2000)
                             if (bothUsedTv != null) {
-                                if (AccessibilityUtil.performClick(
-                                        AccessibilityUtil.findOnceByClazz(
-                                            AccessibilityUtil.findBackNode(bothUsedTv),
-                                            Views.ImageView
-                                        )
+                                AccessibilityUtil.performClick(
+                                    AccessibilityUtil.findOnceByClazz(
+                                        AccessibilityUtil.findBackNode(bothUsedTv),
+                                        Views.ImageView
                                     )
-                                ) {
-                                    sleep(2000)
-                                } else {
-                                    LogUtils.e("未找到可点击图标")
-                                }
+                                )
                             }
                         } else {
                             LogUtils.e("未找到查找手机选项")
@@ -400,7 +396,7 @@ object WeworkOperationImpl {
                             ) {
                                 AccessibilityUtil.performClick(markTv)
                                 val etList =
-                                    AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, root = true, minSize = 5)
+                                    AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
                                 if (etList.size >= 5) {
                                     if (friend.markName != null) {
                                         AccessibilityUtil.editTextInput(etList[0], friend.markName)
@@ -413,14 +409,11 @@ object WeworkOperationImpl {
                                     }
                                 }
                                 AccessibilityUtil.findTextAndClick(getRoot(), "保存")
-                                sleep(2000)
                             }
                             //设置标签
                             if (!friend.tagList.isNullOrEmpty()) {
                                 if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
-                                    sleep(1000)
                                     setFriendTags(friend.tagList)
-                                    sleep(1000)
                                 }
                             }
                             //添加联系人
@@ -440,7 +433,6 @@ object WeworkOperationImpl {
                             }
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
                                 LogUtils.d("添加好友成功: " + friend.phone)
-                                sleep(2000)
                                 if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请")) {
                                     LogUtils.d("发送添加邀请成功: " + friend.phone)
                                 }
@@ -787,51 +779,51 @@ object WeworkOperationImpl {
     private fun setFriendTags(tagList: List<String>): Boolean {
         val tagList = if (tagList.size > 5) tagList.subList(0, 5) else tagList
         val tvTag = AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull()
-        if (tvTag != null) {
-            val list = AccessibilityUtil.findBackNode(tvTag)
-            if (list != null && list.childCount > 0) {
-                LogUtils.v("list.childCount: " + list.childCount)
-                val tvAdd = list.getChild(0)
-                val oldTagList = arrayListOf<String>()
-                for (i in 0 until list.childCount) {
-                    val child = list.getChild(i)
-                    if (child.className.equals(Views.TextView) && child.text != null) {
-                        oldTagList.add(child.text.toString())
-                    }
+        val oldTagList = arrayListOf<String>()
+        val list = AccessibilityUtil.findBackNode(tvTag)
+        if (list != null && list.childCount > 0) {
+            for (i in 0 until list.childCount) {
+                val child = list.getChild(i)
+                if (child.className.equals(Views.TextView) && child.text != null) {
+                    oldTagList.add(child.text.toString())
                 }
-                //不存在的标签先添加
-                for (tag in tagList) {
-                    if (!oldTagList.contains(tag)) {
-                        AccessibilityUtil.performClick(tvAdd)
-                        sleep(500)
+            }
+            //不存在的标签先添加
+            for (tag in tagList) {
+                if (!oldTagList.contains(tag)) {
+                    AccessibilityUtil.findOneByText(getRoot(), "个人标签")
+                    sleep(Constant.POP_WINDOW_INTERVAL)
+                    val tempList = AccessibilityUtil.findBackNode(
+                        AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull())
+                    if (tempList != null && tempList.childCount > 0) {
+                        AccessibilityUtil.performClick(tempList.getChild(0))
                         AccessibilityUtil.findTextInput(getRoot(), tag)
                         AccessibilityUtil.findTextAndClick(getRoot(), "确定")
-                        sleep(1000)
                     }
                 }
-                //确认只选择列表里的标签
-                val count = list.childCount
-                for (i in 0 until count) {
-                    val child = list.getChild(i)
-                    if (child != null) {
-                        val text = child.text
-                        val selected = child.isSelected
-                        LogUtils.v("text: $text selected: $selected")
-                        if (tagList.count { it == text } > 0) {
-                            if (!selected) {
-                                AccessibilityUtil.performClick(child)
-                            }
-                        } else {
-                            if (selected) {
-                                AccessibilityUtil.performClick(child)
-                            }
+            }
+            //确认只选择列表里的标签
+            val count = list.childCount
+            for (i in 0 until count) {
+                val child = list.getChild(i)
+                if (child != null) {
+                    val text = child.text
+                    val selected = child.isSelected
+                    LogUtils.v("text: $text selected: $selected")
+                    if (tagList.count { it == text } > 0) {
+                        if (!selected) {
+                            AccessibilityUtil.performClick(child)
+                        }
+                    } else {
+                        if (selected) {
+                            AccessibilityUtil.performClick(child)
                         }
                     }
-                    list.refresh()
                 }
-                if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
-                    return true
-                }
+                list.refresh()
+            }
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+                return true
             }
         }
         LogUtils.e("未找到个人标签")

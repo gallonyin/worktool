@@ -309,7 +309,7 @@ object WeworkTextUtil {
     private fun longClickMessageItem(item: AccessibilityNodeInfo, key: String): Boolean {
         val backNode = getMessageListNode(item)
         AccessibilityUtil.performLongClickWithSon(backNode)
-        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, root = true)
+        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView)
         for (optionRv in optionRvList) {
             val optionTvList = findAllOnceByClazz(optionRv, Views.TextView)
             for (optionTv in optionTvList) {

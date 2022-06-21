@@ -4,6 +4,7 @@ import android.os.Message
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
@@ -40,7 +41,7 @@ object WeworkLoopImpl {
         mainLoopRunning = true
         try {
             while (mainLoopRunning) {
-                if (WeworkRoomUtil.getRoomType(getRoot()) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
+                if (WeworkRoomUtil.getRoomType(getRoot(), false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
                     && getChatMessageList()) {
                 }
                 goHomeTab("消息")
@@ -72,22 +73,22 @@ object WeworkLoopImpl {
                     AccessibilityUtil.performClick(item)
                     val addButton = AccessibilityUtil.findOneByText(getRoot(), "添加客户")
                     val backNode = AccessibilityUtil.findBackNode(addButton)
-                    LogUtils.d(backNode?.className)
                     if (backNode?.className == Views.TextView) {
                         LogUtils.d("有待添加客户")
                         AccessibilityUtil.performClick(backNode)
-                        sleep(2000)
                         AccessibilityUtil.findTextAndClick(getRoot(), "新的客户")
-                        sleep(500)
                         var retry = 5
                         while (retry-- > 0) {
-                            if (!AccessibilityUtil.findTextAndClick(getRoot(), "查看"))
+                            val checkButton = AccessibilityUtil.findOneByText(getRoot(), "查看", timeout = 2000)
+                            if (checkButton == null) {
                                 break
-                            sleep(2000)
-                            val nameList = passFriendRequest()
-                            if (nameList.isEmpty())
-                                break
-                            //TODO nameList 通过的好友加入演示脚本
+                            } else {
+                                sleep(Constant.CHANGE_PAGE_INTERVAL)
+                                val nameList = passFriendRequest()
+                                if (nameList.isEmpty())
+                                    break
+                                //TODO nameList 通过的好友加入演示脚本
+                            }
                         }
                         return true
                     } else {
@@ -115,11 +116,11 @@ object WeworkLoopImpl {
         }
         if (titleList.size > 0) {
             val title = titleList.joinToString()
-            LogUtils.i("聊天: $title")
+            LogUtils.v("聊天: $title")
             log("聊天: $title")
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
             if (list != null) {
-                LogUtils.d("消息条数: " + list.childCount)
+                LogUtils.v("消息条数: " + list.childCount)
                 val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
                 for (i in 0 until list.childCount) {
                     val item = list.getChild(i)
@@ -162,11 +163,8 @@ object WeworkLoopImpl {
                 val tvNick = filter[0]
                 LogUtils.d("好友请求: " + tvNick.text)
                 AccessibilityUtil.findTextAndClick(getRoot(), "通过验证")
-                sleep(1000)
                 AccessibilityUtil.findTextAndClick(getRoot(), "完成")
-                sleep(5000)
                 if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
-                    sleep(500)
                     LogUtils.d("添加好友失败")
                 } else {
                     val weworkMessageBean = WeworkMessageBean()
@@ -192,6 +190,7 @@ object WeworkLoopImpl {
      * 读取聊天列表
      */
     private fun getChatroomList(): Boolean {
+        if (!isAtHome()) return true
         if (logIndex % 3 == 0) {
             AccessibilityUtil.performScrollUp(getRoot(), 0)
             AccessibilityUtil.performScrollUp(getRoot(), 0)
@@ -199,6 +198,7 @@ object WeworkLoopImpl {
         } else if (logIndex % 120 < 3) {
             AccessibilityUtil.performScrollDown(getRoot(), 0)
         }
+        if (!isAtHome()) return true
         if (logIndex++ % 15 == 0) {
             LogUtils.i("读取首页聊天列表")
             log("读取首页聊天列表")
@@ -267,7 +267,7 @@ object WeworkLoopImpl {
         val message: WeworkMessageBean.SubMessageBean
         val nameList = arrayListOf<String>()
         val itemMessageList = arrayListOf<WeworkMessageBean.ItemMessageBean>()
-        LogUtils.d("开始解析一条消息...")
+        LogUtils.v("开始解析一条消息...")
         //消息头(在消息主体上方 如时间信息)
         val linearLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.LinearLayout, 1)
         if (linearLayoutItem != null) {
@@ -279,7 +279,7 @@ object WeworkLoopImpl {
                 sb.append(text).append("\t")
                 itemMessageList.add(itemMessage)
             }
-            LogUtils.d(sb.toString())
+            LogUtils.v(sb.toString())
         }
         //消息主体
         val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, 1)
@@ -297,7 +297,7 @@ object WeworkLoopImpl {
                         AccessibilityUtil.findAllOnceByClazz(relativeLayoutContent, Views.TextView)
                     for (item in tvList.filter { it.text != null && !it.text.isNullOrBlank() }) {
                         val text = item.text.toString()
-                        LogUtils.d(text)
+                        LogUtils.v(text)
                         if (text !in stopWords) {
                             val itemMessage = WeworkMessageBean.ItemMessageBean(2, text)
                             itemMessageList.add(itemMessage)
@@ -307,13 +307,19 @@ object WeworkLoopImpl {
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
             } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
                 LogUtils.v("头像在右边 本条消息发送者为自己")
-                val tvList = AccessibilityUtil.findAllOnceByClazz(relativeLayoutItem, Views.TextView)
-                for (item in tvList.filter { it.text != null && !it.text.isNullOrBlank() }) {
-                    val text = item.text.toString()
-                    LogUtils.d(text)
-                    if (text !in stopWords) {
-                        val itemMessage = WeworkMessageBean.ItemMessageBean(2, text)
-                        itemMessageList.add(itemMessage)
+                val subLayout = relativeLayoutItem.getChild(0)
+                if (subLayout.childCount > 0) {
+                    val tvList = AccessibilityUtil.findAllOnceByClazz(
+                        subLayout.getChild(subLayout.childCount - 1),
+                        Views.TextView
+                    )
+                    for (item in tvList.filter { it.text != null && !it.text.isNullOrBlank() }) {
+                        val text = item.text.toString()
+                        LogUtils.v(text)
+                        if (text !in stopWords) {
+                            val itemMessage = WeworkMessageBean.ItemMessageBean(2, text)
+                            itemMessageList.add(itemMessage)
+                        }
                     }
                 }
                 message = WeworkMessageBean.SubMessageBean(1, 0, itemMessageList, nameList)
@@ -322,7 +328,7 @@ object WeworkLoopImpl {
                 val tvList = AccessibilityUtil.findAllOnceByClazz(node, Views.TextView)
                 for (item in tvList.filter { it.text != null && !it.text.isNullOrBlank() }) {
                     val text = item.text.toString()
-                    LogUtils.d(text)
+                    LogUtils.v(text)
                     val itemMessage = WeworkMessageBean.ItemMessageBean(1, text)
                     itemMessageList.add(itemMessage)
                 }
@@ -341,7 +347,7 @@ object WeworkLoopImpl {
                     itemMessageList.add(itemMessage)
                 }
             }
-            LogUtils.d(sb.toString())
+            LogUtils.v(sb.toString())
             message = WeworkMessageBean.SubMessageBean(2, 0, itemMessageList, nameList)
         }
         return message
