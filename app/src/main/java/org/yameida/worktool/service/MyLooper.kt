@@ -76,15 +76,8 @@ object MyLooper {
             }
             //去重处理 丢弃之前的重复指令 丢弃之前的获取新消息指令
             for (message in LinkedHashSet(messageList.list)) {
-                getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
                 if (message.type == WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE) {
                     WeworkController.enableLoopRunning = true
-                    if (!WeworkController.mainLoopRunning) {
-                        getInstance().sendMessage(Message.obtain().apply {
-                            what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
-                            obj = message
-                        })
-                    }
                 } else {
                     WeworkController.mainLoopRunning = false
                     getInstance().removeMessages(message.type * message.hashCode())
@@ -93,6 +86,11 @@ object MyLooper {
                         obj = message
                     })
                 }
+                getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
+                getInstance().sendMessage(Message.obtain().apply {
+                    what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
+                    obj = WeworkMessageBean().apply { type = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE }
+                })
             }
         }
     }

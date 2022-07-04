@@ -61,5 +61,7 @@ dependencies {
     //自动更新
     implementation 'com.teprinciple:updateapputilsx:2.3.0'
     //ok
-    api 'com.lzy.net:okgo:3.0.4'
+    implementation 'com.lzy.net:okgo:3.0.4'
+    //qrcode
+    implementation 'com.github.yoojia:next-qrcode:2.0-2'
 }

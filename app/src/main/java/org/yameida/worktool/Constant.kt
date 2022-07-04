@@ -11,6 +11,7 @@ object Constant {
     const val CHANGE_PAGE_INTERVAL = 1000L
     const val POP_WINDOW_INTERVAL = 500L
 
+    var myName = ""
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
     val transformation = "AES/CBC/PKCS7Padding"

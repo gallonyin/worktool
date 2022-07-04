@@ -1,6 +1,6 @@
 package org.yameida.worktool.service
 
-import android.os.Message
+import android.os.Build
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
@@ -19,39 +19,22 @@ object WeworkLoopImpl {
     val stopWords = arrayListOf("解析中")
     var logIndex = 0
 
-    /**
-     * 如果远端开启接收新消息则本地自动在队列任务结束后调用接收新消息
-     * 该方法在每个任务结束时调用
-     */
-    fun startLoop(delay: Long = 0) {
-        LogUtils.d("startLoop() delay: $delay")
-        val myLooper = MyLooper.getInstance()
-        if (WeworkController.enableLoopRunning) {
-            myLooper.removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
-            if (!mainLoopRunning) {
-                myLooper.sendMessageDelayed(Message.obtain().apply {
-                    what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
-                    obj = WeworkMessageBean().apply { type = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE }
-                }, delay)
-            }
-        }
-    }
-
     fun mainLoop() {
+        if (!WeworkController.enableLoopRunning)
+            return
         mainLoopRunning = true
         try {
             while (mainLoopRunning) {
                 if (WeworkRoomUtil.getRoomType(getRoot(), false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
                     && getChatMessageList()) {
                 }
+                if (!mainLoopRunning) break
                 goHomeTab("消息")
-                if (getChatroomList() && getChatMessageList()) {
-                    mainLoopRunning = false
-                    break
+                if (!mainLoopRunning) break
+                if (getChatroomList()) {
                 }
+                if (!mainLoopRunning) break
                 if (getFriendRequest()) {
-                    mainLoopRunning = false
-                    break
                 }
                 sleep(500)
             }
@@ -107,7 +90,7 @@ object WeworkLoopImpl {
      * 1.获取群名
      * 2.获取消息列表
      */
-    fun getChatMessageList(): Boolean {
+    fun getChatMessageList(timeout: Long = 3000): Boolean {
         AccessibilityUtil.performScrollDown(getRoot(), 0)
         val roomType = WeworkRoomUtil.getRoomType(getRoot())
         var titleList = WeworkRoomUtil.getRoomTitle(getRoot())
@@ -138,9 +121,27 @@ object WeworkLoopImpl {
                         null
                     )
                 )
-                //todo 推迟执行获取新消息
-                //检查如果当前房间最后一条消息未变化则不推迟
-                startLoop(3500)
+                val lastMessage = messageList.lastOrNull { it.sender == 0 }
+                if (lastMessage != null) {
+                    var tempContent = ""
+                    for (itemMessage in lastMessage.itemMessageList) {
+                        if (itemMessage.text.contains("@" + Constant.myName)
+                            || itemMessage.text.isDigitsOnly()) {
+                            tempContent = itemMessage.text
+                        }
+                    }
+                    if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
+                        || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
+                        || tempContent.isNotBlank()) {
+                        LogUtils.v("推测需要回复: $tempContent")
+                        val startTime = System.currentTimeMillis()
+                        var currentTime = startTime
+                        while (mainLoopRunning && currentTime - startTime <= timeout) {
+                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                            currentTime = System.currentTimeMillis()
+                        }
+                    }
+                }
                 return true
             } else {
                 LogUtils.e("未找到聊天消息列表")
@@ -245,10 +246,14 @@ object WeworkLoopImpl {
         if (spotNodeList.size > 0) {
             LogUtils.i("发现未读消息: " + spotNodeList.size + "条")
             log("发现未读消息: " + spotNodeList.size + "条")
-            for (spotNode in spotNodeList) {
-                if (AccessibilityUtil.performClick(spotNode)) {
-                    //进入聊天页 下一步 getChatMessageList
-                    break
+            if (AccessibilityUtil.performClick(spotNodeList.first())) {
+                //进入聊天页 下一步 getChatMessageList
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    AccessibilityUtil
+                        .clickByNode(WeworkController.weworkService, spotNodeList.first().parent)
+                } else {
+                    LogUtils.e("请将手机版本提升到 Android 7.0+ 或将企业微信版本回退到 4.0.8之前(4.0.6可用)")
                 }
             }
             return true

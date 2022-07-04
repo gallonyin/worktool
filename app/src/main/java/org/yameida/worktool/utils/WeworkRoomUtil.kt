@@ -100,14 +100,19 @@ object WeworkRoomUtil {
                 sleep(Constant.CHANGE_PAGE_INTERVAL)
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
-                AccessibilityUtil.performClick(imageView)
-                sleep(Constant.CHANGE_PAGE_INTERVAL)
-                return true
+                if (imageView != null) {
+                    AccessibilityUtil.performClick(imageView)
+                    sleep(Constant.CHANGE_PAGE_INTERVAL)
+                    return true
+                } else {
+                    LogUtils.e("未搜索到结果")
+                }
             } else {
                 LogUtils.e("未找到搜索按钮")
             }
+        } else {
+            LogUtils.e("未找到聊天列表")
         }
-        LogUtils.e("未找到聊天列表")
         return false
     }
 
@@ -127,6 +132,7 @@ object WeworkRoomUtil {
             if (textViewList.size >= 2) {
                 val multiButton = textViewList.lastOrNull()
                 AccessibilityUtil.performClick(multiButton)
+                sleep(Constant.CHANGE_PAGE_INTERVAL)
                 return true
             } else {
                 LogUtils.e("未找到群管理按钮")
@@ -178,6 +184,13 @@ object WeworkRoomUtil {
             }
         }
         return titleList
+    }
+
+    /**
+     * 群名是否存在
+     */
+    fun isGroupExists(groupName: String): Boolean {
+        return intoRoom(groupName)
     }
 
     /**

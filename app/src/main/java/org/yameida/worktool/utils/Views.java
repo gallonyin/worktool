@@ -12,4 +12,5 @@ public class Views {
     public static String GridView = "android.widget.GridView";
     public static String RelativeLayout = "android.widget.RelativeLayout";
     public static String LinearLayout = "android.widget.LinearLayout";
+    public static String ProgressBar = "android.widget.ProgressBar";
 }

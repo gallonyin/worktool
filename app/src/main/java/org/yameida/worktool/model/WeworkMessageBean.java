@@ -58,6 +58,9 @@ public class WeworkMessageBean {
     public static final int PASS_ALL_FRIEND_REQUEST = 212;
     public static final int ADD_FRIEND_BY_PHONE = 213;
     public static final int SHOW_GROUP_INFO = 214;
+    public static final int INIT_ANTI_HARASSMENT_RULE = 215;
+    public static final int UPDATE_ANTI_HARASSMENT_RULE = 216;
+    public static final int DELETED_ANTI_HARASSMENT_RULE = 217;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -66,6 +69,7 @@ public class WeworkMessageBean {
     public static final int GET_GROUP_INFO = 501;
     public static final int GET_FRIEND_INFO = 502;
     public static final int GET_MY_INFO = 503;
+    public static final int GET_GROUP_QRCODE = 504;
 
     /**
      * roomType
@@ -166,6 +170,8 @@ public class WeworkMessageBean {
     public MyInfo myInfo;
     //对象名称(图片、文件、小程序等)
     public String objectName;
+    //二维码转码
+    public String qrcode;
 
     //添加好友
     public Friend friend;

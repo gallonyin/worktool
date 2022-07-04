@@ -56,7 +56,8 @@ object WeworkGetImpl {
             val nickname = newFirstTv?.text?.toString()
             AccessibilityUtil.performClick(firstTv)
             if (nickname != null) {
-                LogUtils.d("我的昵称: $nickname")
+                Constant.myName = nickname
+                LogUtils.d("我的昵称: ${Constant.myName}")
                 val weworkMessageBean = WeworkMessageBean()
                 weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
                 weworkMessageBean.myInfo = WeworkMessageBean.MyInfo().apply { name = nickname }
@@ -77,6 +78,8 @@ object WeworkGetImpl {
                 val firstText = textViewList[0].text?.toString()
                 if (firstText == "姓名" && myInfo.name == null) {
                     myInfo.name = textViewList[1].text?.toString() ?: ""
+                    Constant.myName = myInfo.name
+                    LogUtils.d("我的昵称: ${Constant.myName}")
                 }
                 if (firstText == "别名" && myInfo.alias == null) {
                     myInfo.alias = textViewList[1].text?.toString() ?: ""
@@ -106,7 +109,6 @@ object WeworkGetImpl {
         weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
         weworkMessageBean.myInfo = myInfo
         WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
-        WeworkLoopImpl.startLoop()
         return true
     }
 

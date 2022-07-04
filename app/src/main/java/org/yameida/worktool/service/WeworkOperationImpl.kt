@@ -1,13 +1,16 @@
 package org.yameida.worktool.service
 
 import android.view.accessibility.AccessibilityNodeInfo
-import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.Views
 import org.yameida.worktool.utils.WeworkRoomUtil
 import org.yameida.worktool.utils.WeworkTextUtil
+import com.github.yoojia.qrcode.qrcode.QRCodeDecoder
+import com.blankj.utilcode.util.*
+import java.lang.Exception
+
 
 /**
  * 全局操作类型 200 实现类
@@ -145,11 +148,74 @@ object WeworkOperationImpl {
         selectList: List<String>?,
         groupAnnouncement: String?
     ): Boolean {
-        if (!createGroup() || !groupRename(groupName) || !groupAddMember(selectList)
-            || !groupChangeAnnouncement(groupAnnouncement)
-        ) return false
-        backPress()
+        if (!WeworkRoomUtil.isGroupExists(groupName)) {
+            if (!createGroup() || !groupRename(groupName) || !groupAddMember(selectList)
+                || !groupChangeAnnouncement(groupAnnouncement)
+            ) return false
+        } else {
+            if (!groupRename(groupName) || !groupAddMember(selectList)
+                || !groupChangeAnnouncement(groupAnnouncement)
+            ) return false
+        }
+        getGroupQrcode(groupName)
         return true
+    }
+
+    fun getGroupQrcode(groupName: String): Boolean {
+        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+            val tvList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.TextView)
+            tvList.forEachIndexed { index, tv ->
+                if (tv.text != null && tv.text.contains("微信用户创建")) {
+                    if (index + 1 < tvList.size) {
+                        val tvQr = tvList[index + 1]
+                        AccessibilityUtil.performClick(tvQr)
+                    }
+                }
+            }
+            AccessibilityUtil.findOneByText(getRoot(), "保存到相册")
+            val startTime = System.currentTimeMillis()
+            var currentTime = startTime
+            while (currentTime - startTime <= Constant.CHANGE_PAGE_INTERVAL * 5) {
+                AccessibilityUtil.findOnceByClazz(getRoot(), Views.ProgressBar) ?: break
+                sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                currentTime = System.currentTimeMillis()
+            }
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "保存到相册")) {
+                sleep(Constant.CHANGE_PAGE_INTERVAL)
+                val fileDirPath = "/storage/emulated/0/DCIM/WeixinWork"
+                val fileDir = FileUtils.getFileByPath(fileDirPath)
+                if (fileDir.isDirectory) {
+                    for (file in fileDir.listFiles().filter { it.name.endsWith(".jpg") }) {
+                        val fileTime = file.name.replace("mmexport", "")
+                            .replace(".jpg", "")
+                        LogUtils.v("fileTime: $fileTime")
+                        if (fileTime.isNotBlank()) {
+                            if (fileTime.toLong() > currentTime) {
+                                LogUtils.d("找到最新保存二维码图片: $fileTime")
+                                try {
+                                    val bitmap = ImageUtils.bytes2Bitmap(file.readBytes())
+                                    val mDecoder = QRCodeDecoder.Builder().build()
+                                    val qrcode = mDecoder.decode(bitmap)
+                                    LogUtils.e("group: $groupName qrcode: $qrcode")
+                                    val weworkMessageBean = WeworkMessageBean()
+                                    weworkMessageBean.type = WeworkMessageBean.GET_GROUP_QRCODE
+                                    weworkMessageBean.groupName = groupName
+                                    weworkMessageBean.qrcode = qrcode
+                                    WeworkController.weworkService.webSocketManager.send(
+                                        weworkMessageBean
+                                    )
+                                    return true
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    LogUtils.e(e)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false
     }
 
     /**
@@ -284,12 +350,12 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "用过的小程序")
         if (node != null) {
             AccessibilityUtil.performClick(node)
+            sleep(Constant.CHANGE_PAGE_INTERVAL)
             val textViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
             if (textViewList.size > 3) {
                 AccessibilityUtil.performClick(textViewList[2])
                 AccessibilityUtil.findTextInput(getRoot(), objectName)
-                sleep(2000)
-                AccessibilityUtil.findListOneAndClick(getRoot(), 1)
+                AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
                 sleep(2000)
                 //todo 转发小程序
                 return true

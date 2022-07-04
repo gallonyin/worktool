@@ -33,7 +33,7 @@ object WeworkController {
      */
     @RequestMapping
     fun loopReceiveNewMessage() {
-        LogUtils.d("loopReceiveNewMessage()")
+        LogUtils.d("loopReceiveNewMessage() enableLoopRunning: $enableLoopRunning")
         WeworkLoopImpl.mainLoop()
     }
 

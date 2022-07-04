@@ -1,11 +1,15 @@
 package org.yameida.worktool.utils
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityService.GestureResultCallback
 import android.accessibilityservice.GestureDescription
+import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.annotation.TargetApi
 import android.app.Notification
 import android.app.PendingIntent
 import android.graphics.Path
+import android.graphics.Point
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +19,7 @@ import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.service.getRoot
 import java.lang.Exception
 import java.lang.Thread.sleep
+import androidx.annotation.RequiresApi
 
 /**
  * 1.查询类
@@ -639,4 +644,33 @@ object AccessibilityUtil {
         }
     }
 
+    /**
+     * Gesture手势实现点击(Android7+)
+     * 解决 clickable=false 无法点击问题
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    fun clickByNode(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo
+    ): Boolean {
+        val rect = Rect()
+        nodeInfo.getBoundsInScreen(rect)
+        val x: Int = (rect.left + rect.right) / 2
+        val y: Int = (rect.top + rect.bottom) / 2
+        val point = Point(x, y)
+        val builder = GestureDescription.Builder()
+        val path = Path()
+        path.moveTo(point.x.toFloat(), point.y.toFloat())
+        builder.addStroke(StrokeDescription(path, 0L, 100L))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.e("click okk onCompleted")
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.e("click okk onCancelled")
+            }
+        }, null)
+    }
 }

@@ -91,7 +91,9 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 return root
             } else {
                 LogUtils.e("当前不在企业微信: ${root.packageName}")
-                error("当前不在企业微信: ${root.packageName}")
+                if (System.currentTimeMillis() % 30 == 0L) {
+                    error("当前不在企业微信: ${root.packageName}")
+                }
                 if (ignoreCheck) {
                     return root
                 }
@@ -123,8 +125,10 @@ fun backPress() {
             } else {
                 LogUtils.d("未找到BT按钮")
                 val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定")
+                    ?: AccessibilityUtil.findOnceByText(getRoot(), "我知道了")
+                    ?: AccessibilityUtil.findOnceByText(getRoot(), "暂不进入")
                 if (confirm != null) {
-                    LogUtils.d("尝试点击确定")
+                    LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)
                 }
             }

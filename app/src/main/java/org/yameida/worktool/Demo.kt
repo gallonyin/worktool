@@ -20,6 +20,9 @@ object Demo {
         //打印当前视图树
 //        AccessibilityUtil.printNodeClazzTree(getRoot())
 
+        //获取群二维码
+//        WeworkOperationImpl.getGroupQrcode("测试群01")
+
         //手机号添加好友
 //        WeworkOperationImpl.addFriendByPhone(WeworkMessageBean.Friend().apply {
 //            this.phone = "13010001000"

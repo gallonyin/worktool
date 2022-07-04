@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils.SimpleStringSplitter
+import android.view.WindowManager
 import android.widget.CompoundButton
 import android.widget.Switch
 import androidx.appcompat.app.AlertDialog
@@ -22,12 +23,14 @@ class ListenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         title = "WorkTool"
         setContentView(R.layout.activity_listen)
 
         initView()
         initAccessibility()
         UpdateUtil.checkUpdate()
+        PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
     }
 
     override fun onStart() {

@@ -77,21 +77,21 @@ public class WebSocketManager {
     }
 
     public void send(WeworkMessageListBean msg) {
-        send(msg, false);
+        send(msg, msg.getSocketType() == 2);
     }
 
     public void send(WeworkMessageListBean msg, boolean log) {
         String json = GsonUtils.toJson(msg);
-        boolean suc = socket.send(json);
-        if (log)
-            LogUtils.v(url, json, (suc ? "通讯消息发送成功！" : "通讯消息发送失败！"));
-        else
-            LogUtils.e(url, json, (suc ? "通讯消息发送成功！" : "通讯消息发送失败！"));
+        boolean success = socket.send(json);
+        if (log && success)
+            LogUtils.d(url, json, "通讯消息发送成功！");
+        if (!success)
+            LogUtils.e(url, json, "通讯消息发送失败！");
     }
 
     public void send(String msg) {
-        boolean suc = socket.send(msg);
-        LogUtils.e(url, msg, (suc ? "通讯消息发送成功！" : "通讯消息发送失败！"));
+        boolean success = socket.send(msg);
+        LogUtils.e(url, msg, (success ? "通讯消息发送成功！" : "通讯消息发送失败！"));
     }
 
     public void close(int code, String reason) {
