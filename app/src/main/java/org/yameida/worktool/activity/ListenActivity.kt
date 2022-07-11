@@ -72,6 +72,8 @@ class ListenActivity : AppCompatActivity() {
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!isAccessibilitySettingOn()) {
                     openAccessibility()
+                } else {
+                    openAccessibility()
                 }
             } else {
                 if (isAccessibilitySettingOn()) {
