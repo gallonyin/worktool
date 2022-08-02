@@ -5,6 +5,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.Demo
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
@@ -72,7 +73,7 @@ object WeworkLoopImpl {
                                 val nameList = passFriendRequest()
                                 if (nameList.isEmpty())
                                     break
-                                //TODO nameList 通过的好友加入演示脚本
+                                Demo.test2(nameList[0])
                             }
                         }
                         return true
