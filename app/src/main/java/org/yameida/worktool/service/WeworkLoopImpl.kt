@@ -54,18 +54,20 @@ object WeworkLoopImpl {
                 if (item.parent.childCount > 1) {
                     LogUtils.d("通讯录有红点")
                     AccessibilityUtil.performClick(item)
-                    val addButton = AccessibilityUtil.findOneByText(getRoot(), "添加客户")
+                    val addButton = AccessibilityUtil.findOneByText(getRoot(), "添加")
                     val backNode = AccessibilityUtil.findBackNode(addButton)
                     if (backNode?.className == Views.TextView) {
                         LogUtils.d("有待添加客户")
                         AccessibilityUtil.performClick(backNode)
-                        AccessibilityUtil.findTextAndClick(getRoot(), "新的客户")
+                        AccessibilityUtil.findTextAndClick(getRoot(), "新的")
+                        sleep(Constant.POP_WINDOW_INTERVAL)
                         var retry = 5
                         while (retry-- > 0) {
                             val checkButton = AccessibilityUtil.findOneByText(getRoot(), "查看", timeout = 2000)
                             if (checkButton == null) {
                                 break
                             } else {
+                                AccessibilityUtil.performClick(checkButton)
                                 sleep(Constant.CHANGE_PAGE_INTERVAL)
                                 val nameList = passFriendRequest()
                                 if (nameList.isEmpty())
@@ -170,7 +172,10 @@ object WeworkLoopImpl {
                 } else {
                     val weworkMessageBean = WeworkMessageBean()
                     weworkMessageBean.type = WeworkMessageBean.GET_FRIEND_INFO
-                    weworkMessageBean.nameList = arrayListOf(tvNick.text.toString())
+                    weworkMessageBean.friend = WeworkMessageBean.Friend().apply {
+                        name = tvNick.text.toString()
+                        newFriend = true
+                    }
                     WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
                     nameList.add(tvNick.text.toString())
                 }

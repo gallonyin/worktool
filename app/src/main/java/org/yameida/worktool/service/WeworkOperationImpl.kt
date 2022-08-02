@@ -432,7 +432,8 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 val listViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView)
                 if (!listViewList.isNullOrEmpty()) {
-                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加客户")) {
+//                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加客户")) {
+                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加")) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {

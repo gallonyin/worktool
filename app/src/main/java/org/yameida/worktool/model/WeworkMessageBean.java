@@ -247,6 +247,8 @@ public class WeworkMessageBean {
         public String markExtra;
         //备注标签(推荐)
         public List<String> tagList;
+        //是否是新好友
+        public Boolean newFriend;
     }
 
     @Override
