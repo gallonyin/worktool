@@ -5,7 +5,7 @@ import org.yameida.worktool.config.WebConfig
 
 object Constant {
 
-    val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10")
+    val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10", "4.0.12")
     const val PACKAGE_NAMES = "com.tencent.wework"
     val BASE_URL = WebConfig.HOST.replace("wss", "https").replace("ws", "http")
     val URL_CHECK_UPDATE = "$BASE_URL/appUpdate/checkUpdate"
