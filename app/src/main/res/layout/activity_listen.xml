@@ -150,6 +150,40 @@
                 </LinearLayout>
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_marginEnd="@dimen/setting_end_padding"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="企业微信版本"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:id="@+id/tv_work_version"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="4.0.2"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/setting_end_font_size" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -237,6 +271,41 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/setting_start_padding"
                 android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_start_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <Switch
+                    android:id="@+id/sw_auto_reply"
+                    android:layout_width="@dimen/setting_end_font_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_end_start_padding" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_toStartOf="@id/sw_auto_reply"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="开启自动回复"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
                 android:paddingEnd="@dimen/setting_end_padding"
                 android:paddingBottom="@dimen/setting_vertical_padding">
 
@@ -273,13 +342,13 @@
                 android:orientation="vertical">
 
                 <Button
+                    android:id="@+id/bt_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="50dp"
-                    android:paddingEnd="50dp"
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/comment_red_btn"
-                    android:id="@+id/bt_save"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="50dp"
                     android:text="保存" />
 
 

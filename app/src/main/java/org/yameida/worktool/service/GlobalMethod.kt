@@ -30,7 +30,7 @@ fun goHomeTab(title: String): Boolean {
     var atHome = false
     var find = false
     while (!atHome) {
-        val list = AccessibilityUtil.findAllByText(getRoot(), "消息", timeout = 0)
+        val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
             if (item.parent.parent.parent.childCount == 5) {
                 //处理侧边栏抽屉打开
@@ -42,7 +42,7 @@ fun goHomeTab(title: String): Boolean {
                     }
                 }
                 atHome = true
-                val tempList = AccessibilityUtil.findAllByText(getRoot(), title, timeout = 0)
+                val tempList = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
                 for (tempItem in tempList) {
                     if (tempItem.parent.parent.parent.childCount == 5) {
                         AccessibilityUtil.performClick(tempItem)
@@ -64,7 +64,7 @@ fun goHomeTab(title: String): Boolean {
  * 当前是否在首页
  */
 fun isAtHome(): Boolean {
-    val list = AccessibilityUtil.findAllByText(getRoot(), "消息", timeout = 0)
+    val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
     return list.count { it.parent.parent.parent.childCount == 5 } > 0
 }
 
@@ -85,8 +85,7 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
         val root = WeworkController.weworkService.rootInActiveWindow
         if (tempRoot != root) {
             LogUtils.e("tempRoot != root")
-        }
-        if (root != null) {
+        } else if (root != null) {
             if (root.packageName == Constant.PACKAGE_NAMES) {
                 return root
             } else {
@@ -124,9 +123,7 @@ fun backPress() {
                 AccessibilityUtil.performClick(button)
             } else {
                 LogUtils.d("未找到BT按钮")
-                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定")
-                    ?: AccessibilityUtil.findOnceByText(getRoot(), "我知道了")
-                    ?: AccessibilityUtil.findOnceByText(getRoot(), "暂不进入")
+                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定", "我知道了", "暂不进入", "不用了", "取消")
                 if (confirm != null) {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)

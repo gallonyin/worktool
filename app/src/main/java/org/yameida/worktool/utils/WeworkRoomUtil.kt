@@ -21,22 +21,22 @@ object WeworkRoomUtil {
      * 房间类型 ROOM_TYPE
      * @see WeworkMessageBean.ROOM_TYPE
      */
-    fun getRoomType(root: AccessibilityNodeInfo, print: Boolean = true): Int {
+    fun getRoomType(print: Boolean = true): Int {
+        val roomTitle = getRoomTitle()
         when {
-            isExternalSingleChat(root) -> {
+            isExternalSingleChat(roomTitle) -> {
                 LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_CONTACT")
                 return WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
             }
-            isGroupChat(root) -> {
-                return if (isExternalGroup(root)) {
-                    LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_GROUP")
-                    WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
-                } else {
-                    LogUtils.d("ROOM_TYPE: ROOM_TYPE_INTERNAL_GROUP")
-                    WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
-                }
+            isExternalGroup() -> {
+                LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_GROUP")
+                return WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
             }
-            isSingleChat(root) -> {
+            isGroupChat(roomTitle) -> {
+                LogUtils.d("ROOM_TYPE: ROOM_TYPE_INTERNAL_GROUP")
+                return WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
+            }
+            isSingleChat() -> {
                 LogUtils.d("ROOM_TYPE: ROOM_TYPE_INTERNAL_CONTACT")
                 return WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
             }
@@ -55,19 +55,23 @@ object WeworkRoomUtil {
      * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
      * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
      */
-    fun getRoomTitle(root: AccessibilityNodeInfo): ArrayList<String> {
+    fun getRoomTitle(print: Boolean = true): ArrayList<String> {
         val titleList = arrayListOf<String>()
-        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
+        val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list.parent.parent)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             for (textView in textViewList) {
                 if (!textView.text.isNullOrBlank()) {
-                    titleList.add(textView.text.toString().replace("\\(\\d+\\)$".toRegex(), ""))
+                    val text = textView.text.toString()
+                    titleList.add(text.replace("\\(\\d+\\)$".toRegex(), ""))
+                    if (text.contains("\\(\\d+\\)$".toRegex())) {
+                        titleList.add(text)
+                    }
                 }
             }
         }
-        LogUtils.v("getRoomTitle: ", titleList)
+        if (print) LogUtils.v("getRoomTitle: ", titleList)
         return titleList
     }
 
@@ -76,8 +80,8 @@ object WeworkRoomUtil {
      */
     fun intoRoom(title: String): Boolean {
         LogUtils.d("intoRoom(): $title")
-        val titleList = getRoomTitle(getRoot())
-        val roomType = getRoomType(getRoot())
+        val titleList = getRoomTitle(false)
+        val roomType = getRoomType()
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
             && titleList.count {
                 it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
@@ -96,7 +100,7 @@ object WeworkRoomUtil {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(searchButton)
-                AccessibilityUtil.findTextInput(getRoot(), title.replace("…", ""))
+                AccessibilityUtil.findTextInput(getRoot(), title.replace("…", "").replace("-.*$".toRegex(), ""))
                 sleep(Constant.CHANGE_PAGE_INTERVAL)
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
@@ -195,35 +199,22 @@ object WeworkRoomUtil {
 
     /**
      * 是否是群聊
-     * 群右上角有两个按钮（快速会议按钮、更多按钮）
+     * 群名最后有(\d)显示群人数
      */
-    private fun isGroupChat(root: AccessibilityNodeInfo): Boolean {
-        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
-        if (list != null) {
-            val frontNode = findFrontNode(list.parent.parent)
-            val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
-            if (textViewList.size >= 2) {
-                val buttonList = findAllOnceByClazz(textViewList.last().parent.parent, Views.TextView)
-                return buttonList.size == 2
-            } else {
-                LogUtils.v("未找到群管理按钮")
-            }
-        } else {
-            LogUtils.d("未找到消息列表")
-        }
-        return false
+    private fun isGroupChat(roomTitle: ArrayList<String>): Boolean {
+        return roomTitle.size > 1 && roomTitle[1].contains("\\(\\d+\\)$".toRegex())
     }
 
     /**
      * 是否是外部群
      * listview前兄弟控件 && text包含外部群
      */
-    private fun isExternalGroup(root: AccessibilityNodeInfo): Boolean {
-        val listView = AccessibilityUtil.findOnceByClazz(root, Views.ListView, null, 0)
+    private fun isExternalGroup(): Boolean {
+        val listView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView, null, 0)
         if (listView != null) {
             val frontNode = findFrontNode(listView)
             if (frontNode != null) {
-                val nodeList = AccessibilityUtil.findAllByText(frontNode, "外部群", timeout = 0)
+                val nodeList = AccessibilityUtil.findAllOnceByText(frontNode, "外部群")
                 return nodeList.isNotEmpty()
             }
         }
@@ -234,9 +225,9 @@ object WeworkRoomUtil {
      * 是否是单聊
      * 有列表和输入框
      */
-    private fun isSingleChat(root: AccessibilityNodeInfo): Boolean {
-        val list = AccessibilityUtil.findOnceByClazz(root, Views.ListView)
-        val editText = AccessibilityUtil.findOnceByClazz(root, Views.EditText)
+    private fun isSingleChat(): Boolean {
+        val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
+        val editText = AccessibilityUtil.findOnceByClazz(getRoot(), Views.EditText)
         if (list != null && editText != null) {
             return true
         }
@@ -247,8 +238,7 @@ object WeworkRoomUtil {
      * 是否是外部单聊
      * 姓名下面有@xx
      */
-    private fun isExternalSingleChat(root: AccessibilityNodeInfo): Boolean {
-        val roomTitle = getRoomTitle(root)
+    private fun isExternalSingleChat(roomTitle: ArrayList<String>): Boolean {
         return roomTitle.size > 1 && roomTitle.count { it.matches("^[@＠].*?".toRegex()) } > 0
     }
 

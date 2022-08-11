@@ -1,5 +1,6 @@
 package org.yameida.worktool.service
 
+import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
@@ -104,7 +105,7 @@ object WeworkGetImpl {
                 }
             }
         }
-        LogUtils.d("我的信息", myInfo)
+        LogUtils.d("我的信息", GsonUtils.toJson(myInfo))
         val weworkMessageBean = WeworkMessageBean()
         weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
         weworkMessageBean.myInfo = myInfo

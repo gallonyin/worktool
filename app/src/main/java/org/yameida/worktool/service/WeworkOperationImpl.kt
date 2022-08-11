@@ -47,7 +47,7 @@ object WeworkOperationImpl {
      */
     fun replyMessage(
         titleList: List<String>,
-        receivedName: String,
+        receivedName: String?,
         originalContent: String,
         textType: Int,
         receivedContent: String
@@ -70,7 +70,11 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.d("$title: 回复失败 直接发送答案")
                     error("$title: 回复失败 直接发送答案 $receivedContent")
-                    sendChatMessage(receivedContent, "[自动回复]【$originalContent】@$receivedName\n")
+                    if (receivedName == null) {
+                        sendChatMessage(receivedContent, "[自动回复]【$originalContent】\n")
+                    } else {
+                        sendChatMessage(receivedContent, "[自动回复]【$originalContent】@$receivedName\n")
+                    }
                     WeworkLoopImpl.getChatMessageList()
                 }
             } else {
@@ -432,8 +436,7 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 val listViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView)
                 if (!listViewList.isNullOrEmpty()) {
-//                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加客户")) {
-                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加")) {
+                    if (AccessibilityUtil.findTextAndClick(listViewList.last(), "添加客户", "添加居民", "加微信")) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {
@@ -500,7 +503,7 @@ object WeworkOperationImpl {
                             }
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
                                 LogUtils.d("添加好友成功: " + friend.phone)
-                                if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请")) {
+                                if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
                                     LogUtils.d("发送添加邀请成功: " + friend.phone)
                                 }
                             } else {
@@ -565,38 +568,33 @@ object WeworkOperationImpl {
     private fun relaySelectTarget(selectList: List<String>, extraText: String? = null): Boolean {
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
-            val frontNode = AccessibilityUtil.findFrontNode(list)
+            val frontNode = AccessibilityUtil.findFrontNode(list, 2)
             val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(multiButton)
-                sleep(1000)
                 AccessibilityUtil.performClick(searchButton)
-                //todo 搜索需要在循环内
-                sleep(1000)
                 for (select in selectList) {
-                    AccessibilityUtil.findTextInput(getRoot(), select)
-                    sleep(2000)
+                    AccessibilityUtil.findTextInput(getRoot(), select.replace("…", "").replace("-.*$".toRegex(), ""))
+                    sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
                     val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
-                    val imageView =
-                        AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
+                    val imageView = AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView)
                     if (imageView != null) {
                         AccessibilityUtil.performClick(imageView)
                     }
-                    sleep(1000)
+                    sleep(Constant.CHANGE_PAGE_INTERVAL)
                 }
                 val confirmButton =
                     AccessibilityUtil.findOneByText(getRoot(), "确定(${selectList.size})")
                 if (confirmButton != null) {
                     AccessibilityUtil.performClick(confirmButton)
-                    sleep(1000)
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                     if (!extraText.isNullOrBlank()) {
                         LogUtils.d("extraText: $extraText")
                         AccessibilityUtil.findTextInput(getRoot(), extraText)
-                        sleep(1000)
                     }
-                    val sendButtonList = AccessibilityUtil.findAllByText(getRoot(), "发送", timeout = 0)
+                    val sendButtonList = AccessibilityUtil.findAllByText(getRoot(), "发送")
                     for (sendButton in sendButtonList.filter { it.text != null }) {
                         if (sendButton.text == "发送" || sendButton.text == "发送(${selectList.size})") {
                             AccessibilityUtil.performClick(sendButton)
@@ -623,10 +621,10 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val textViewGroup = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群")
+        val textViewGroup = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
         if (AccessibilityUtil.performClick(textViewGroup)) {
             LogUtils.d("进入客户群应用")
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群")
+            val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
             AccessibilityUtil.performClick(textView)
             return true
         } else {
@@ -681,15 +679,18 @@ object WeworkOperationImpl {
             }
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
             if (list != null) {
-                val frontNode = AccessibilityUtil.findFrontNode(list)
+                val frontNode = AccessibilityUtil.findFrontNode(list, 2)
                 val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
                     for (select in selectList) {
                         AccessibilityUtil.performClick(multiButton)
                         AccessibilityUtil.findTextInput(getRoot(), select)
-                        val selectListView =
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        val selectListViewTemp =
                             AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                        val selectListView =
+                                AccessibilityUtil.findOnceByClazz(getRoot(), Views.RecyclerView) ?: selectListViewTemp
                         val imageView =
                             AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
                         AccessibilityUtil.performClick(imageView)
@@ -740,7 +741,7 @@ object WeworkOperationImpl {
             }
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
             if (list != null) {
-                val frontNode = AccessibilityUtil.findFrontNode(list)
+                val frontNode = AccessibilityUtil.findFrontNode(list, 2)
                 val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()

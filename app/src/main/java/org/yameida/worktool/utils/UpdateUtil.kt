@@ -16,12 +16,6 @@ import update.UpdateAppUtils
 object UpdateUtil {
 
     fun checkUpdate() {
-//        val remoteVersionCode = 10
-//        val remoteVersionName = "1.0.1"
-//        val forceUpdate = false
-//        val updateLog = "修复Bug\n优化用户体验"
-//        val downloadUrl = "https://down.qq.com/qqweb/QQ_1/android_apk/Android_8.5.0.5025_537066738.apk"
-//        val fileMD5 = "560017dc94e8f9b65f4ca997c7feb326"
         OkGo.get<String>(Constant.URL_CHECK_UPDATE)
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {

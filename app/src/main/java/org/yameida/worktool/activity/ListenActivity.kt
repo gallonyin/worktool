@@ -52,15 +52,39 @@ class ListenActivity : AppCompatActivity() {
             })
             MobclickAgent.onProfileSignIn(channel)
         }
-        Constant.encryptType = SPUtils.getInstance().getInt("encryptType", 0)
         sw_encrypt.isChecked = Constant.encryptType == 1
         sw_encrypt.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             LogUtils.i("sw_encrypt onCheckedChanged: $isChecked")
             Constant.encryptType = if (isChecked) 1 else 0
             SPUtils.getInstance().put("encryptType", Constant.encryptType)
         })
+        sw_auto_reply.isChecked = Constant.autoReply == 1
+        sw_auto_reply.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            LogUtils.i("sw_auto_reply onCheckedChanged: $isChecked")
+            Constant.autoReply = if (isChecked) 1 else 0
+            SPUtils.getInstance().put("autoReply", Constant.autoReply)
+        })
         tv_host.text = WebConfig.HOST
         tv_version.text = AppUtils.getAppVersionName()
+        val workVersionName = AppUtils.getAppInfo(Constant.PACKAGE_NAMES)?.versionName
+        when (workVersionName) {
+            null -> {
+                LogUtils.e("系统检测到您尚未安装企业微信，请先安装企业微信")
+                tv_work_version.text = "检测到您尚未安装企业微信，请先安装登录!"
+            }
+            in Constant.AVAILABLE_VERSION -> {
+                LogUtils.i("当前企业微信版本已适配: $workVersionName")
+                val tip = "$workVersionName   已适配，可放心使用~"
+                tv_work_version.text = tip
+            }
+            else -> {
+                LogUtils.e("当前企业微信版本未兼容: $workVersionName")
+                val tip = "$workVersionName   可能存在部分兼容性问题!"
+                tv_work_version.text = tip
+            }
+        }
+        SPUtils.getInstance().put("appVersion", AppUtils.getAppVersionName())
+        SPUtils.getInstance().put("workVersion", workVersionName)
     }
 
     private fun initAccessibility() {

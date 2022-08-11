@@ -282,7 +282,7 @@ object WeworkTextUtil {
     fun longClickMessageItem(
         node: AccessibilityNodeInfo?,
         replyTextType: Int,
-        replyNick: String,
+        replyNick: String?,
         replyContent: String,
         key: String
     ): Boolean {
@@ -290,14 +290,24 @@ object WeworkTextUtil {
         for (i in 0 until node.childCount) {
             val item = node.getChild(node.childCount - 1 - i) ?: continue
             val nameList = getNameList(item)
+            if (nameList.isEmpty()) {
+                val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT)
+                if (backNode != null) {
+                    val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
+                    if (textNode != null) {
+                        LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
+                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                    }
+                }
+            }
             for (name in nameList) {
                 if (name == replyNick) {
-                    val backNode = getMessageListNode(item)
+                    val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP)
                     if (backNode != null) {
                         val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
                         if (textNode != null) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                            return longClickMessageItem(item, key)
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
                         }
                     }
                 }
@@ -306,8 +316,8 @@ object WeworkTextUtil {
         return false
     }
 
-    private fun longClickMessageItem(item: AccessibilityNodeInfo, key: String): Boolean {
-        val backNode = getMessageListNode(item)
+    private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
+        val backNode = getMessageListNode(item, roomType)
         AccessibilityUtil.performLongClickWithSon(backNode)
         val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView)
         for (optionRv in optionRvList) {
@@ -327,10 +337,17 @@ object WeworkTextUtil {
      * 适用于左侧发言者
      * @param item 消息item节点
      */
-    private fun getMessageListNode(item: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        val node = AccessibilityUtil.findOnceByClazz(item, Views.ViewGroup)
-        if (node != null) {
-            return AccessibilityUtil.findBackNode(node)
+    private fun getMessageListNode(item: AccessibilityNodeInfo, roomType: Int): AccessibilityNodeInfo? {
+        if (roomType in arrayOf(WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT)) {
+            val node = AccessibilityUtil.findOnceByClazz(item, Views.ImageView)
+            if (node != null) {
+                return AccessibilityUtil.findBackNode(node)
+            }
+        } else if (roomType in arrayOf(WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
+            val node = AccessibilityUtil.findOnceByClazz(item, Views.ViewGroup)
+            if (node != null) {
+                return AccessibilityUtil.findBackNode(node)
+            }
         }
         return null
     }

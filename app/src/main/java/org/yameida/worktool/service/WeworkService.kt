@@ -25,6 +25,7 @@ import java.lang.Exception
  * event.source则不需要验证包名获取窗口并可获得事件详情
  */
 class WeworkService : AccessibilityService() {
+    private val TAG = "WeworkService"
     lateinit var webSocketManager: WebSocketManager
 
     override fun onServiceConnected() {
@@ -85,10 +86,15 @@ class WeworkService : AccessibilityService() {
     }
 
     class EchoWebSocketListener() : WebSocketListener() {
+        private val TAG = "WeworkService.EchoWebSocketListener"
         private lateinit var socket: WebSocket
         override fun onOpen(webSocket: WebSocket, response: Response) {
             socket = webSocket
-            Log.e("ChatMaskActivityListener", "链接建立")
+            Log.e(TAG, "链接建立")
+            val robotId = SPUtils.getInstance().getString(WebConfig.LISTEN_CHANNEL_ID, "")
+            val appVersion = SPUtils.getInstance().getString("appVersion", "")
+            val workVersion= SPUtils.getInstance().getString("workVersion", "")
+            log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion")
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -104,19 +110,19 @@ class WeworkService : AccessibilityService() {
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosed(webSocket, code, reason)
             //服务器关闭后
-            Log.e("ChatMaskActivityListener", "链接关闭 $reason")
+            Log.e(TAG, "链接关闭 $reason")
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosing(webSocket, code, reason)
             socket.close(code, reason)
-            Log.e("ChatMaskActivityListener", "服务端关闭连接 $code: $reason")
+            Log.e(TAG, "服务端关闭连接 $code: $reason")
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             //服务器中断
 
-            Log.e("ChatMaskActivityListener", "链接错误: " + t.toString() + response.toString())
+            Log.e(TAG, "链接错误: " + t.toString() + response.toString())
         }
     }
 }

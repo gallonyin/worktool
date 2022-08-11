@@ -70,8 +70,8 @@ object AccessibilityUtil {
     }
 
     //寻找第一个文本匹配(关键词)并点击
-    fun findTextAndClick(nodeInfo: AccessibilityNodeInfo?, text: String): Boolean {
-        val textView = findOneByText(nodeInfo, text) ?: return false
+    fun findTextAndClick(nodeInfo: AccessibilityNodeInfo?, vararg textList: String): Boolean {
+        val textView = findOneByText(nodeInfo, *textList) ?: return false
         return performClick(textView)
     }
 
@@ -113,20 +113,20 @@ object AccessibilityUtil {
     //滚动并按文本寻找第一个控件
     fun scrollAndFindByText(
         nodeInfo: AccessibilityNodeInfo,
-        text: String,
+        vararg textList: String,
         maxRetry: Int = 3
     ): AccessibilityNodeInfo? {
         var index = 0
         while (index++ < maxRetry) {
             performScrollUp(nodeInfo, 0)
-            val node = findOnceByText(nodeInfo, text)
+            val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
             }
         }
         while (index++ < maxRetry * 2) {
             performScrollDown(nodeInfo, 0)
-            val node = findOnceByText(nodeInfo, text)
+            val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
             }
@@ -369,12 +369,12 @@ object AccessibilityUtil {
     /**
      * 按文本(关键词)寻找节点和子节点内的一个匹配项
      * @param node 节点
-     * @param text 关键词
+     * @param textList 关键词
      * @param timeout 检查超时时间
      */
     fun findOneByText(
         node: AccessibilityNodeInfo?,
-        text: String,
+        vararg textList: String,
         exact: Boolean = false,
         timeout: Long = 5000,
         root: Boolean = true
@@ -383,18 +383,9 @@ object AccessibilityUtil {
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val textViewList = node.findAccessibilityNodeInfosByText(text)
-            LogUtils.v("text: $text count: " + textViewList.size)
-            if (textViewList != null && textViewList.size > 0) {
-                for (textView in textViewList) {
-                    if (textView.text == text) {
-                        return textView
-                    }
-                }
-                if (!exact) {
-                    return textViewList[0]
-                }
-            }
+            val result = findOnceByText(node, *textList, exact = exact)
+            LogUtils.v("text: $textList result == null: ${result == null}")
+            if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
                 node = getRoot(true)
@@ -403,43 +394,53 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "findOneByText: not found: $text")
+        Log.e(tag, "findOneByText: not found: $textList")
         return null
     }
 
     fun findOnceByText(
         node: AccessibilityNodeInfo?,
-        text: String,
+        vararg textList: String,
         exact: Boolean = false
     ): AccessibilityNodeInfo? {
-        return findOneByText(node, text, exact, 0)
+        if (node == null) return null
+        val textNodeList = findAllOnceByText(node, *textList, exact = exact)
+        LogUtils.v("text: $textList count: " + textNodeList.size)
+        if (exact) return textNodeList[0]
+        else if (textNodeList.size > 0) {
+            for (textNode in textNodeList) {
+                for (text in textList) {
+                    if (textNode.text == text) {
+                        return textNode
+                    }
+                }
+            }
+            return textNodeList[0]
+        }
+        return null
     }
 
     /**
      * 按文本(关键词)寻找节点和子节点内的所有匹配项
      * @param node 节点
-     * @param text 关键词
+     * @param textList 关键词
      * @param timeout 检查超时时间
      */
     fun findAllByText(
         node: AccessibilityNodeInfo?,
-        text: String,
+        vararg textList: String,
         exact: Boolean = false,
         timeout: Long = 5000,
-        root: Boolean = true
+        root: Boolean = true,
+        minSize: Int = 1
     ): List<AccessibilityNodeInfo> {
         var node = node ?: return arrayListOf()
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val tvList = node.findAccessibilityNodeInfosByText(text)
-            if (tvList != null && tvList.size > 0) {
-                if (!exact) {
-                    return tvList
-                } else if (tvList.count { it.text == text } > 0) {
-                    return tvList.filter { it.text == text }
-                }
-            }
+            val result = findAllOnceByText(node, *textList, exact = exact)
+            LogUtils.v("text: $textList count: " + result.size)
+            if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
                 node = getRoot(true)
@@ -448,8 +449,37 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "findAllByText: not found: $text")
+        Log.e(tag, "findAllByText: not found: $textList")
         return arrayListOf()
+    }
+
+    /**
+     * 按文本(关键词)寻找节点和子节点内的所有匹配项
+     * node 节点
+     * clazz 类名
+     * limitDepth 深度 限制深度搜索深度必须匹配提供值且类名相同才返回 不填默认不限制
+     */
+    fun findAllOnceByText(
+        node: AccessibilityNodeInfo?,
+        vararg textList: String,
+        exact: Boolean = false,
+        list: ArrayList<AccessibilityNodeInfo> = ArrayList()
+    ): ArrayList<AccessibilityNodeInfo> {
+        if (node == null) return list
+        val nodeText = node.text
+        if (nodeText != null) {
+            for (text in textList) {
+                if (exact && nodeText == text) {
+                    list.add(node)
+                } else if (!exact && nodeText.contains(text)) {
+                    list.add(node)
+                }
+            }
+        }
+        for (i in 0 until node.childCount) {
+            findAllOnceByText(node.getChild(i), *textList, exact = exact, list = list)
+        }
+        return list
     }
 
     /**
@@ -468,10 +498,6 @@ object AccessibilityUtil {
         root: Boolean = true
     ): AccessibilityNodeInfo? {
         var node = node ?: return null
-        if (node.className == clazz) {
-            if (limitDepth == null || limitDepth == depth)
-                return node
-        }
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
@@ -524,12 +550,11 @@ object AccessibilityUtil {
     fun findAllByClazz(
         node: AccessibilityNodeInfo?,
         clazz: String,
-        list: ArrayList<AccessibilityNodeInfo> = ArrayList(),
         timeout: Long = 5000,
         root: Boolean = true,
         minSize: Int = 1
     ): ArrayList<AccessibilityNodeInfo> {
-        var node = node ?: return list
+        var node = node ?: return arrayListOf()
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
@@ -546,7 +571,7 @@ object AccessibilityUtil {
         }
         LogUtils.e("findAllByClazz Exception()")
         Exception().printStackTrace()
-        return list
+        return arrayListOf()
     }
 
     /**
@@ -569,10 +594,22 @@ object AccessibilityUtil {
     }
 
     /**
+     * 查找节点的前兄弟节点 直到该节点满足子节点数
+     * node 节点
+     */
+    fun findFrontNode(node: AccessibilityNodeInfo?, minChildCount: Int = 0): AccessibilityNodeInfo? {
+        var findFrontNode = findFrontNode(node) ?: return null
+        while (findFrontNode.childCount < minChildCount) {
+            findFrontNode = findFrontNode(findFrontNode) ?: return null
+        }
+        return findFrontNode
+    }
+
+    /**
      * 查找节点的前兄弟节点
      * node 节点
      */
-    fun findFrontNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+    private fun findFrontNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
         if (node == null) return null
         var parent: AccessibilityNodeInfo? = node.parent
         var son: AccessibilityNodeInfo? = node
@@ -594,10 +631,22 @@ object AccessibilityUtil {
     }
 
     /**
+     * 查找节点的后兄弟节点 直到该节点满足子节点数
+     * node 节点
+     */
+    fun findBackNode(node: AccessibilityNodeInfo?, minChildCount: Int = 0): AccessibilityNodeInfo? {
+        var findBackNode = findBackNode(node) ?: return null
+        while (findBackNode.childCount < minChildCount) {
+            findBackNode = findFrontNode(findBackNode) ?: return null
+        }
+        return findBackNode
+    }
+
+    /**
      * 查找节点的后兄弟节点
      * node 节点
      */
-    fun findBackNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+    private fun findBackNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
         if (node == null) return null
         var parent: AccessibilityNodeInfo? = node.parent
         var son: AccessibilityNodeInfo? = node

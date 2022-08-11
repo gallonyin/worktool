@@ -26,7 +26,7 @@ object WeworkLoopImpl {
         mainLoopRunning = true
         try {
             while (mainLoopRunning) {
-                if (WeworkRoomUtil.getRoomType(getRoot(), false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
+                if (WeworkRoomUtil.getRoomType(false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
                     && getChatMessageList()) {
                 }
                 if (!mainLoopRunning) break
@@ -49,7 +49,7 @@ object WeworkLoopImpl {
      * 读取通讯录好友请求
      */
     fun getFriendRequest(): Boolean {
-        val list = AccessibilityUtil.findAllByText(getRoot(), "通讯录", timeout = 0)
+        val list = AccessibilityUtil.findAllOnceByText(getRoot(), "通讯录", exact = true)
         for (item in list) {
             if (item.parent.parent.parent.childCount == 5) {
                 if (item.parent.childCount > 1) {
@@ -94,9 +94,10 @@ object WeworkLoopImpl {
      * 2.获取消息列表
      */
     fun getChatMessageList(timeout: Long = 3000): Boolean {
+        if (Constant.autoReply == 0) return true
         AccessibilityUtil.performScrollDown(getRoot(), 0)
-        val roomType = WeworkRoomUtil.getRoomType(getRoot())
-        var titleList = WeworkRoomUtil.getRoomTitle(getRoot())
+        val roomType = WeworkRoomUtil.getRoomType()
+        var titleList = WeworkRoomUtil.getRoomTitle()
         if (titleList.contains("对方正在输入…")) {
             titleList = WeworkRoomUtil.getFriendName()
         }
@@ -183,7 +184,7 @@ object WeworkLoopImpl {
                 //回到上一页
                 var retry = 5
                 while (retry-- > 0 && !isAtHome()) {
-                    val textView = AccessibilityUtil.findOnceByText(getRoot(), "新的客户")
+                    val textView = AccessibilityUtil.findOnceByText(getRoot(), "新的客户", "新的居民")
                     if (textView == null) {
                         backPress()
                     }
@@ -197,6 +198,7 @@ object WeworkLoopImpl {
      * 读取聊天列表
      */
     private fun getChatroomList(): Boolean {
+        if (Constant.autoReply == 0) return true
         if (!isAtHome()) return true
         if (logIndex % 3 == 0) {
             AccessibilityUtil.performScrollUp(getRoot(), 0)
