@@ -1,5 +1,6 @@
 package org.yameida.worktool.service
 
+import android.os.Build
 import android.view.accessibility.AccessibilityNodeInfo
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
@@ -274,7 +275,11 @@ object WeworkOperationImpl {
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
-            AccessibilityUtil.performClick(node)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+            } else {
+                AccessibilityUtil.performClick(node)
+            }
             val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
@@ -316,7 +321,11 @@ object WeworkOperationImpl {
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
-            AccessibilityUtil.performClick(node)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+            } else {
+                AccessibilityUtil.performClick(node)
+            }
             val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
@@ -623,12 +632,14 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val textViewGroup = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
-        if (AccessibilityUtil.performClick(textViewGroup)) {
+        val groupTv = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
+            ?: return false
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    && AccessibilityUtil.clickByNode(WeworkController.weworkService, groupTv))
+            || AccessibilityUtil.performClick(groupTv)) {
             LogUtils.d("进入客户群应用")
             val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
-            AccessibilityUtil.performClick(textView)
-            return true
+            return AccessibilityUtil.performClick(textView)
         } else {
             LogUtils.d("未找到客户群应用")
             return false

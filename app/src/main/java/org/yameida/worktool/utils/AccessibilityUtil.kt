@@ -381,7 +381,7 @@ object AccessibilityUtil {
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
             val result = findOnceByText(node, *textList, exact = exact)
-            LogUtils.v("text: $textList result == null: ${result == null}")
+            LogUtils.v("text: ${textList.joinToString()} result == null: ${result == null}")
             if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
@@ -391,7 +391,7 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "findOneByText: not found: $textList")
+        Log.e(tag, "findOneByText: not found: ${textList.joinToString()}")
         return null
     }
 
@@ -402,7 +402,7 @@ object AccessibilityUtil {
     ): AccessibilityNodeInfo? {
         if (node == null) return null
         val textNodeList = findAllOnceByText(node, *textList, exact = exact)
-        LogUtils.v("text: $textList count: " + textNodeList.size)
+        LogUtils.v("text: ${textList.joinToString()} count: " + textNodeList.size)
         if (exact) return textNodeList[0]
         else if (textNodeList.size > 0) {
             for (textNode in textNodeList) {
@@ -436,7 +436,7 @@ object AccessibilityUtil {
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
             val result = findAllOnceByText(node, *textList, exact = exact)
-            LogUtils.v("text: $textList count: " + result.size)
+            LogUtils.v("text: ${textList.joinToString()} count: " + result.size)
             if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
@@ -446,7 +446,7 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "findAllByText: not found: $textList")
+        Log.e(tag, "findAllByText: not found: ${textList.joinToString()}")
         return arrayListOf()
     }
 
