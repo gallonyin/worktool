@@ -7,6 +7,7 @@ import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.Views
 import org.yameida.worktool.utils.WeworkRoomUtil
+import java.lang.StringBuilder
 
 /**
  * 获取数据类型 500 实现类
@@ -55,13 +56,34 @@ object WeworkGetImpl {
             sleep(Constant.CHANGE_PAGE_INTERVAL)
             val newFirstTv = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
             val nickname = newFirstTv?.text?.toString()
-            AccessibilityUtil.performClick(firstTv)
             if (nickname != null) {
+                var corp: String? = null
+                val info = StringBuilder()
+                if (AccessibilityUtil.performClick(newFirstTv)) {
+                    sleep(Constant.CHANGE_PAGE_INTERVAL)
+                    val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
+                    if (rv != null && rv.childCount > 0) {
+                        val myInfoLayout = rv.getChild(0)
+                        val tvList = AccessibilityUtil.findAllByClazz(myInfoLayout, Views.TextView)
+                            .filter { it.text != null }
+                        if (tvList.isNotEmpty()) {
+                            corp = tvList[0].text.toString()
+                            tvList.forEach { info.append(it.text).append("-") }
+                            info.setLength(info.length - 1)
+                            LogUtils.v("corp", corp)
+                            LogUtils.v("info", info.toString())
+                        }
+                    }
+                }
                 Constant.myName = nickname
                 LogUtils.d("我的昵称: ${Constant.myName}")
                 val weworkMessageBean = WeworkMessageBean()
                 weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
-                weworkMessageBean.myInfo = WeworkMessageBean.MyInfo().apply { name = nickname }
+                weworkMessageBean.myInfo = WeworkMessageBean.MyInfo().apply {
+                    name = nickname
+                    corporation = corp
+                    sumInfo = info.toString()
+                }
                 WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
                 return true
             } else {

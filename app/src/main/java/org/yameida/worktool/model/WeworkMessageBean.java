@@ -139,6 +139,8 @@ public class WeworkMessageBean {
     public String receivedName;
     //内容移除了@me
     public String receivedContent;
+    //想要at的昵称
+    public String at;
     //原始内容text
     public String originalContent;
     //多选(转发等)
@@ -231,6 +233,7 @@ public class WeworkMessageBean {
         public String corporation;
         public String phone;
         public String job;
+        public String sumInfo;
     }
 
     //添加好友

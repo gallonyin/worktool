@@ -21,12 +21,13 @@ object WeworkOperationImpl {
      * 在房间内发送消息
      * @param titleList 房间名称
      * @param receivedContent 回复内容
+     * @param at 要at的昵称
      * @see WeworkMessageBean.TEXT_TYPE
      */
-    fun sendMessage(titleList: List<String>, receivedContent: String): Boolean {
+    fun sendMessage(titleList: List<String>, receivedContent: String, at: String? = null): Boolean {
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
-                sendChatMessage(receivedContent)
+                sendChatMessage(receivedContent, at = at)
                 LogUtils.d("$title: 发送成功")
             } else {
                 LogUtils.d("$title: 发送失败")
@@ -440,8 +441,9 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {
-                            val bothUsedTv = AccessibilityUtil.findOneByText(getRoot(), "对方同时使用", timeout = 2000)
-                            if (bothUsedTv != null) {
+                            val bothUsedTv = AccessibilityUtil.findOneByText(getRoot(), "对方同时使用", "标签", "电话")
+                            val bothUsedText = bothUsedTv?.text
+                            if (bothUsedText != null && bothUsedText.contains("对方同时使用")) {
                                 AccessibilityUtil.performClick(
                                     AccessibilityUtil.findOnceByClazz(
                                         AccessibilityUtil.findBackNode(bothUsedTv),
@@ -449,72 +451,72 @@ object WeworkOperationImpl {
                                     )
                                 )
                             }
-                        } else {
-                            LogUtils.e("未找到查找手机选项")
-                        }
-                        if (AccessibilityUtil.findOneByText(getRoot(), "标签") != null) {
-                            var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述")
-                            if (markTv == null) {
-                                markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业")
-                            }
-                            if (markTv == null) {
-                                markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述")
-                            }
-                            //设置备注
-                            if (markTv != null && (friend.markName != null
-                                        || friend.markCorp != null || friend.markExtra != null)
-                            ) {
-                                AccessibilityUtil.performClick(markTv)
-                                val etList =
-                                    AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
-                                if (etList.size >= 5) {
-                                    if (friend.markName != null) {
-                                        AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                            if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话") != null) {
+                                var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述")
+                                if (markTv == null) {
+                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业")
+                                }
+                                if (markTv == null) {
+                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述")
+                                }
+                                //设置备注
+                                if (markTv != null && (friend.markName != null
+                                            || friend.markCorp != null || friend.markExtra != null)
+                                ) {
+                                    AccessibilityUtil.performClick(markTv)
+                                    val etList =
+                                        AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
+                                    if (etList.size >= 5) {
+                                        if (friend.markName != null) {
+                                            AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                                        }
+                                        if (friend.markCorp != null) {
+                                            AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
+                                        }
+                                        if (friend.markExtra != null) {
+                                            AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
+                                        }
                                     }
-                                    if (friend.markCorp != null) {
-                                        AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
-                                    }
-                                    if (friend.markExtra != null) {
-                                        AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
+                                    AccessibilityUtil.findTextAndClick(getRoot(), "保存")
+                                }
+                                //设置标签
+                                if (!friend.tagList.isNullOrEmpty()) {
+                                    if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
+                                        setFriendTags(friend.tagList)
                                     }
                                 }
-                                AccessibilityUtil.findTextAndClick(getRoot(), "保存")
-                            }
-                            //设置标签
-                            if (!friend.tagList.isNullOrEmpty()) {
-                                if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
-                                    setFriendTags(friend.tagList)
+                                //添加联系人
+                                val imageView =
+                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
+                                if (imageView != null) {
+                                    val textViewList = AccessibilityUtil.findAllOnceByClazz(
+                                        imageView.parent,
+                                        Views.TextView
+                                    )
+                                    val filter =
+                                        textViewList.filter { it.text != null && it.text.toString() != "微信" }
+                                    if (filter.isNotEmpty()) {
+                                        val tvNick = filter[0]
+                                        LogUtils.d("好友昵称或备注名: " + tvNick.text)
+                                    }
                                 }
-                            }
-                            //添加联系人
-                            val imageView =
-                                AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
-                            if (imageView != null) {
-                                val textViewList = AccessibilityUtil.findAllOnceByClazz(
-                                    imageView.parent,
-                                    Views.TextView
-                                )
-                                val filter =
-                                    textViewList.filter { it.text != null && it.text.toString() != "微信" }
-                                if (filter.isNotEmpty()) {
-                                    val tvNick = filter[0]
-                                    LogUtils.d("好友昵称或备注名: " + tvNick.text)
-                                }
-                            }
-                            if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
-                                LogUtils.d("添加好友成功: " + friend.phone)
-                                if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
-                                    LogUtils.d("发送添加邀请成功: " + friend.phone)
+                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
+                                    LogUtils.d("添加好友成功: " + friend.phone)
+                                    if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
+                                        LogUtils.d("发送添加邀请成功: " + friend.phone)
+                                    }
+                                } else {
+                                    if (AccessibilityUtil.findOnceByText(getRoot(), "发消息") != null) {
+                                        LogUtils.e("已经添加联系人，请勿重复添加")
+                                    } else {
+                                        LogUtils.e("未找到添加为联系人")
+                                    }
                                 }
                             } else {
-                                if (AccessibilityUtil.findOnceByText(getRoot(), "发消息") != null) {
-                                    LogUtils.e("已经添加联系人，请勿重复添加")
-                                } else {
-                                    LogUtils.e("未找到添加为联系人")
-                                }
+                                LogUtils.e("未找到标签")
                             }
                         } else {
-                            LogUtils.e("未找到标签")
+                            LogUtils.e("未找到查找手机选项")
                         }
                     } else {
                         LogUtils.e("未找到添加客户按钮")
@@ -821,10 +823,29 @@ object WeworkOperationImpl {
     }
 
     /**
-     * 发送消息
+     * 发送消息+@at
      */
-    private fun sendChatMessage(text: String, prefix: String = "") {
-        if (AccessibilityUtil.findTextInput(getRoot(), prefix + text)) {
+    private fun sendChatMessage(text: String, prefix: String = "", at: String? = null) {
+        var atFailed = false
+        if (!at.isNullOrEmpty()) {
+            AccessibilityUtil.findTextInput(getRoot(), "@")
+            val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", timeout = 2000)
+            if (atFlag != null) {
+                val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
+                AccessibilityUtil.findTextInput(getRoot(), at)
+                val atNode = AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
+                if (atNode != null) {
+                    AccessibilityUtil.performClick(atNode)
+                } else {
+                    LogUtils.e("未找到at人: $at")
+                    atFailed = true
+                    backPress()
+                }
+                sleep(Constant.POP_WINDOW_INTERVAL)
+            }
+        }
+        val content = if (atFailed) "@$at $prefix$text" else "$prefix$text"
+        if (AccessibilityUtil.findTextInput(getRoot(), content, append = !atFailed)) {
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
                 .firstOrNull { it.text == "发送" }
             if (sendButton != null) {

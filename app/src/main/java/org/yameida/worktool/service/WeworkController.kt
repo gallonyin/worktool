@@ -42,12 +42,13 @@ object WeworkController {
      * @see WeworkMessageBean.SEND_MESSAGE
      * @param message#titleList 房间名称
      * @param message#receivedContent 回复内容
+     * @param message#at 要at的昵称
      * @see WeworkMessageBean.TEXT_TYPE
      */
     @RequestMapping
     fun sendMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("sendMessage(): ${message.titleList} ${message.receivedContent}")
-        return WeworkOperationImpl.sendMessage(message.titleList, message.receivedContent)
+        LogUtils.d("sendMessage(): ${message.titleList} ${message.receivedContent} ${message.at}")
+        return WeworkOperationImpl.sendMessage(message.titleList, message.receivedContent, message.at)
     }
 
     /**

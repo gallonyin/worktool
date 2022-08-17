@@ -200,12 +200,31 @@ object WeworkLoopImpl {
     private fun getChatroomList(): Boolean {
         if (Constant.autoReply == 0) return true
         if (!isAtHome()) return true
-        if (logIndex % 3 == 0) {
-            AccessibilityUtil.performScrollUp(getRoot(), 0)
-            AccessibilityUtil.performScrollUp(getRoot(), 0)
-            AccessibilityUtil.performScrollUp(getRoot(), 0)
-        } else if (logIndex % 120 < 3) {
-            AccessibilityUtil.performScrollDown(getRoot(), 0)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
+            for (item in list) {
+                if (item.parent.parent.parent.childCount == 5) {
+                    if (item.parent.childCount > 1) {
+                        LogUtils.d("消息有红点")
+                        AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                        sleep(100)
+                        AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                    }
+                }
+            }
+            if (logIndex % 120 == 0) {
+                goHomeTab("通讯录")
+                goHomeTab("消息")
+            }
+        } else {
+            if (logIndex % 3 == 0) {
+                AccessibilityUtil.performScrollUp(getRoot(), 0)
+                AccessibilityUtil.performScrollUp(getRoot(), 0)
+                AccessibilityUtil.performScrollUp(getRoot(), 0)
+            } else if (logIndex % 120 < 3) {
+                AccessibilityUtil.performScrollDown(getRoot(), 0)
+            }
         }
         if (!isAtHome()) return true
         if (logIndex++ % 15 == 0) {

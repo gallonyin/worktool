@@ -76,24 +76,21 @@ object AccessibilityUtil {
     }
 
     //寻找第一个EditView编辑框并输入文本
-    fun findTextInput(nodeInfo: AccessibilityNodeInfo?, text: String, root: Boolean = true): Boolean {
-        if (root) {
-            val editText = findOneByClazz(nodeInfo, "android.widget.EditText") ?: return false
-            val arguments = Bundle()
-            arguments.putCharSequence(
-                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
-                text
-            )
-            editText.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+    fun findTextInput(nodeInfo: AccessibilityNodeInfo?, text: String, root: Boolean = true, append: Boolean = false): Boolean {
+        val editText = if (root) {
+            findOneByClazz(nodeInfo, "android.widget.EditText") ?: return false
         } else {
-            val editText = findOnceByClazz(nodeInfo, "android.widget.EditText") ?: return false
-            val arguments = Bundle()
-            arguments.putCharSequence(
-                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
-                text
-            )
-            editText.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+            findOnceByClazz(nodeInfo, "android.widget.EditText") ?: return false
         }
+        editText.refresh()
+        val oldText = if (editText.text != null) editText.text.toString() else ""
+        LogUtils.v("findTextInput oldText: $oldText")
+        val arguments = Bundle()
+        arguments.putCharSequence(
+            AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+            if (append) (oldText + text) else text
+        )
+        editText.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
         return true
     }
 
@@ -710,15 +707,15 @@ object AccessibilityUtil {
         val builder = GestureDescription.Builder()
         val path = Path()
         path.moveTo(point.x.toFloat(), point.y.toFloat())
-        builder.addStroke(StrokeDescription(path, 0L, 100L))
+        builder.addStroke(StrokeDescription(path, 0L, 10L))
         val gesture = builder.build()
         return service.dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription) {
-                LogUtils.e("click okk onCompleted")
+                LogUtils.d("click okk onCompleted")
             }
 
             override fun onCancelled(gestureDescription: GestureDescription) {
-                LogUtils.e("click okk onCancelled")
+                LogUtils.d("click okk onCancelled")
             }
         }, null)
     }
