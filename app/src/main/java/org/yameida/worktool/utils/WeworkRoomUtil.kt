@@ -92,7 +92,7 @@ object WeworkRoomUtil {
             return true
         }
         goHome()
-        val list = findOneByClazz(getRoot(), Views.ListView)
+        val list = findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
@@ -210,7 +210,7 @@ object WeworkRoomUtil {
      * listview前兄弟控件 && text包含外部群
      */
     private fun isExternalGroup(): Boolean {
-        val listView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView, null, 0)
+        val listView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView, limitDepth = null, depth = 0)
         if (listView != null) {
             val frontNode = findFrontNode(listView)
             if (frontNode != null) {

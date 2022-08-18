@@ -133,27 +133,21 @@ object AccessibilityUtil {
 
     //输入x, y坐标模拟点击事件
     @TargetApi(Build.VERSION_CODES.N)
-    fun performXYClick(service: AccessibilityService, x: Float, y: Float) {
+    fun performXYClick(service: AccessibilityService, x: Float, y: Float): Boolean {
         val path = Path()
         path.moveTo(x, y)
         val builder = GestureDescription.Builder()
-        builder.addStroke(GestureDescription.StrokeDescription(path, 0, 1))
-        val gestureDescription = builder.build()
-        service.dispatchGesture(
-            gestureDescription,
-            object : AccessibilityService.GestureResultCallback() {
-                override fun onCompleted(gestureDescription: GestureDescription) {
-                    super.onCompleted(gestureDescription)
-                    //Log.i(Constant.TAG, "onCompleted: completed");
-                }
+        builder.addStroke(StrokeDescription(path, 0, 1))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.v("click okk onCompleted")
+            }
 
-                override fun onCancelled(gestureDescription: GestureDescription) {
-                    super.onCancelled(gestureDescription)
-                    //Log.i(Constant.TAG, "onCancelled: cancelled");
-                }
-            },
-            null
-        )
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.v("click okk onCancelled")
+            }
+        }, null)
     }
 
     /**
@@ -488,7 +482,7 @@ object AccessibilityUtil {
      */
     fun findOneByClazz(
         node: AccessibilityNodeInfo?,
-        clazz: String,
+        vararg clazzList: String,
         limitDepth: Int? = null,
         depth: Int = 0,
         timeout: Long = 5000,
@@ -498,8 +492,8 @@ object AccessibilityUtil {
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val result = findOnceByClazz(node, clazz, limitDepth, depth)
-            LogUtils.v("clazz: $clazz result == null: ${result == null}")
+            val result = findOnceByClazz(node, *clazzList, limitDepth = limitDepth, depth = depth)
+            LogUtils.v("clazz: ${clazzList.joinToString()} result == null: ${result == null}")
             if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
@@ -522,17 +516,17 @@ object AccessibilityUtil {
      */
     fun findOnceByClazz(
         node: AccessibilityNodeInfo?,
-        clazz: String,
+        vararg clazzList: String,
         limitDepth: Int? = null,
         depth: Int = 0
     ): AccessibilityNodeInfo? {
         if (node == null) return null
-        if (node.className == clazz) {
+        if (node.className in clazzList) {
             if (limitDepth == null || limitDepth == depth)
                 return node
         }
         for (i in 0 until node.childCount) {
-            val result = findOnceByClazz(node.getChild(i), clazz, limitDepth, depth + 1)
+            val result = findOnceByClazz(node.getChild(i), *clazzList, limitDepth = limitDepth, depth = depth + 1)
             if (result != null) return result
         }
         return null
@@ -546,7 +540,7 @@ object AccessibilityUtil {
      */
     fun findAllByClazz(
         node: AccessibilityNodeInfo?,
-        clazz: String,
+        vararg clazzList: String,
         timeout: Long = 5000,
         root: Boolean = true,
         minSize: Int = 1
@@ -555,8 +549,8 @@ object AccessibilityUtil {
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val result = findAllOnceByClazz(node, clazz)
-            LogUtils.v("clazz: $clazz count: " + result.size)
+            val result = findAllOnceByClazz(node, *clazzList)
+            LogUtils.v("clazz: ${clazzList.joinToString()} count: " + result.size)
             if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
@@ -579,13 +573,13 @@ object AccessibilityUtil {
      */
     fun findAllOnceByClazz(
         node: AccessibilityNodeInfo?,
-        clazz: String,
+        vararg clazzList: String,
         list: ArrayList<AccessibilityNodeInfo> = ArrayList()
     ): ArrayList<AccessibilityNodeInfo> {
         if (node == null) return list
-        if (node.className == clazz) list.add(node)
+        if (node.className in clazzList) list.add(node)
         for (i in 0 until node.childCount) {
-            findAllOnceByClazz(node.getChild(i), clazz, list)
+            findAllOnceByClazz(node.getChild(i), *clazzList, list = list)
         }
         return list
     }
@@ -711,11 +705,11 @@ object AccessibilityUtil {
         val gesture = builder.build()
         return service.dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription) {
-                LogUtils.d("click okk onCompleted")
+                LogUtils.v("click okk onCompleted")
             }
 
             override fun onCancelled(gestureDescription: GestureDescription) {
-                LogUtils.d("click okk onCancelled")
+                LogUtils.v("click okk onCancelled")
             }
         }, null)
     }

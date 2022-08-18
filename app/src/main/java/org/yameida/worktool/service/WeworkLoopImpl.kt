@@ -231,7 +231,7 @@ object WeworkLoopImpl {
             LogUtils.i("读取首页聊天列表")
             log("读取首页聊天列表")
         }
-        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView)
         if (listview != null) {
             if (listview.childCount >= 2) {
                 if (checkUnreadChatRoom(listview)) {
@@ -301,7 +301,7 @@ object WeworkLoopImpl {
         val itemMessageList = arrayListOf<WeworkMessageBean.ItemMessageBean>()
         LogUtils.v("开始解析一条消息...")
         //消息头(在消息主体上方 如时间信息)
-        val linearLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.LinearLayout, 1)
+        val linearLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.LinearLayout, limitDepth = 1)
         if (linearLayoutItem != null) {
             val sb = StringBuilder("消息头: ")
             val tvList = AccessibilityUtil.findAllOnceByClazz(linearLayoutItem, Views.TextView)
@@ -314,14 +314,14 @@ object WeworkLoopImpl {
             LogUtils.v(sb.toString())
         }
         //消息主体
-        val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, 1)
+        val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, limitDepth = 1)
         if (relativeLayoutItem != null && relativeLayoutItem.childCount >= 2) {
             if (Views.ImageView.equals(relativeLayoutItem.getChild(0).className)) {
                 LogUtils.v("头像在左边 本条消息发送者为其他联系人")
                 nameList.addAll(WeworkTextUtil.getNameList(node))
                 var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
                 val relativeLayoutContent =
-                    AccessibilityUtil.findOnceByClazz(relativeLayoutItem, Views.RelativeLayout, 2)
+                    AccessibilityUtil.findOnceByClazz(relativeLayoutItem, Views.RelativeLayout, limitDepth = 2)
                 if (relativeLayoutContent != null) {
                     textType = WeworkTextUtil.getTextType(relativeLayoutContent)
                     LogUtils.v("textType: $textType")

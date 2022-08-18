@@ -276,6 +276,7 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                sleep(Constant.POP_WINDOW_INTERVAL)
                 AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
             } else {
                 AccessibilityUtil.performClick(node)
@@ -322,6 +323,7 @@ object WeworkOperationImpl {
         val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
         if (node != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                sleep(Constant.POP_WINDOW_INTERVAL)
                 AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
             } else {
                 AccessibilityUtil.performClick(node)
@@ -632,18 +634,22 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val groupTv = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
+        val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
             ?: return false
-        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    && AccessibilityUtil.clickByNode(WeworkController.weworkService, groupTv))
-            || AccessibilityUtil.performClick(groupTv)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            sleep(Constant.POP_WINDOW_INTERVAL)
+            if (AccessibilityUtil.clickByNode(WeworkController.weworkService, node)) {
+                LogUtils.d("进入客户群应用")
+                val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
+                return AccessibilityUtil.performClick(textView)
+            }
+        } else if (AccessibilityUtil.performClick(node)) {
             LogUtils.d("进入客户群应用")
             val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
             return AccessibilityUtil.performClick(textView)
-        } else {
-            LogUtils.d("未找到客户群应用")
-            return false
         }
+        LogUtils.d("未找到客户群应用")
+        return false
     }
 
     /**
