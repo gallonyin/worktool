@@ -65,7 +65,8 @@ class ListenActivity : AppCompatActivity() {
             SPUtils.getInstance().put("autoReply", Constant.autoReply)
         })
         tv_host.text = WebConfig.HOST
-        tv_version.text = AppUtils.getAppVersionName()
+        val version = "${AppUtils.getAppVersionName()}     Android ${DeviceUtils.getSDKVersionName()} ${DeviceUtils.getManufacturer()} ${DeviceUtils.getModel()}"
+        tv_version.text = version
         val workVersionName = AppUtils.getAppInfo(Constant.PACKAGE_NAMES)?.versionName
         when (workVersionName) {
             null -> {
@@ -83,7 +84,7 @@ class ListenActivity : AppCompatActivity() {
                 tv_work_version.text = tip
             }
         }
-        SPUtils.getInstance().put("appVersion", AppUtils.getAppVersionName())
+        SPUtils.getInstance().put("appVersion", version)
         SPUtils.getInstance().put("workVersion", workVersionName)
     }
 

@@ -20,6 +20,8 @@ import org.yameida.worktool.service.getRoot
 import java.lang.Exception
 import java.lang.Thread.sleep
 import androidx.annotation.RequiresApi
+import com.blankj.utilcode.util.ScreenUtils
+import org.yameida.worktool.service.WeworkController
 
 /**
  * 1.查询类
@@ -96,33 +98,53 @@ object AccessibilityUtil {
 
     //寻找第一个列表并点击指定条目(默认点击第一个条目)
     fun findListOneAndClick(nodeInfo: AccessibilityNodeInfo, index: Int = 0): Boolean {
-        val rv = findOnceByClazz(nodeInfo, "androidx.recyclerview.widget.RecyclerView")
-        val lv = findOnceByClazz(nodeInfo, "android.widget.ListView")
-        if (rv == null && lv == null) return false
-        if (rv != null && rv.childCount > index) {
-            performClick(rv.getChild(index))
-        } else if (lv != null && lv.childCount > index) {
-            performClick(lv.getChild(index))
+        val list = findOnceByClazz(nodeInfo, "androidx.recyclerview.widget.RecyclerView", "android.widget.ListView")
+        if (list != null && list.childCount > index) {
+            return performClick(list.getChild(index))
         }
-        return true
+        return false
     }
 
     //滚动并按文本寻找第一个控件
     fun scrollAndFindByText(
+        service: AccessibilityService,
         nodeInfo: AccessibilityNodeInfo,
         vararg textList: String,
         maxRetry: Int = 3
     ): AccessibilityNodeInfo? {
         var index = 0
         while (index++ < maxRetry) {
+            performScrollDown(nodeInfo, 0)
+            val node = findOnceByText(nodeInfo, *textList)
+            if (node != null) {
+                return node
+            }
+        }
+        index = 0
+        while (index++ < maxRetry * 2) {
             performScrollUp(nodeInfo, 0)
             val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
             }
         }
+
+        LogUtils.d("未找到可滚动列表 使用手势滚动")
+        val width = ScreenUtils.getScreenWidth()
+        val height = ScreenUtils.getScreenHeight()
+        index = 0
         while (index++ < maxRetry * 2) {
-            performScrollDown(nodeInfo, 0)
+            scrollByXY(service, width / 2, height / 2, 0, -height / 2)
+            sleep(SCROLL_INTERVAL)
+            val node = findOnceByText(nodeInfo, *textList)
+            if (node != null) {
+                return node
+            }
+        }
+        index = 0
+        while (index++ < maxRetry * 3) {
+            scrollByXY(service, width / 2, height / 2, 0, height / 2)
+            sleep(SCROLL_INTERVAL)
             val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
@@ -141,11 +163,11 @@ object AccessibilityUtil {
         val gesture = builder.build()
         return service.dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription) {
-                LogUtils.v("click okk onCompleted")
+                LogUtils.v("click ok onCompleted")
             }
 
             override fun onCancelled(gestureDescription: GestureDescription) {
-                LogUtils.v("click okk onCancelled")
+                LogUtils.v("click ok onCancelled")
             }
         }, null)
     }
@@ -397,7 +419,7 @@ object AccessibilityUtil {
         if (node == null) return null
         val textNodeList = findAllOnceByText(node, *textList, exact = exact)
         LogUtils.v("text: ${textList.joinToString()} count: " + textNodeList.size)
-        if (exact) return textNodeList[0]
+        if (exact && textNodeList.size > 0) return textNodeList[0]
         else if (textNodeList.size > 0) {
             for (textNode in textNodeList) {
                 for (text in textList) {
@@ -486,13 +508,14 @@ object AccessibilityUtil {
         limitDepth: Int? = null,
         depth: Int = 0,
         timeout: Long = 5000,
-        root: Boolean = true
+        root: Boolean = true,
+        minChildCount: Int = 0
     ): AccessibilityNodeInfo? {
         var node = node ?: return null
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val result = findOnceByClazz(node, *clazzList, limitDepth = limitDepth, depth = depth)
+            val result = findOnceByClazz(node, *clazzList, limitDepth = limitDepth, depth = depth, minChildCount = minChildCount)
             LogUtils.v("clazz: ${clazzList.joinToString()} result == null: ${result == null}")
             if (result != null) return result
             sleep(SHORT_INTERVAL)
@@ -503,7 +526,7 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        LogUtils.e("findOneByClazz Exception()")
+        LogUtils.e("findOneByClazz Exception(): ${clazzList.joinToString()}")
         Exception().printStackTrace()
         return null
     }
@@ -518,15 +541,16 @@ object AccessibilityUtil {
         node: AccessibilityNodeInfo?,
         vararg clazzList: String,
         limitDepth: Int? = null,
-        depth: Int = 0
+        depth: Int = 0,
+        minChildCount: Int = 0
     ): AccessibilityNodeInfo? {
         if (node == null) return null
         if (node.className in clazzList) {
-            if (limitDepth == null || limitDepth == depth)
+            if ((limitDepth == null || limitDepth == depth) && node.childCount >= minChildCount)
                 return node
         }
         for (i in 0 until node.childCount) {
-            val result = findOnceByClazz(node.getChild(i), *clazzList, limitDepth = limitDepth, depth = depth + 1)
+            val result = findOnceByClazz(node.getChild(i), *clazzList, limitDepth = limitDepth, depth = depth + 1, minChildCount = minChildCount)
             if (result != null) return result
         }
         return null
@@ -560,7 +584,7 @@ object AccessibilityUtil {
             }
             currentTime = System.currentTimeMillis()
         }
-        LogUtils.e("findAllByClazz Exception()")
+        LogUtils.e("findAllByClazz Exception(): ${clazzList.joinToString()}")
         Exception().printStackTrace()
         return arrayListOf()
     }
@@ -705,12 +729,115 @@ object AccessibilityUtil {
         val gesture = builder.build()
         return service.dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription) {
-                LogUtils.v("click okk onCompleted")
+                LogUtils.v("click ok onCompleted")
             }
 
             override fun onCancelled(gestureDescription: GestureDescription) {
-                LogUtils.v("click okk onCancelled")
+                LogUtils.v("click ok onCancelled")
             }
         }, null)
+    }
+
+    /**
+     * 向下滚动
+     * Gesture手势实现滚动(Android7+)
+     * 解决 scrollable=false 无法滚动问题
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    fun scrollDownByNode(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo
+    ): Boolean {
+        val rect = Rect()
+        nodeInfo.getBoundsInScreen(rect)
+        val x: Int = (rect.left + rect.right) / 2
+        val y: Int = (rect.top + rect.bottom) / 2
+        val point = Point(x, y)
+        val builder = GestureDescription.Builder()
+        val path = Path()
+        path.moveTo(point.x.toFloat(), point.y.toFloat())
+        builder.addStroke(StrokeDescription(path, 0L, 300L))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.v("click ok onCompleted")
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.v("click ok onCancelled")
+            }
+        }, null)
+    }
+
+    /**
+     * Gesture手势实现滚动(Android7+)
+     * 解决滚动距离不可控制问题
+     * @param distanceX 向右滚动为负值 向左滚动为正值
+     * @param distanceY 向下滚动为负值 向上滚动为正值
+     */
+    fun scrollByNode(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo,
+        distanceX: Int = 0,
+        distanceY: Int = 0
+    ): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val rect = Rect()
+            nodeInfo.getBoundsInScreen(rect)
+            val point = Point((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
+            val builder = GestureDescription.Builder()
+            val path = Path()
+            path.moveTo(point.x.toFloat(), point.y.toFloat())
+            path.lineTo(point.x.toFloat() + distanceX, point.y.toFloat() + distanceY)
+            builder.addStroke(StrokeDescription(path, 0L, 300L))
+            val gesture = builder.build()
+            return service.dispatchGesture(gesture, object : GestureResultCallback() {
+                override fun onCompleted(gestureDescription: GestureDescription) {
+                    LogUtils.v("scroll ok onCompleted")
+                }
+
+                override fun onCancelled(gestureDescription: GestureDescription) {
+                    LogUtils.v("scroll ok onCancelled")
+                }
+            }, null)
+        } else {
+            LogUtils.e("系统版本<7.0 不支持手势操作")
+            return false
+        }
+    }
+
+    /**
+     * Gesture手势实现滚动(Android7+)
+     * 解决滚动距离不可控制问题
+     * @param distanceX 向右滚动为负值 向左滚动为正值
+     * @param distanceY 向下滚动为负值 向上滚动为正值
+     */
+    fun scrollByXY(
+        service: AccessibilityService,
+        x: Int = 0,
+        y: Int = 0,
+        distanceX: Int = 0,
+        distanceY: Int = 0
+    ): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val builder = GestureDescription.Builder()
+            val path = Path()
+            path.moveTo(x.toFloat(), y.toFloat())
+            path.lineTo(x.toFloat() + distanceX, y.toFloat() + distanceY)
+            builder.addStroke(StrokeDescription(path, 0L, 300L))
+            val gesture = builder.build()
+            return service.dispatchGesture(gesture, object : GestureResultCallback() {
+                override fun onCompleted(gestureDescription: GestureDescription) {
+                    LogUtils.v("scroll ok onCompleted")
+                }
+
+                override fun onCancelled(gestureDescription: GestureDescription) {
+                    LogUtils.v("scroll ok onCancelled")
+                }
+            }, null)
+        } else {
+            LogUtils.e("系统版本<7.0 不支持手势操作")
+            return false
+        }
     }
 }

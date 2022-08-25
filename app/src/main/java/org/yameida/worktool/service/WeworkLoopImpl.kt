@@ -227,11 +227,11 @@ object WeworkLoopImpl {
             }
         }
         if (!isAtHome()) return true
-        if (logIndex++ % 15 == 0) {
+        if (logIndex++ % 30 == 0) {
             LogUtils.i("读取首页聊天列表")
-            log("读取首页聊天列表")
+            if (logIndex % 120 == 0) log("读取首页聊天列表")
         }
-        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView)
+        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
         if (listview != null) {
             if (listview.childCount >= 2) {
                 if (checkUnreadChatRoom(listview)) {

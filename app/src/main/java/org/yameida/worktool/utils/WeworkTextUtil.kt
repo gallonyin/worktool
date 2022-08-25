@@ -2,8 +2,10 @@ package org.yameida.worktool.utils
 
 import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.getRoot
+import org.yameida.worktool.service.sleep
 import org.yameida.worktool.utils.AccessibilityUtil.findAllByClazz
 import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 import java.util.*
@@ -319,14 +321,13 @@ object WeworkTextUtil {
     private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val backNode = getMessageListNode(item, roomType)
         AccessibilityUtil.performLongClickWithSon(backNode)
-        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView)
+        sleep(Constant.POP_WINDOW_INTERVAL)
+        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup)
         for (optionRv in optionRvList) {
-            val optionTvList = findAllOnceByClazz(optionRv, Views.TextView)
-            for (optionTv in optionTvList) {
-                if (optionTv.text == key) {
-                    AccessibilityUtil.performClick(optionTv)
-                    return true
-                }
+            val keyTv = AccessibilityUtil.findOnceByText(optionRv, key, exact = true)
+            if (keyTv != null) {
+                AccessibilityUtil.performClick(keyTv)
+                return true
             }
         }
         return false

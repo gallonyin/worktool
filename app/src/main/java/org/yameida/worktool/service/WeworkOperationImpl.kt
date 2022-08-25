@@ -273,11 +273,14 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
         if (node != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                AccessibilityUtil.performClick(node)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘") != null) {
+                    AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+                }
             } else {
                 AccessibilityUtil.performClick(node)
             }
@@ -320,11 +323,14 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "微盘")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
         if (node != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                AccessibilityUtil.performClick(node)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘") != null) {
+                    AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
+                }
             } else {
                 AccessibilityUtil.performClick(node)
             }
@@ -363,7 +369,7 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "用过的小程序")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "用过的小程序")
         if (node != null) {
             AccessibilityUtil.performClick(node)
             sleep(Constant.CHANGE_PAGE_INTERVAL)
@@ -591,7 +597,7 @@ object WeworkOperationImpl {
                 for (select in selectList) {
                     AccessibilityUtil.findTextInput(getRoot(), select.replace("…", "").replace("-.*$".toRegex(), ""))
                     sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
-                    val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                    val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
                     val imageView = AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView)
                     if (imageView != null) {
                         AccessibilityUtil.performClick(imageView)
@@ -634,21 +640,31 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(getRoot(), "客户群", "居民群")
-            ?: return false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            sleep(Constant.POP_WINDOW_INTERVAL)
-            if (AccessibilityUtil.clickByNode(WeworkController.weworkService, node)) {
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "客户群", "居民群")
+        if (node != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                AccessibilityUtil.performClick(node)
+                sleep(Constant.POP_WINDOW_INTERVAL)
+                if (AccessibilityUtil.findOnceByText(getRoot(), "客户群", "居民群") != null) {
+                    if (AccessibilityUtil.clickByNode(WeworkController.weworkService, node)) {
+                        LogUtils.d("进入客户群应用")
+                        val textView =
+                            AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
+                        return AccessibilityUtil.performClick(textView)
+                    }
+                } else {
+                    LogUtils.d("进入客户群应用")
+                    val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
+                    return AccessibilityUtil.performClick(textView)
+                }
+            } else if (AccessibilityUtil.performClick(node)) {
                 LogUtils.d("进入客户群应用")
                 val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
                 return AccessibilityUtil.performClick(textView)
             }
-        } else if (AccessibilityUtil.performClick(node)) {
-            LogUtils.d("进入客户群应用")
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
-            return AccessibilityUtil.performClick(textView)
         }
-        LogUtils.d("未找到客户群应用")
+        LogUtils.e("未找到客户群应用")
+        log("未找到客户群应用")
         return false
     }
 
@@ -657,19 +673,32 @@ object WeworkOperationImpl {
      */
     private fun groupRename(groupName: String): Boolean {
         if (WeworkRoomUtil.intoGroupManager()) {
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "微信用户创建")
-            //todo 微信用户创建可能找不到
-            val button = AccessibilityUtil.findFrontNode(textView)
-            if (button != null) {
-                AccessibilityUtil.performClick(button)
-                AccessibilityUtil.findTextInput(getRoot(), groupName)
-                val confirmButton = AccessibilityUtil.findOneByText(getRoot(), "确定")
-                AccessibilityUtil.performClick(confirmButton)
-                sleep(2000)
-                return true
+            val textView = AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建")
+                ?: return false
+            if (textView.text.contains("微信用户创建")) {
+                val button = AccessibilityUtil.findFrontNode(textView)
+                if (button != null) {
+                    AccessibilityUtil.performClick(button)
+                    AccessibilityUtil.findTextInput(getRoot(), groupName)
+                    val confirmButton = AccessibilityUtil.findOneByText(getRoot(), "确定")
+                    AccessibilityUtil.performClick(confirmButton)
+                    sleep(2000)
+                    return true
+                } else {
+                    LogUtils.e("未找到填写群名按钮")
+                    return false
+                }
             } else {
-                LogUtils.e("未找到填写群名按钮")
-                return false
+                val result = AccessibilityUtil.findTextAndClick(getRoot(), "群聊名称")
+                if (result) {
+                    AccessibilityUtil.findTextInput(getRoot(), groupName)
+                    val confirmButton = AccessibilityUtil.findOneByText(getRoot(), "确定")
+                    AccessibilityUtil.performClick(confirmButton)
+                    sleep(2000)
+                    return true
+                } else {
+                    LogUtils.e("未找到群聊名称按钮")
+                }
             }
         }
         return false
@@ -687,9 +716,14 @@ object WeworkOperationImpl {
         if (WeworkRoomUtil.intoGroupManager()) {
             val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
-                if (gridView.childCount == 2) {
+                val tvEmptySize = AccessibilityUtil.findAllOnceByClazz(gridView, Views.TextView)
+                    .filter { it.text == null }.size
+                LogUtils.v("tvEmptySize: $tvEmptySize")
+                if (tvEmptySize == 0) {
+                    return true
+                } else if (tvEmptySize == 1) {
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
-                } else {
+                } else if (tvEmptySize == 2) {
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 2))
                 }
             } else {
@@ -706,16 +740,18 @@ object WeworkOperationImpl {
                         AccessibilityUtil.performClick(multiButton)
                         AccessibilityUtil.findTextInput(getRoot(), select)
                         sleep(Constant.POP_WINDOW_INTERVAL)
-                        val selectListViewTemp =
-                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val selectListView =
-                                AccessibilityUtil.findOnceByClazz(getRoot(), Views.RecyclerView) ?: selectListViewTemp
-                        val imageView =
-                            AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
-                        AccessibilityUtil.performClick(imageView)
-                        val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
-                        if (textView != null && textView.text.isNullOrBlank()) {
-                            AccessibilityUtil.performClick(textView)
+                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
+                        if (selectListView != null) {
+                            val imageView =
+                                AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
+                            AccessibilityUtil.performClick(imageView)
+                            val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
+                            if (textView != null && textView.text.isNullOrBlank()) {
+                                AccessibilityUtil.performClick(textView)
+                            }
+                        } else {
+                            LogUtils.e("未查到列表结果")
                         }
                     }
                     if (showMessageHistory) {
@@ -749,9 +785,12 @@ object WeworkOperationImpl {
         if (WeworkRoomUtil.intoGroupManager()) {
             val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
-                if (gridView.childCount == 2) {
+                val tvEmptySize = AccessibilityUtil.findAllOnceByClazz(gridView, Views.TextView)
+                    .filter { it.text == null }.size
+                LogUtils.v("tvEmptySize: $tvEmptySize")
+                if (tvEmptySize <= 1) {
                     return true
-                } else {
+                } else if (tvEmptySize == 2) {
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
                 }
             } else {
@@ -767,8 +806,9 @@ object WeworkOperationImpl {
                     for (select in removeList) {
                         AccessibilityUtil.performClick(multiButton)
                         AccessibilityUtil.findTextInput(getRoot(), select)
+                        sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView =
-                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
                         val imageView =
                             AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
                         AccessibilityUtil.performClick(imageView)
@@ -808,11 +848,16 @@ object WeworkOperationImpl {
             val textView = AccessibilityUtil.findOneByText(getRoot(), "群公告")
             if (textView != null) {
                 AccessibilityUtil.performClick(textView)
-                val editButton = AccessibilityUtil.findOneByText(getRoot(), "编辑", timeout = 2000)
+                val editButton = AccessibilityUtil.findOneByText(getRoot(), "编辑", timeout = 2000, exact = true)
                 if (editButton != null) {
                     LogUtils.d("群公告编辑中: $groupAnnouncement")
-                    AccessibilityUtil.performClick(editButton)
-                    sleep(1000)
+                    var retry = 0
+                    while (retry++ < 10) {
+                        AccessibilityUtil.performClick(editButton)
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        if (AccessibilityUtil.findOnceByText(getRoot(), "编辑", exact = true) == null)
+                            break
+                    }
                 }
                 if (AccessibilityUtil.findTextInput(getRoot(), groupAnnouncement)) {
                     LogUtils.d("群公告发布中: $groupAnnouncement")
@@ -849,16 +894,35 @@ object WeworkOperationImpl {
             val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", timeout = 2000)
             if (atFlag != null) {
                 val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
-                AccessibilityUtil.findTextInput(getRoot(), at)
-                val atNode = AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
-                if (atNode != null) {
-                    AccessibilityUtil.performClick(atNode)
+                if (rv != null) {
+                    AccessibilityUtil.findTextInput(getRoot(), at)
+                    val atNode =
+                        AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
+                    if (atNode != null) {
+                        AccessibilityUtil.performClick(atNode)
+                    } else {
+                        LogUtils.e("未找到at人: $at")
+                        atFailed = true
+                        backPress()
+                    }
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                 } else {
-                    LogUtils.e("未找到at人: $at")
-                    atFailed = true
-                    backPress()
+                    val searchFlag = AccessibilityUtil.findOnceByText(getRoot(), "搜索", exact = true)
+                    val list = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)
+                    if (list != null) {
+                        AccessibilityUtil.findTextInput(getRoot(), at)
+                        val atNode =
+                            AccessibilityUtil.findOneByText(list, at, root = false, timeout = 2000)
+                        if (atNode != null) {
+                            AccessibilityUtil.performClick(atNode)
+                        } else {
+                            LogUtils.e("未找到at人: $at")
+                            atFailed = true
+                            backPress()
+                        }
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                    }
                 }
-                sleep(Constant.POP_WINDOW_INTERVAL)
             }
         }
         val content = if (atFailed) "@$at $prefix$text" else "$prefix$text"
@@ -866,8 +930,8 @@ object WeworkOperationImpl {
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
                 .firstOrNull { it.text == "发送" }
             if (sendButton != null) {
-                LogUtils.d("发送消息: \n$text")
-                log("发送消息: \n$text")
+                LogUtils.d("发送消息: \n$content")
+                log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
             } else {
                 LogUtils.e("未找到发送按钮")

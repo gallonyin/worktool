@@ -92,7 +92,7 @@ object WeworkRoomUtil {
             return true
         }
         goHome()
-        val list = findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView)
+        val list = findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
         if (list != null) {
             val frontNode = findFrontNode(list)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
@@ -106,6 +106,7 @@ object WeworkRoomUtil {
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
                 if (imageView != null) {
                     AccessibilityUtil.performClick(imageView)
+                    LogUtils.d("进入房间: $title")
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
                     return true
                 } else {
@@ -125,8 +126,7 @@ object WeworkRoomUtil {
      * @return true 成功进入群管理页
      */
     fun intoGroupManager(): Boolean {
-        if (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员") != null
-            || AccessibilityUtil.findOnceByText(getRoot(), "微信用户创建") != null) {
+        if (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") != null) {
             return true
         }
         val list = findOneByClazz(getRoot(), Views.ListView)
