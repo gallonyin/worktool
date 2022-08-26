@@ -59,6 +59,7 @@ object WeworkController {
      * @param message#originalContent 原始消息的内容
      * @param message#textType 原始消息的消息类型
      * @param message#receivedContent 回复内容
+     * @param message#prefix 回复内容前缀
      * @see WeworkMessageBean.TEXT_TYPE
      */
     @RequestMapping

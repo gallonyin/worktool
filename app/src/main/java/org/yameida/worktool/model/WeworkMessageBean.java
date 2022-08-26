@@ -139,6 +139,8 @@ public class WeworkMessageBean {
     public String receivedName;
     //内容移除了@me
     public String receivedContent;
+    //回复内容前缀
+    public String prefix;
     //想要at的昵称
     public String at;
     //原始内容text

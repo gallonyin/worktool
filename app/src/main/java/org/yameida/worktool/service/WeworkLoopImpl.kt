@@ -5,7 +5,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
-import org.yameida.worktool.Demo
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
@@ -73,7 +72,8 @@ object WeworkLoopImpl {
                                 val nameList = passFriendRequest()
                                 if (nameList.isEmpty())
                                     break
-                                Demo.test2(nameList[0])
+                                //todo 可自定义执行任务
+//                                Demo.test2(nameList[0])
                             }
                         }
                         return true
@@ -105,6 +105,7 @@ object WeworkLoopImpl {
             val title = titleList.joinToString()
             LogUtils.v("聊天: $title")
             log("聊天: $title")
+            //聊天消息列表 1ListView 0RecycleView xViewGroup
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
             if (list != null) {
                 LogUtils.v("消息条数: " + list.childCount)

@@ -184,6 +184,7 @@ object AccessibilityUtil {
             }
             nodeInfo = nodeInfo.parent
         }
+        LogUtils.e("performClick failed! ${nodeInfo?.className}")
         return false
     }
 

@@ -57,6 +57,7 @@ object WeworkRoomUtil {
      */
     fun getRoomTitle(print: Boolean = true): ArrayList<String> {
         val titleList = arrayListOf<String>()
+        //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = findFrontNode(list.parent.parent)
@@ -102,6 +103,7 @@ object WeworkRoomUtil {
                 AccessibilityUtil.performClick(searchButton)
                 AccessibilityUtil.findTextInput(getRoot(), title.replace("…", "").replace("-.*$".toRegex(), ""))
                 sleep(Constant.CHANGE_PAGE_INTERVAL)
+                //消息页搜索结果列表
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
                 if (imageView != null) {
@@ -129,6 +131,7 @@ object WeworkRoomUtil {
         if (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") != null) {
             return true
         }
+        //群详情列表
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
@@ -153,6 +156,7 @@ object WeworkRoomUtil {
         if (AccessibilityUtil.findOneByText(getRoot(), "设置聊天背景") != null) {
             return true
         }
+        //同群详情列表
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
             val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
@@ -210,6 +214,7 @@ object WeworkRoomUtil {
      * listview前兄弟控件 && text包含外部群
      */
     private fun isExternalGroup(): Boolean {
+        //聊天消息列表 1ListView 0RecycleView xViewGroup
         val listView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView, limitDepth = null, depth = 0)
         if (listView != null) {
             val frontNode = findFrontNode(listView)
@@ -226,8 +231,10 @@ object WeworkRoomUtil {
      * 有列表和输入框
      */
     private fun isSingleChat(): Boolean {
+        //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
         val editText = AccessibilityUtil.findOnceByClazz(getRoot(), Views.EditText)
+            ?: AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (list != null && editText != null) {
             return true
         }
