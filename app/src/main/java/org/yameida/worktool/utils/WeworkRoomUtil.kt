@@ -128,7 +128,7 @@ object WeworkRoomUtil {
      * @return true 成功进入群管理页
      */
     fun intoGroupManager(): Boolean {
-        if (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") != null) {
+        if (AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL) != null) {
             return true
         }
         //群详情列表
