@@ -154,7 +154,7 @@ object WeworkGetImpl {
             }
         }
         if (weworkMessageBean.groupName.isNullOrEmpty()) {
-            val groupNameTv = AccessibilityUtil.findOnceByText(getRoot(), "群聊名称")
+            val groupNameTv = AccessibilityUtil.findOnceByText(getRoot(), "群聊名称", exact = true)
             if (groupNameTv != null) {
                 val tvList = AccessibilityUtil.findAllOnceByClazz(
                     groupNameTv.parent.parent.parent,
@@ -175,14 +175,14 @@ object WeworkGetImpl {
                 weworkMessageBean.groupOwner = tvOwnerName.text.toString()
             }
         }
-        val tvCountFlag = AccessibilityUtil.findOnceByText(getRoot(), "查看全部群成员")
+        val tvCountFlag = AccessibilityUtil.findOnceByText(getRoot(), "查看全部群成员", exact = true)
         val tvCount = AccessibilityUtil.findBackNode(tvCountFlag)
         if (tvCount != null && tvCount.text != null) {
             LogUtils.d("群成员: " + tvCount.text)
             val count = tvCount.text.toString().replace("人", "")
             weworkMessageBean.groupNumber = count.toIntOrNull()
         }
-        val tvAnnouncementFlag = AccessibilityUtil.findOnceByText(getRoot(), "群公告")
+        val tvAnnouncementFlag = AccessibilityUtil.findOnceByText(getRoot(), "群公告", exact = true)
         val tvAnnouncement = AccessibilityUtil.findBackNode(tvAnnouncementFlag)
         if (tvAnnouncement != null && tvAnnouncement.text != null) {
             LogUtils.d("群公告: " + tvAnnouncement.text)

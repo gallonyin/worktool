@@ -225,7 +225,7 @@ object WeworkOperationImpl {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 AccessibilityUtil.performClick(node)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘") != null) {
+                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘", exact = true) != null) {
                     AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
                 }
             } else {
@@ -275,7 +275,7 @@ object WeworkOperationImpl {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 AccessibilityUtil.performClick(node)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘") != null) {
+                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘", exact = true) != null) {
                     AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
                 }
             } else {
@@ -406,7 +406,7 @@ object WeworkOperationImpl {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             AccessibilityUtil.performClick(button)
                             sleep(Constant.POP_WINDOW_INTERVAL)
-                            if (AccessibilityUtil.findOnceByText(list, "添加客户", "添加居民", "加微信") != null) {
+                            if (AccessibilityUtil.findOnceByText(list, "添加客户", "添加居民", "加微信", exact = true) != null) {
                                 AccessibilityUtil.clickByNode(WeworkController.weworkService, button)
                             }
                         } else {
@@ -426,12 +426,12 @@ object WeworkOperationImpl {
                                 )
                             }
                             if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话") != null) {
-                                var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述")
+                                var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
                                 if (markTv == null) {
-                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业")
+                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业", exact = true)
                                 }
                                 if (markTv == null) {
-                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述")
+                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述", exact = true)
                                 }
                                 //设置备注
                                 if (markTv != null && (friend.markName != null
@@ -480,7 +480,7 @@ object WeworkOperationImpl {
                                         LogUtils.d("发送添加邀请成功: " + friend.phone)
                                     }
                                 } else {
-                                    if (AccessibilityUtil.findOnceByText(getRoot(), "发消息") != null) {
+                                    if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
                                         LogUtils.e("已经添加联系人，请勿重复添加")
                                     } else {
                                         LogUtils.e("未找到添加为联系人")
@@ -603,7 +603,7 @@ object WeworkOperationImpl {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 AccessibilityUtil.performClick(node)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "客户群", "居民群") != null) {
+                if (AccessibilityUtil.findOnceByText(getRoot(), "客户群", "居民群", exact = true) != null) {
                     if (AccessibilityUtil.clickByNode(WeworkController.weworkService, node)) {
                         LogUtils.d("进入客户群应用")
                         val textView =
@@ -805,7 +805,7 @@ object WeworkOperationImpl {
     private fun groupChangeAnnouncement(groupAnnouncement: String? = null): Boolean {
         if (groupAnnouncement == null) return true
         if (WeworkRoomUtil.intoGroupManager()) {
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "群公告")
+            val textView = AccessibilityUtil.findOneByText(getRoot(), "群公告", exact = true)
             if (textView != null) {
                 AccessibilityUtil.performClick(textView)
                 val editButton = AccessibilityUtil.findOneByText(getRoot(), "编辑", timeout = 2000, exact = true)

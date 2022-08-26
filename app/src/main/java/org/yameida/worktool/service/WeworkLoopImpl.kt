@@ -185,7 +185,7 @@ object WeworkLoopImpl {
                 //回到上一页
                 var retry = 5
                 while (retry-- > 0 && !isAtHome()) {
-                    val textView = AccessibilityUtil.findOnceByText(getRoot(), "新的客户", "新的居民")
+                    val textView = AccessibilityUtil.findOnceByText(getRoot(), "新的客户", "新的居民", exact = true)
                     if (textView == null) {
                         backPress()
                     }
