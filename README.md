@@ -22,10 +22,10 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 
 [快速入门文档](https://www.apifox.cn/apidoc/project-1035094/doc-850007)
 
-1. 准备一台无人使用的可联网安卓手机（本APP兼容99%安卓机型）
+1. 准备一台无人使用的可联网安卓手机（本APP兼容99%安卓机型 系统要求>=Android7.0）
 2. 手机登录企业微信（账号需要提前实名认证，不然很多功能无法正常使用）
 3. 建议提前给该企业微信账号开通"工作台"-"客户群"权限（如无需外部群创建和管理可不开启）
-4. 自助申请一个[机器人链接号(点击这里)](https://www.apifox.cn/apidoc/project-1035094/api-21488840)，您也可以加入QQ群向管理员咨询如何操作。
+4. 自助申请一个[机器人链接号(点击这里)](https://wt.asrtts.cn/regist.html)，您也可以加入QQ群向管理员咨询如何操作。
 5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-2.2.5.apk)
 6. 打开WorkTool APP，按照APP提示保存链接号，开启主功能，并打开到企业微信界面，不要关闭屏幕即可。
 
