@@ -139,8 +139,6 @@ public class WeworkMessageBean {
     public String receivedName;
     //内容移除了@me
     public String receivedContent;
-    //回复内容前缀
-    public String prefix;
     //想要at的昵称
     public String at;
     //原始内容text
@@ -254,6 +252,8 @@ public class WeworkMessageBean {
         public List<String> tagList;
         //是否是新好友
         public Boolean newFriend;
+        //留言
+        public String leavingMsg;
     }
 
     @Override
@@ -266,7 +266,7 @@ public class WeworkMessageBean {
 
     @Override
     public int hashCode() {
-        return Objects.hash(titleList, messageList, log, roomType, receivedName, receivedContent, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, type);
+        return Objects.hash(titleList, messageList, log, roomType, receivedName, receivedContent, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, type, friend);
     }
 
     @Override

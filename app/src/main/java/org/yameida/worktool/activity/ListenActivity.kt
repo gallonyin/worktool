@@ -15,8 +15,11 @@ import com.umeng.analytics.MobclickAgent
 import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
 import org.yameida.worktool.service.WeworkService
-import org.yameida.worktool.config.WebConfig
 import org.yameida.worktool.utils.UpdateUtil
+import android.app.Dialog
+import android.widget.Button
+import android.widget.EditText
+
 
 class ListenActivity : AppCompatActivity() {
 
@@ -42,12 +45,12 @@ class ListenActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        et_channel.setText(SPUtils.getInstance().getString(WebConfig.LISTEN_CHANNEL_ID))
+        et_channel.setText(SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID))
         bt_save.setOnClickListener {
             val channel = et_channel.text.toString().trim()
-            SPUtils.getInstance().put(WebConfig.LISTEN_CHANNEL_ID, channel)
+            SPUtils.getInstance().put(Constant.LISTEN_CHANNEL_ID, channel)
             ToastUtils.showLong("保存成功")
-            sendBroadcast(Intent(WebConfig.WEWORK_NOTIFY).apply {
+            sendBroadcast(Intent(Constant.WEWORK_NOTIFY).apply {
                 putExtra("type", "modify_channel")
             })
             MobclickAgent.onProfileSignIn(channel)
@@ -64,7 +67,11 @@ class ListenActivity : AppCompatActivity() {
             Constant.autoReply = if (isChecked) 1 else 0
             SPUtils.getInstance().put("autoReply", Constant.autoReply)
         })
-        tv_host.text = WebConfig.HOST
+        tv_host.text = Constant.host
+        tv_host.setOnLongClickListener {
+            showInputDialog()
+            true
+        }
         val version = "${AppUtils.getAppVersionName()}     Android ${DeviceUtils.getSDKVersionName()} ${DeviceUtils.getManufacturer()} ${DeviceUtils.getModel()}"
         tv_version.text = version
         val workVersionName = AppUtils.getAppInfo(Constant.PACKAGE_NAMES)?.versionName
@@ -92,7 +99,7 @@ class ListenActivity : AppCompatActivity() {
         sw_accessibility.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             LogUtils.i("sw_accessibility onCheckedChanged: $isChecked")
             if (isChecked) {
-                if (SPUtils.getInstance().getString(WebConfig.LISTEN_CHANNEL_ID).isNullOrBlank()) {
+                if (SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID).isNullOrBlank()) {
                     sw_accessibility.isChecked = false
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!isAccessibilitySettingOn()) {
@@ -191,6 +198,34 @@ class ListenActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showInputDialog() {
+        ToastUtils.showLong("请输入专线网络")
+        val commentDialog = Dialog(this)
+        commentDialog.setContentView(R.layout.dialog_input)
+        val et: EditText = commentDialog.findViewById(R.id.body) as EditText
+        val okBtn: Button = commentDialog.findViewById(R.id.ok) as Button
+        okBtn.setOnClickListener {
+            val text = et.text.toString()
+            if (text.isNotBlank()) {
+                if (text.matches("ws{1,2}://[^/]+.*".toRegex())) {
+                    Constant.host = text
+                    tv_host.text = text
+                    ToastUtils.showLong("保存成功")
+                    commentDialog.dismiss()
+                } else {
+                    ToastUtils.showLong("格式异常！")
+                }
+            } else {
+                ToastUtils.showLong("请勿为空！")
+            }
+        }
+        val cancelBtn: Button = commentDialog.findViewById(R.id.cancel) as Button
+        cancelBtn.setOnClickListener {
+            commentDialog.dismiss()
+        }
+        commentDialog.show()
     }
 
 }

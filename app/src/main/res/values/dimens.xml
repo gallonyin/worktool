@@ -6,7 +6,7 @@
     <dimen name="setting_start_padding">22dp</dimen>
     <dimen name="setting_end_start_padding">25dp</dimen>
     <dimen name="setting_end_padding">10dp</dimen>
-    <dimen name="setting_vertical_padding">7dp</dimen>
+    <dimen name="setting_vertical_padding">5dp</dimen>
     <dimen name="setting_start_font_width">150dp</dimen>
     <dimen name="setting_end_font_width">60dp</dimen>
     <dimen name="setting_start_image_width">20dp</dimen>

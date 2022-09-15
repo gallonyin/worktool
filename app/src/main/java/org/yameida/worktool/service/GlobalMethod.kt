@@ -107,23 +107,23 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
  */
 fun backPress() {
     val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
-    if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView)) {
+    if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView, retry = false)) {
         LogUtils.v("找到回退按钮")
     } else {
         val ivButton = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ImageView)
         if (ivButton != null && ivButton.isClickable && AccessibilityUtil.findFrontNode(ivButton) == null) {
             LogUtils.d("未找到回退按钮 点击第一个IV按钮")
-            AccessibilityUtil.performClick(ivButton)
+            AccessibilityUtil.performClick(ivButton, retry = false)
         } else {
             LogUtils.d("未找到回退按钮 点击第一个BT按钮")
             val button = AccessibilityUtil.findOnceByClazz(getRoot(), Views.Button)
             if (button != null && button.childCount > 0) {
-                AccessibilityUtil.performClick(button.getChild(0))
+                AccessibilityUtil.performClick(button.getChild(0), retry = false)
             } else if (button != null) {
-                AccessibilityUtil.performClick(button)
+                AccessibilityUtil.performClick(button, retry = false)
             } else {
                 LogUtils.d("未找到BT按钮")
-                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定", "我知道了", "暂不进入", "不用了", "取消")
+                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定", "我知道了", "暂不进入", "不用了", "取消", "暂不", exact = true)
                 if (confirm != null) {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)

@@ -16,7 +16,7 @@ import update.UpdateAppUtils
 object UpdateUtil {
 
     fun checkUpdate() {
-        OkGo.get<String>(Constant.URL_CHECK_UPDATE)
+        OkGo.get<String>(Constant.getCheckUpdateUrl())
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {
                     val commonResult =

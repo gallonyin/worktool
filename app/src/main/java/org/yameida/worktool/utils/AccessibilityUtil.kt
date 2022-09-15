@@ -4,13 +4,11 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityService.GestureResultCallback
 import android.accessibilityservice.GestureDescription
 import android.accessibilityservice.GestureDescription.StrokeDescription
-import android.annotation.TargetApi
 import android.app.Notification
 import android.app.PendingIntent
 import android.graphics.Path
 import android.graphics.Point
 import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
@@ -19,7 +17,6 @@ import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.service.getRoot
 import java.lang.Exception
 import java.lang.Thread.sleep
-import androidx.annotation.RequiresApi
 import com.blankj.utilcode.util.ScreenUtils
 import org.yameida.worktool.service.WeworkController
 
@@ -56,8 +53,8 @@ import org.yameida.worktool.service.WeworkController
  */
 object AccessibilityUtil {
     private const val tag = "AccessibilityUtil"
-    private const val SHORT_INTERVAL = 100L
-    private const val SCROLL_INTERVAL = 300L
+    private const val SHORT_INTERVAL = 150L
+    private const val SCROLL_INTERVAL = 500L
 
     //编辑EditView(非粘贴 推荐)
     fun editTextInput(nodeInfo: AccessibilityNodeInfo?, text: String): Boolean {
@@ -154,7 +151,6 @@ object AccessibilityUtil {
     }
 
     //输入x, y坐标模拟点击事件
-    @TargetApi(Build.VERSION_CODES.N)
     fun performXYClick(service: AccessibilityService, x: Float, y: Float): Boolean {
         val path = Path()
         path.moveTo(x, y)
@@ -175,16 +171,23 @@ object AccessibilityUtil {
     /**
      * 对某个节点或父节点进行点击
      */
-    fun performClick(nodeInfo: AccessibilityNodeInfo?): Boolean {
-        var nodeInfo: AccessibilityNodeInfo? = nodeInfo ?: return false
-        while (nodeInfo != null) {
-            if (nodeInfo.isClickable) {
-                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+    fun performClick(nodeInfo: AccessibilityNodeInfo?, retry: Boolean = true): Boolean {
+        var tempNodeInfo: AccessibilityNodeInfo? = nodeInfo ?: return false
+        while (tempNodeInfo != null) {
+            if (tempNodeInfo.isClickable) {
+                tempNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                LogUtils.v("performClick success! ${nodeInfo.className}")
                 return true
             }
-            nodeInfo = nodeInfo.parent
+            tempNodeInfo = tempNodeInfo.parent
         }
-        LogUtils.e("performClick failed! ${nodeInfo?.className}")
+        LogUtils.e("performClick failed! retry: $retry ${nodeInfo.className}")
+        if (retry) {
+            sleep(SHORT_INTERVAL * 2)
+            nodeInfo.refresh()
+            val click = clickByNode(WeworkController.weworkService, nodeInfo)
+            LogUtils.e("performClick failed! clickByNode: $click")
+        }
         return false
     }
 
@@ -381,6 +384,54 @@ object AccessibilityUtil {
     }
 
     /**
+     * 按正则表达式寻找节点和子节点内的一个匹配项
+     * @param node 节点
+     * @param regex 表达式
+     * @param timeout 检查超时时间
+     */
+    fun findOneByTextRegex(
+        node: AccessibilityNodeInfo?,
+        regex: String,
+        timeout: Long = 5000,
+        root: Boolean = true
+    ): AccessibilityNodeInfo? {
+        var node = node ?: return null
+        val startTime = System.currentTimeMillis()
+        var currentTime = startTime
+        while (currentTime - startTime <= timeout) {
+            val result = findOnceByTextRegex(node, regex)
+            if (result != null) return result
+            sleep(SHORT_INTERVAL)
+            if (root) {
+                node = getRoot(true)
+            } else {
+                node.refresh()
+            }
+            currentTime = System.currentTimeMillis()
+        }
+        Log.e(tag, "findOneByTextRegex: not found: $regex")
+        return null
+    }
+
+    /**
+     * 按正则表达式寻找节点和子节点内的一个匹配项
+     * @param node 节点
+     * @param regex 表达式
+     */
+    fun findOnceByTextRegex(
+        node: AccessibilityNodeInfo?,
+        regex: String
+    ): AccessibilityNodeInfo? {
+        if (node == null) return null
+        val textNodeList = findAllOnceByTextRegex(node, regex)
+        LogUtils.v("regex: $regex count: " + textNodeList.size)
+        if (textNodeList.size > 0) {
+            return textNodeList[0]
+        }
+        return null
+    }
+
+    /**
      * 按文本(关键词)寻找节点和子节点内的一个匹配项
      * @param node 节点
      * @param textList 关键词
@@ -496,6 +547,60 @@ object AccessibilityUtil {
     }
 
     /**
+     * 按正则表达式寻找节点和子节点内的所有匹配项
+     * @param node 节点
+     * @param regex 关键词
+     * @param timeout 检查超时时间
+     */
+    fun findAllByTextRegex(
+        node: AccessibilityNodeInfo?,
+        regex: String,
+        timeout: Long = 5000,
+        root: Boolean = true,
+        minSize: Int = 1
+    ): List<AccessibilityNodeInfo> {
+        var node = node ?: return arrayListOf()
+        val startTime = System.currentTimeMillis()
+        var currentTime = startTime
+        while (currentTime - startTime <= timeout) {
+            val result = findAllOnceByTextRegex(node, regex)
+            LogUtils.v("regex: $regex count: " + result.size)
+            if (result.size >= minSize) return result
+            sleep(SHORT_INTERVAL)
+            if (root) {
+                node = getRoot(true)
+            } else {
+                node.refresh()
+            }
+            currentTime = System.currentTimeMillis()
+        }
+        Log.e(tag, "findAllByTextRegex: not found: $regex")
+        return arrayListOf()
+    }
+
+    /**
+     * 按正则表达式寻找节点和子节点内的所有匹配项
+     * node 节点
+     * clazz 类名
+     * limitDepth 深度 限制深度搜索深度必须匹配提供值且类名相同才返回 不填默认不限制
+     */
+    fun findAllOnceByTextRegex(
+        node: AccessibilityNodeInfo?,
+        regex: String,
+        list: ArrayList<AccessibilityNodeInfo> = ArrayList()
+    ): ArrayList<AccessibilityNodeInfo> {
+        if (node == null) return list
+        val nodeText = node.text?.toString()
+        if (nodeText != null && nodeText.matches(regex.toRegex())) {
+            list.add(node)
+        }
+        for (i in 0 until node.childCount) {
+            findAllOnceByTextRegex(node.getChild(i), regex, list = list)
+        }
+        return list
+    }
+
+    /**
      * 按类名寻找节点和子节点内的一个匹配项
      * node 节点
      * clazz 类名
@@ -509,13 +614,14 @@ object AccessibilityUtil {
         depth: Int = 0,
         timeout: Long = 5000,
         root: Boolean = true,
-        minChildCount: Int = 0
+        minChildCount: Int = 0,
+        firstChildClazz: String? = null
     ): AccessibilityNodeInfo? {
         var node = node ?: return null
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            val result = findOnceByClazz(node, *clazzList, limitDepth = limitDepth, depth = depth, minChildCount = minChildCount)
+            val result = findOnceByClazz(node, *clazzList, limitDepth = limitDepth, depth = depth, minChildCount = minChildCount, firstChildClazz = firstChildClazz)
             LogUtils.v("clazz: ${clazzList.joinToString()} result == null: ${result == null}")
             if (result != null) return result
             sleep(SHORT_INTERVAL)
@@ -542,15 +648,18 @@ object AccessibilityUtil {
         vararg clazzList: String,
         limitDepth: Int? = null,
         depth: Int = 0,
-        minChildCount: Int = 0
+        minChildCount: Int = 0,
+        firstChildClazz: String? = null
     ): AccessibilityNodeInfo? {
         if (node == null) return null
         if (node.className in clazzList) {
             if ((limitDepth == null || limitDepth == depth) && node.childCount >= minChildCount)
-                return node
+                if (firstChildClazz == null || (node.childCount > 0 && firstChildClazz == node.getChild(0).className)) {
+                    return node
+                }
         }
         for (i in 0 until node.childCount) {
-            val result = findOnceByClazz(node.getChild(i), *clazzList, limitDepth = limitDepth, depth = depth + 1, minChildCount = minChildCount)
+            val result = findOnceByClazz(node.getChild(i), *clazzList, limitDepth = limitDepth, depth = depth + 1, minChildCount = minChildCount, firstChildClazz = firstChildClazz)
             if (result != null) return result
         }
         return null
@@ -696,7 +805,7 @@ object AccessibilityUtil {
         for (i in 0 until depth) {
             s += "---"
         }
-        Log.d(tag, "$s depth: $depth className: " + node.className)
+        Log.d(tag, "$s depth: $depth className: " + node.className + " isClickable: " + node.isClickable)
         if (printText && node.text != null) {
             Log.d(tag, "$s depth: $depth text: " + node.text)
         }
@@ -712,11 +821,11 @@ object AccessibilityUtil {
      * Gesture手势实现点击(Android7+)
      * 解决 clickable=false 无法点击问题
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun clickByNode(
         service: AccessibilityService,
         nodeInfo: AccessibilityNodeInfo
     ): Boolean {
+        nodeInfo.refresh()
         val rect = Rect()
         nodeInfo.getBoundsInScreen(rect)
         val x: Int = (rect.left + rect.right) / 2
@@ -743,7 +852,6 @@ object AccessibilityUtil {
      * Gesture手势实现滚动(Android7+)
      * 解决 scrollable=false 无法滚动问题
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun scrollDownByNode(
         service: AccessibilityService,
         nodeInfo: AccessibilityNodeInfo
@@ -781,29 +889,24 @@ object AccessibilityUtil {
         distanceX: Int = 0,
         distanceY: Int = 0
     ): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val rect = Rect()
-            nodeInfo.getBoundsInScreen(rect)
-            val point = Point((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
-            val builder = GestureDescription.Builder()
-            val path = Path()
-            path.moveTo(point.x.toFloat(), point.y.toFloat())
-            path.lineTo(point.x.toFloat() + distanceX, point.y.toFloat() + distanceY)
-            builder.addStroke(StrokeDescription(path, 0L, 300L))
-            val gesture = builder.build()
-            return service.dispatchGesture(gesture, object : GestureResultCallback() {
-                override fun onCompleted(gestureDescription: GestureDescription) {
-                    LogUtils.v("scroll ok onCompleted")
-                }
+        val rect = Rect()
+        nodeInfo.getBoundsInScreen(rect)
+        val point = Point((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
+        val builder = GestureDescription.Builder()
+        val path = Path()
+        path.moveTo(point.x.toFloat(), point.y.toFloat())
+        path.lineTo(point.x.toFloat() + distanceX, point.y.toFloat() + distanceY)
+        builder.addStroke(StrokeDescription(path, 0L, 300L))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.v("scroll ok onCompleted")
+            }
 
-                override fun onCancelled(gestureDescription: GestureDescription) {
-                    LogUtils.v("scroll ok onCancelled")
-                }
-            }, null)
-        } else {
-            LogUtils.e("系统版本<7.0 不支持手势操作")
-            return false
-        }
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.v("scroll ok onCancelled")
+            }
+        }, null)
     }
 
     /**
@@ -819,25 +922,20 @@ object AccessibilityUtil {
         distanceX: Int = 0,
         distanceY: Int = 0
     ): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val builder = GestureDescription.Builder()
-            val path = Path()
-            path.moveTo(x.toFloat(), y.toFloat())
-            path.lineTo(x.toFloat() + distanceX, y.toFloat() + distanceY)
-            builder.addStroke(StrokeDescription(path, 0L, 300L))
-            val gesture = builder.build()
-            return service.dispatchGesture(gesture, object : GestureResultCallback() {
-                override fun onCompleted(gestureDescription: GestureDescription) {
-                    LogUtils.v("scroll ok onCompleted")
-                }
+        val builder = GestureDescription.Builder()
+        val path = Path()
+        path.moveTo(x.toFloat(), y.toFloat())
+        path.lineTo(x.toFloat() + distanceX, y.toFloat() + distanceY)
+        builder.addStroke(StrokeDescription(path, 0L, 300L))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.v("scroll ok onCompleted")
+            }
 
-                override fun onCancelled(gestureDescription: GestureDescription) {
-                    LogUtils.v("scroll ok onCancelled")
-                }
-            }, null)
-        } else {
-            LogUtils.e("系统版本<7.0 不支持手势操作")
-            return false
-        }
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.v("scroll ok onCancelled")
+            }
+        }, null)
     }
 }

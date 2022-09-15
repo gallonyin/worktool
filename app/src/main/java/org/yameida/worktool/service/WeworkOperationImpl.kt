@@ -1,6 +1,5 @@
 package org.yameida.worktool.service
 
-import android.os.Build
 import android.view.accessibility.AccessibilityNodeInfo
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
@@ -25,7 +24,11 @@ object WeworkOperationImpl {
      * @param at 要at的昵称
      * @see WeworkMessageBean.TEXT_TYPE
      */
-    fun sendMessage(titleList: List<String>, receivedContent: String, at: String? = null): Boolean {
+    fun sendMessage(titleList: List<String>, receivedContent: String?, at: String? = null): Boolean {
+        if (receivedContent.isNullOrEmpty()) {
+            LogUtils.d("未发现发送内容")
+            return false
+        }
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
                 sendChatMessage(receivedContent, at = at)
@@ -45,7 +48,6 @@ object WeworkOperationImpl {
      * @param originalContent 原始消息的内容
      * @param textType 原始消息的消息类型
      * @param receivedContent 回复内容
-     * @param prefix 回复内容前缀
      * @see WeworkMessageBean.TEXT_TYPE
      */
     fun replyMessage(
@@ -53,9 +55,12 @@ object WeworkOperationImpl {
         receivedName: String?,
         originalContent: String,
         textType: Int,
-        receivedContent: String,
-        prefix: String = "[自动回复]"
+        receivedContent: String?
     ): Boolean {
+        if (receivedContent.isNullOrEmpty()) {
+            LogUtils.d("未发现回复内容")
+            return false
+        }
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
                 if (WeworkTextUtil.longClickMessageItem(
@@ -68,17 +73,25 @@ object WeworkOperationImpl {
                     )
                 ) {
                     LogUtils.v("开始回复")
-                    sendChatMessage(receivedContent, prefix)
+                    sendChatMessage(receivedContent, reply = true)
                     LogUtils.d("$title: 回复成功")
                     WeworkLoopImpl.getChatMessageList()
                     return true
                 } else {
                     LogUtils.d("$title: 回复失败 直接发送答案")
                     error("$title: 回复失败 直接发送答案 $receivedContent")
-                    if (receivedName == null) {
-                        sendChatMessage(receivedContent, "$prefix【$originalContent】\n")
+                    if (originalContent.isNotEmpty()) {
+                        if (receivedName == null) {
+                            sendChatMessage("【$originalContent】\n$receivedContent")
+                        } else {
+                            sendChatMessage("【$originalContent】\n$receivedContent", receivedName)
+                        }
                     } else {
-                        sendChatMessage(receivedContent, "$prefix【$originalContent】@$receivedName\n")
+                        if (receivedName == null) {
+                            sendChatMessage(receivedContent)
+                        } else {
+                            sendChatMessage(receivedContent, receivedName)
+                        }
                     }
                     WeworkLoopImpl.getChatMessageList()
                 }
@@ -167,7 +180,8 @@ object WeworkOperationImpl {
                 || !groupChangeAnnouncement(groupAnnouncement)
             ) return false
         }
-        getGroupQrcode(groupName)
+        //TODO 暂移除获取群二维码
+//        getGroupQrcode(groupName)
         return true
     }
 
@@ -222,15 +236,8 @@ object WeworkOperationImpl {
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
         if (node != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                AccessibilityUtil.performClick(node)
-                sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘", exact = true) != null) {
-                    AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
-                }
-            } else {
-                AccessibilityUtil.performClick(node)
-            }
+            AccessibilityUtil.performClick(node)
+            sleep(Constant.POP_WINDOW_INTERVAL)
             val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
@@ -272,15 +279,8 @@ object WeworkOperationImpl {
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
         if (node != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                AccessibilityUtil.performClick(node)
-                sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "微盘", exact = true) != null) {
-                    AccessibilityUtil.clickByNode(WeworkController.weworkService, node)
-                }
-            } else {
-                AccessibilityUtil.performClick(node)
-            }
+            AccessibilityUtil.performClick(node)
+            sleep(Constant.POP_WINDOW_INTERVAL)
             val buttonList = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
             if (buttonList.size >= 4) {
                 AccessibilityUtil.performClick(buttonList[2])
@@ -401,17 +401,10 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 val list = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView).lastOrNull()
                 if (list != null) {
-                    val button = AccessibilityUtil.findOneByText(list, "添加客户", "添加居民", "加微信")
+                    val button = AccessibilityUtil.findOneByText(list, "添加客户", "添加居民", "加微信", "加学员", exact = true)
                     if (button != null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            AccessibilityUtil.performClick(button)
-                            sleep(Constant.POP_WINDOW_INTERVAL)
-                            if (AccessibilityUtil.findOnceByText(list, "添加客户", "添加居民", "加微信", exact = true) != null) {
-                                AccessibilityUtil.clickByNode(WeworkController.weworkService, button)
-                            }
-                        } else {
-                            AccessibilityUtil.performClick(button)
-                        }
+                        AccessibilityUtil.performClick(button)
+                        sleep(Constant.POP_WINDOW_INTERVAL)
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {
@@ -475,7 +468,10 @@ object WeworkOperationImpl {
                                     }
                                 }
                                 if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
-                                    LogUtils.d("添加好友成功: " + friend.phone)
+                                    LogUtils.d("准备发送好友邀请: " + friend.phone)
+                                    if (!friend.leavingMsg.isNullOrEmpty()) {
+                                        AccessibilityUtil.findTextInput(getRoot(), friend.leavingMsg)
+                                    }
                                     if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
                                         LogUtils.d("发送添加邀请成功: " + friend.phone)
                                     }
@@ -553,17 +549,39 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(multiButton)
                 AccessibilityUtil.performClick(searchButton)
                 for (select in selectList) {
-                    AccessibilityUtil.findTextInput(getRoot(), select.replace("…", "").replace("-.*$".toRegex(), ""))
-                    sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
-                    val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
-                    val imageView = AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView)
-                    if (imageView != null) {
-                        AccessibilityUtil.performClick(imageView)
-                    }
+                    val needTrim = select.contains(Constant.regTrimTitle)
+                    val trimTitle = select.replace(Constant.regTrimTitle, "")
+                    AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
+                    val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
+                    val regex = "^$trimTitle(-.*)?(…)?(\\(.*?\\))?" + if (needTrim) "" else "$"
+                    val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                        selectListView,
+                        regex,
+                        timeout = 2000,
+                        root = false
+                    )
+                    if (selectListView != null && matchSelect != null) {
+                        for (i in 0 until selectListView.childCount) {
+                            val item = selectListView.getChild(i)
+                            val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                            if (searchResult != null) {
+                                item.refresh()
+                                val imageView =
+                                    AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                AccessibilityUtil.performClick(imageView)
+                            }
+                        }
+                    }
+                    if (matchSelect != null) {
+                        LogUtils.d("找到搜索结果: $select")
+                    } else {
+                        LogUtils.e("未搜索到结果")
+                    }
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                 }
                 val confirmButton =
-                    AccessibilityUtil.findOneByText(getRoot(), "确定(${selectList.size})")
+                    AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
                 if (confirmButton != null) {
                     AccessibilityUtil.performClick(confirmButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
@@ -571,12 +589,10 @@ object WeworkOperationImpl {
                         LogUtils.d("extraText: $extraText")
                         AccessibilityUtil.findTextInput(getRoot(), extraText)
                     }
-                    val sendButtonList = AccessibilityUtil.findAllByText(getRoot(), "发送")
-                    for (sendButton in sendButtonList.filter { it.text != null }) {
-                        if (sendButton.text == "发送" || sendButton.text == "发送(${selectList.size})") {
-                            AccessibilityUtil.performClick(sendButton)
-                            return true
-                        }
+                    val sendButton = AccessibilityUtil.findOneByTextRegex(getRoot(), "^发送(\\(.*?\\))?\$")
+                    if (sendButton != null) {
+                        AccessibilityUtil.performClick(sendButton)
+                        return true
                     }
                     LogUtils.e("未发现发送按钮: ")
                     return false
@@ -598,28 +614,14 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "客户群", "居民群")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "客户群", "居民群", "学员群")
         if (node != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                AccessibilityUtil.performClick(node)
-                sleep(Constant.POP_WINDOW_INTERVAL)
-                if (AccessibilityUtil.findOnceByText(getRoot(), "客户群", "居民群", exact = true) != null) {
-                    if (AccessibilityUtil.clickByNode(WeworkController.weworkService, node)) {
-                        LogUtils.d("进入客户群应用")
-                        val textView =
-                            AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
-                        return AccessibilityUtil.performClick(textView)
-                    }
-                } else {
-                    LogUtils.d("进入客户群应用")
-                    val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
-                    return AccessibilityUtil.performClick(textView)
-                }
-            } else if (AccessibilityUtil.performClick(node)) {
-                LogUtils.d("进入客户群应用")
-                val textView = AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群")
-                return AccessibilityUtil.performClick(textView)
-            }
+            AccessibilityUtil.performClick(node)
+            sleep(Constant.POP_WINDOW_INTERVAL)
+            LogUtils.d("进入客户群应用")
+            val textView =
+                AccessibilityUtil.findOneByText(getRoot(), "创建一个客户群", "创建一个居民群", "创建一个学员群")
+            return AccessibilityUtil.performClick(textView)
         }
         LogUtils.e("未找到客户群应用")
         log("未找到客户群应用")
@@ -696,28 +698,47 @@ object WeworkOperationImpl {
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
                     for (select in selectList) {
+                        val needTrim = select.contains(Constant.regTrimTitle)
+                        val trimTitle = select.replace(Constant.regTrimTitle, "")
                         AccessibilityUtil.performClick(multiButton)
-                        AccessibilityUtil.findTextInput(getRoot(), select)
+                        AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                         sleep(Constant.POP_WINDOW_INTERVAL)
-                        val selectListView =
-                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
-                        if (selectListView != null) {
-                            val imageView =
-                                AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
-                            AccessibilityUtil.performClick(imageView)
-                            val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
-                            if (textView != null && textView.text.isNullOrBlank()) {
-                                AccessibilityUtil.performClick(textView)
+                        val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.TextView)
+                        val regex = "^$trimTitle(-.*)?(…)?(\\(.*?\\))?" + if (needTrim) "" else "$"
+                        val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                            selectListView,
+                            regex,
+                            timeout = 2000,
+                            root = false
+                        )
+                        if (selectListView != null && matchSelect != null) {
+                            for (i in 0 until selectListView.childCount) {
+                                val item = selectListView.getChild(i)
+                                val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                                if (searchResult != null) {
+                                    item.refresh()
+                                    val imageView =
+                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    AccessibilityUtil.performClick(imageView)
+                                }
                             }
+                        }
+                        val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
+                        if (textView != null && textView.text.isNullOrBlank()) {
+                            AccessibilityUtil.performClick(textView)
+                            sleep(Constant.POP_WINDOW_INTERVAL)
+                        }
+                        if (matchSelect != null) {
+                            LogUtils.d("找到搜索结果: $select")
                         } else {
-                            LogUtils.e("未查到列表结果")
+                            LogUtils.e("未搜索到结果")
                         }
                     }
                     if (showMessageHistory) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "聊天记录")
                     }
                     val confirmButton =
-                        AccessibilityUtil.findOneByText(getRoot(), "确定(${selectList.size})")
+                        AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
                     } else {
@@ -764,21 +785,44 @@ object WeworkOperationImpl {
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
                     for (select in removeList) {
+                        val needTrim = select.contains(Constant.regTrimTitle)
+                        val trimTitle = select.replace(Constant.regTrimTitle, "")
                         AccessibilityUtil.performClick(multiButton)
-                        AccessibilityUtil.findTextInput(getRoot(), select)
+                        AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                         sleep(Constant.POP_WINDOW_INTERVAL)
-                        val selectListView =
-                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
-                        val imageView =
-                            AccessibilityUtil.findOneByClazz(selectListView, Views.ImageView, root = false)
-                        AccessibilityUtil.performClick(imageView)
+                        val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.RelativeLayout)
+                        val regex = "^$trimTitle(-.*)?(…)?(\\(.*?\\))?" + if (needTrim) "" else "$"
+                        val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                            selectListView,
+                            regex,
+                            timeout = 2000,
+                            root = false
+                        )
+                        if (selectListView != null && matchSelect != null) {
+                            for (i in 0 until selectListView.childCount) {
+                                val item = selectListView.getChild(i)
+                                val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                                if (searchResult != null) {
+                                    item.refresh()
+                                    val imageView =
+                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    AccessibilityUtil.performClick(imageView)
+                                }
+                            }
+                        }
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
                         if (textView != null && textView.text.isNullOrBlank()) {
                             AccessibilityUtil.performClick(textView)
+                            sleep(Constant.POP_WINDOW_INTERVAL)
+                        }
+                        if (matchSelect != null) {
+                            LogUtils.d("找到搜索结果: $select")
+                        } else {
+                            LogUtils.e("未搜索到结果")
                         }
                     }
                     val confirmButton =
-                        AccessibilityUtil.findOneByText(getRoot(), "移出(${removeList.size})")
+                        AccessibilityUtil.findOneByText(getRoot(), "移出(")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
                     } else {
@@ -847,7 +891,7 @@ object WeworkOperationImpl {
     /**
      * 发送消息+@at
      */
-    private fun sendChatMessage(text: String, prefix: String = "", at: String? = null) {
+    private fun sendChatMessage(text: String, at: String? = null, reply: Boolean? = false) {
         val voiceFlag = AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (voiceFlag != null) {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
@@ -889,8 +933,8 @@ object WeworkOperationImpl {
                 }
             }
         }
-        val content = if (atFailed) "@$at $prefix$text" else "$prefix$text"
-        val append = !at.isNullOrEmpty() && !atFailed
+        val content = if (atFailed) "@$at $text" else "$text"
+        val append = (reply == true) || (!at.isNullOrEmpty() && !atFailed)
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
                 .firstOrNull { it.text == "发送" }

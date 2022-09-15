@@ -80,7 +80,6 @@ object MyLooper {
                     WeworkController.enableLoopRunning = true
                 } else {
                     WeworkController.mainLoopRunning = false
-                    getInstance().removeMessages(message.type * message.hashCode())
                     getInstance().sendMessage(Message.obtain().apply {
                         what = message.type * message.hashCode()
                         obj = message

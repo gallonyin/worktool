@@ -53,7 +53,7 @@ object WeworkGetImpl {
             goHomeTab("消息")
             val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
                 .firstOrNull { it.text == null }
-            AccessibilityUtil.performClick(firstTv)
+            AccessibilityUtil.performClick(firstTv, retry = false)
             sleep(Constant.CHANGE_PAGE_INTERVAL)
             val newFirstTv = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
             val nickname = newFirstTv?.text?.toString()

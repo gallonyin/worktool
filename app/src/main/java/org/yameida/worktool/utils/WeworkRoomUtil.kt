@@ -6,10 +6,7 @@ import org.yameida.worktool.utils.AccessibilityUtil.findFrontNode
 import org.yameida.worktool.model.WeworkMessageBean
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
-import org.yameida.worktool.service.backPress
-import org.yameida.worktool.service.getRoot
-import org.yameida.worktool.service.goHome
-import org.yameida.worktool.service.sleep
+import org.yameida.worktool.service.*
 import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 
 /**
@@ -101,13 +98,21 @@ object WeworkRoomUtil {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(searchButton)
-                AccessibilityUtil.findTextInput(getRoot(), title.replace("…", "").replace("-.*$".toRegex(), ""))
+                val needTrim = title.contains(Constant.regTrimTitle)
+                val trimTitle = title.replace(Constant.regTrimTitle, "")
+                AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                 sleep(Constant.CHANGE_PAGE_INTERVAL)
                 //消息页搜索结果列表
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
-                val imageView = AccessibilityUtil.findOnceByClazz(selectListView, Views.ImageView)
-                if (imageView != null) {
-                    AccessibilityUtil.performClick(imageView)
+                val searchResult = AccessibilityUtil.findOneByText(
+                    selectListView,
+                    trimTitle,
+                    exact = !needTrim,
+                    timeout = 2000,
+                    root = false
+                )
+                if (searchResult != null) {
+                    AccessibilityUtil.performClick(searchResult)
                     LogUtils.d("进入房间: $title")
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
                     return true

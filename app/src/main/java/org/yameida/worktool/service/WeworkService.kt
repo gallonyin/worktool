@@ -5,17 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
-import androidx.annotation.RequiresApi
 import com.blankj.utilcode.util.*
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
-import org.yameida.worktool.config.WebConfig
 import org.yameida.worktool.utils.*
 import java.lang.Exception
 
@@ -31,9 +28,7 @@ class WeworkService : AccessibilityService() {
     override fun onServiceConnected() {
         LogUtils.i("初始化成功")
         //隐藏软键盘模式
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            softKeyboardController.showMode = SHOW_MODE_HIDDEN
-        }
+        softKeyboardController.showMode = SHOW_MODE_HIDDEN
         WeworkController.weworkService = this
         //初始化长连接
         initWebSocket()
@@ -51,12 +46,11 @@ class WeworkService : AccessibilityService() {
                     initWebSocket()
                 }
             }
-        }, IntentFilter(WebConfig.WEWORK_NOTIFY))
+        }, IntentFilter(Constant.WEWORK_NOTIFY))
     }
 
     private fun initWebSocket() {
-        val url =
-            WebConfig.WEWORK_URL + SPUtils.getInstance().getString(WebConfig.LISTEN_CHANNEL_ID)
+        val url = Constant.getWsUrl()
         val listener = EchoWebSocketListener()
         LogUtils.d("initWebSocket: $url")
         webSocketManager = WebSocketManager(url, listener)
@@ -67,7 +61,6 @@ class WeworkService : AccessibilityService() {
      * TYPE_VIEW_SCROLLED 列表滚动
      * @param event
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
     }
 
@@ -79,9 +72,7 @@ class WeworkService : AccessibilityService() {
         super.onDestroy()
         LogUtils.i("onDestroy")
         //隐藏软键盘模式
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            softKeyboardController.showMode = SHOW_MODE_AUTO
-        }
+        softKeyboardController.showMode = SHOW_MODE_AUTO
         webSocketManager.close(1000, "service Destroy")
     }
 
@@ -91,7 +82,7 @@ class WeworkService : AccessibilityService() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             socket = webSocket
             Log.e(TAG, "链接建立")
-            val robotId = SPUtils.getInstance().getString(WebConfig.LISTEN_CHANNEL_ID, "")
+            val robotId = SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID, "")
             val appVersion = SPUtils.getInstance().getString("appVersion", "")
             val workVersion= SPUtils.getInstance().getString("workVersion", "")
             log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion")
