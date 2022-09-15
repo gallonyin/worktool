@@ -7,10 +7,10 @@ android {
 
     defaultConfig {
         applicationId "org.yameida.worktool"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 30
-        versionCode 223
-        versionName "2.2.3"
+        versionCode 225
+        versionName "2.2.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
