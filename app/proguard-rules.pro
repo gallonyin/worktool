@@ -45,3 +45,8 @@
 #bean
 -dontwarn org.yameida.worktool.model.**
 -keep class org.yameida.worktool.model.**{*;}
+
+#talkingdata
+-dontwarn com.tendcloud.tenddata.**
+-keep class com.tendcloud.** {*;}
+-keep public class com.tendcloud.** {  public protected *;}
