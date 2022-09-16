@@ -108,6 +108,15 @@ object Demo {
                             "$name"
                         ],
                         "receivedContent":"你好~我是机器人，你可以@我和我聊天，你也可以通过API文档来让我发送消息或完成建群等任务。接口文档：https://www.apifox.cn/apidoc/project-1035094/api-23520034"
+                    },
+                    {
+                      "type": 206,
+                      "groupName": "$groupName",
+                      "selectList": [
+                        "$name",
+                        "甲仑"
+                      ],
+                      "groupAnnouncement": "(自动填写群公告) WorkTool欢迎大家~WorkTool管家是机器人，有问题可以在QQ群反馈~@我可以聊天~"
                     }
                 ]
             }

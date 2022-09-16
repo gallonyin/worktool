@@ -4,6 +4,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.Demo
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
@@ -72,7 +73,7 @@ object WeworkLoopImpl {
                                 if (nameList.isEmpty())
                                     break
                                 //todo 可自定义执行任务
-//                                Demo.test2(nameList[0])
+                                Demo.test2(nameList[0])
                             }
                         }
                         return true
