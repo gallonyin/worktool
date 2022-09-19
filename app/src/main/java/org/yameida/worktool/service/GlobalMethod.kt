@@ -123,7 +123,7 @@ fun backPress() {
                 AccessibilityUtil.performClick(button, retry = false)
             } else {
                 LogUtils.d("未找到BT按钮")
-                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定", "我知道了", "暂不进入", "不用了", "取消", "暂不", exact = true)
+                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "确定", "我知道了", "暂不进入", "不用了", "取消", "暂不", "关闭", exact = true)
                 if (confirm != null) {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)
