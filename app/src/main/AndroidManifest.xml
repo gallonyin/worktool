@@ -60,6 +60,16 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <provider
+            android:name=".utils.GenericFileProvider"
+            android:authorities="org.yameida.worktool.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
         <meta-data android:name="TD_APP_ID" android:value="80E9C84E39904DAFB28562910FF7C86C" />
         <meta-data android:name="TD_CHANNEL_ID" android:value="worktool_master" />
     </application>

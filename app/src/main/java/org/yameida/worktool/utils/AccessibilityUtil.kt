@@ -19,6 +19,10 @@ import java.lang.Exception
 import java.lang.Thread.sleep
 import com.blankj.utilcode.util.ScreenUtils
 import org.yameida.worktool.service.WeworkController
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+
 
 /**
  * 1.查询类
@@ -55,6 +59,17 @@ object AccessibilityUtil {
     private const val tag = "AccessibilityUtil"
     private const val SHORT_INTERVAL = 150L
     private const val SCROLL_INTERVAL = 500L
+
+    //编辑EditView(粘贴 不推荐)
+    fun sendTextForEditText(context: Context, nodeInfo: AccessibilityNodeInfo?, text: String): Boolean {
+        val nodeInfo: AccessibilityNodeInfo = nodeInfo ?: return false
+        val clipboard: ClipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("text", text)
+        clipboard.setPrimaryClip(clip)
+        nodeInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+        nodeInfo.performAction(AccessibilityNodeInfo.ACTION_PASTE)
+        return true
+    }
 
     //编辑EditView(非粘贴 推荐)
     fun editTextInput(nodeInfo: AccessibilityNodeInfo?, text: String): Boolean {

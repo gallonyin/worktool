@@ -46,12 +46,13 @@ object MyLooper {
         while (true) {
             threadHandler?.let { return it }
             LogUtils.e("threadHandler is not ready...")
+            sleep(Constant.POP_WINDOW_INTERVAL / 5)
         }
     }
 
     fun onMessage(webSocket: WebSocket?, text: String) {
-        val messageList =
-            GsonUtils.fromJson<WeworkMessageListBean>(text, WeworkMessageListBean::class.java)
+        val messageList: WeworkMessageListBean<WeworkMessageBean> =
+            GsonUtils.fromJson<WeworkMessageListBean<WeworkMessageBean>>(text, object : TypeToken<WeworkMessageListBean<WeworkMessageBean>>(){}.type)
         if (messageList.socketType == WeworkMessageListBean.SOCKET_TYPE_HEARTBEAT) {
             return
         }
@@ -82,7 +83,7 @@ object MyLooper {
                     WeworkController.mainLoopRunning = false
                     getInstance().sendMessage(Message.obtain().apply {
                         what = message.type * message.hashCode()
-                        obj = message
+                        obj = message.apply { messageId = messageList.messageId }
                     })
                 }
                 getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
@@ -128,6 +129,9 @@ object MyLooper {
             }
             WeworkMessageBean.PUSH_OFFICE -> {
                 WeworkController.pushOffice(message)
+            }
+            WeworkMessageBean.PUSH_FILE -> {
+                WeworkController.pushFile(message)
             }
             WeworkMessageBean.PASS_ALL_FRIEND_REQUEST -> {
             }

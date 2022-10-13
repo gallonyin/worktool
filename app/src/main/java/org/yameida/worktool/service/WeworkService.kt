@@ -71,12 +71,14 @@ class WeworkService : AccessibilityService() {
     override fun onDestroy() {
         super.onDestroy()
         LogUtils.i("onDestroy")
+        //关闭自动回复
+        WeworkController.enableLoopRunning = false
         //隐藏软键盘模式
         softKeyboardController.showMode = SHOW_MODE_AUTO
         webSocketManager.close(1000, "service Destroy")
     }
 
-    class EchoWebSocketListener() : WebSocketListener() {
+    inner class EchoWebSocketListener : WebSocketListener() {
         private val TAG = "WeworkService.EchoWebSocketListener"
         private lateinit var socket: WebSocket
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -86,6 +88,8 @@ class WeworkService : AccessibilityService() {
             val appVersion = SPUtils.getInstance().getString("appVersion", "")
             val workVersion= SPUtils.getInstance().getString("workVersion", "")
             log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion")
+            LogUtils.i("设置自动跳转企业微信")
+            sendBroadcast(true)
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -102,18 +106,27 @@ class WeworkService : AccessibilityService() {
             super.onClosed(webSocket, code, reason)
             //服务器关闭后
             Log.e(TAG, "链接关闭 $reason")
+            sendBroadcast(false)
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosing(webSocket, code, reason)
             socket.close(code, reason)
             Log.e(TAG, "服务端关闭连接 $code: $reason")
+            sendBroadcast(false)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             //服务器中断
-
             Log.e(TAG, "链接错误: " + t.toString() + response.toString())
+            sendBroadcast(false)
+        }
+
+        private fun sendBroadcast(switch: Boolean) {
+            sendBroadcast(Intent(Constant.WEWORK_NOTIFY).apply {
+                putExtra("type", "openWs")
+                putExtra("switch", switch)
+            })
         }
     }
 }

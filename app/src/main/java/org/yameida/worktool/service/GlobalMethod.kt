@@ -5,7 +5,10 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ScreenUtils
+import com.hjq.toast.ToastUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.MyApplication
+import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
 import org.yameida.worktool.utils.AccessibilityUtil
@@ -54,6 +57,13 @@ fun goHomeTab(title: String): Boolean {
         }
         if (!atHome) {
             backPress()
+            //如果在登录页面就提示关闭worktool主功能
+            if (AccessibilityUtil.findOnceByText(getRoot(), "手机号登录", exact = true) != null) {
+                LogUtils.e("登录前请先关闭WorkTool主功能！")
+                ToastUtils.show("登录前请先关闭WorkTool主功能！")
+                MyApplication.launchIntent()
+                sleep(5000)
+            }
         }
     }
     LogUtils.v("进入首页-${title}页")
@@ -135,7 +145,20 @@ fun backPress() {
 }
 
 /**
- * 上传运行日志 简单封装 info log
+ * 上传执行指令结果
+ */
+fun uploadCommandResult(message: WeworkMessageBean, success: Boolean, reason: String) {
+    WeworkController.weworkService.webSocketManager.send(
+        WeworkMessageListBean(
+            ExecCallbackBean(GsonUtils.toJson(message), if (success) 1 else 0, reason),
+            WeworkMessageListBean.SOCKET_TYPE_RAW_CONFIRM,
+            messageId = message.messageId
+        ), true
+    )
+}
+
+/**
+ * 上传运行日志
  */
 fun log(message: Any?, type: Int = WeworkMessageBean.ROBOT_LOG) {
     WeworkController.weworkService.webSocketManager.send(
@@ -154,7 +177,7 @@ fun log(message: Any?, type: Int = WeworkMessageBean.ROBOT_LOG) {
 }
 
 /**
- * 上传运行日志 简单封装 error log
+ * 上传运行日志
  */
 fun error(message: Any?) {
     log(message, WeworkMessageBean.ROBOT_ERROR_LOG)

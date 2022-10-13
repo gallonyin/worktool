@@ -139,7 +139,7 @@ object WeworkGetImpl {
     }
 
     /**
-     * 获取群名、群主、群成员数、群公告
+     * 获取群名、群主、群成员数、群公告、群备注
      */
     fun getGroupInfoDetail(): WeworkMessageBean {
         val weworkMessageBean = WeworkMessageBean()
@@ -187,6 +187,12 @@ object WeworkGetImpl {
         if (tvAnnouncement != null && tvAnnouncement.text != null) {
             LogUtils.d("群公告: " + tvAnnouncement.text)
             weworkMessageBean.groupAnnouncement = tvAnnouncement.text.toString()
+        }
+        val tvRemarkFlag = AccessibilityUtil.findOnceByText(getRoot(), "备注", exact = true)
+        val tvRemark = AccessibilityUtil.findOnceByClazz(AccessibilityUtil.findBackNode(tvRemarkFlag), Views.TextView)
+        if (tvRemark != null && tvRemark.text != null) {
+            LogUtils.d("群备注: " + tvRemark.text)
+            weworkMessageBean.groupRemark = tvRemark.text.toString()
         }
         backPress()
         return weworkMessageBean

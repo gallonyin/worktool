@@ -1,10 +1,7 @@
 package org.yameida.worktool.activity
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.text.TextUtils.SimpleStringSplitter
 import android.view.WindowManager
 import android.widget.CompoundButton
 import android.widget.Switch
@@ -17,8 +14,12 @@ import org.yameida.worktool.*
 import org.yameida.worktool.service.WeworkService
 import org.yameida.worktool.utils.UpdateUtil
 import android.app.Dialog
+import android.content.*
 import android.widget.Button
 import android.widget.EditText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.yameida.worktool.utils.PermissionHelper
+import org.yameida.worktool.utils.PermissionPageManagement
 
 
 class ListenActivity : AppCompatActivity() {
@@ -32,16 +33,28 @@ class ListenActivity : AppCompatActivity() {
 
         initView()
         initAccessibility()
+        initOverlays()
         UpdateUtil.checkUpdate()
         PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
+        registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(openWsReceiver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sw_overlay.isChecked = PermissionUtils.isGrantedDrawOverlays()
         freshOpenServiceSwitch(
             WeworkService::class.java,
             sw_accessibility
         )
+        if (needToWork) {
+            needToWork = false
+            goToWork()
+        }
     }
 
     private fun initView() {
@@ -102,11 +115,11 @@ class ListenActivity : AppCompatActivity() {
                 if (SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID).isNullOrBlank()) {
                     sw_accessibility.isChecked = false
                     ToastUtils.showLong("请先填写并保存链接号~")
-                } else if (!isAccessibilitySettingOn()) {
+                } else if (!PermissionHelper.isAccessibilitySettingOn()) {
                     openAccessibility()
                 }
             } else {
-                if (isAccessibilitySettingOn()) {
+                if (PermissionHelper.isAccessibilitySettingOn()) {
                     sw_accessibility.isChecked = true
                     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                     startActivity(intent)
@@ -115,39 +128,27 @@ class ListenActivity : AppCompatActivity() {
         })
     }
 
-    private fun isAccessibilitySettingOn(): Boolean {
-        val context = Utils.getApp()
-        var enable = 0
-        val serviceName = context.packageName + "/" + WeworkService::class.java.canonicalName
-        LogUtils.i("isAccessibilitySettingOn: $serviceName")
-        try {
-            enable = Settings.Secure.getInt(
-                context.contentResolver,
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                0
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (enable == 1) {
-            val stringSplitter = SimpleStringSplitter(':')
-            val settingVal = Settings.Secure.getString(
-                context.contentResolver,
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            )
-            if (settingVal != null) {
-                stringSplitter.setString(settingVal)
-                while (stringSplitter.hasNext()) {
-                    val accessibilityService = stringSplitter.next()
-                    if (accessibilityService == serviceName) {
-                        LogUtils.i("isAccessibilitySettingOn: true")
-                        return true
-                    }
+    private fun initOverlays() {
+        sw_overlay.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            LogUtils.i("sw_overlay onCheckedChanged: $isChecked")
+            if (isChecked) {
+                if (!PermissionUtils.isGrantedDrawOverlays()) {
+                    PermissionUtils.requestDrawOverlays(object : PermissionUtils.SimpleCallback {
+                        override fun onGranted() {
+                            ToastUtils.showLong("请同时打开后台弹出界面权限~")
+                            PermissionPageManagement.goToSetting(this@ListenActivity)
+                        }
+
+                        override fun onDenied() { sw_accessibility.isChecked = false }
+                    })
+                }
+            } else {
+                if (PermissionUtils.isGrantedDrawOverlays()) {
+                    sw_overlay.isChecked = true
+                    PermissionPageManagement.goToSetting(this)
                 }
             }
-        }
-        LogUtils.i("isAccessibilitySettingOn: false")
-        return false
+        })
     }
 
     /**
@@ -185,7 +186,7 @@ class ListenActivity : AppCompatActivity() {
     }
 
     private fun freshOpenServiceSwitch(clazz: Class<*>, s: Switch) {
-        if (isAccessibilitySettingOn()) {
+        if (PermissionHelper.isAccessibilitySettingOn()) {
             s.isChecked = true
             when (s.id) {
                 R.id.sw_accessibility -> {
@@ -205,6 +206,7 @@ class ListenActivity : AppCompatActivity() {
         val commentDialog = Dialog(this)
         commentDialog.setContentView(R.layout.dialog_input)
         val et: EditText = commentDialog.findViewById(R.id.body) as EditText
+        et.setText(tv_host.text)
         val okBtn: Button = commentDialog.findViewById(R.id.ok) as Button
         okBtn.setOnClickListener {
             val text = et.text.toString()
@@ -226,6 +228,34 @@ class ListenActivity : AppCompatActivity() {
             commentDialog.dismiss()
         }
         commentDialog.show()
+    }
+
+    private var needToWork = false
+
+    private fun goToWork() {
+        val positiveButton =
+            MaterialAlertDialogBuilder(this, R.style.Theme_MaterialComponents_DayNight_Dialog)
+                .setTitle("设置成功")
+                .setMessage("请勿人工操作手机     \n5秒后自动跳转")
+                .setNegativeButton("", null)
+                .setPositiveButton("", null)
+        val show = positiveButton.show()
+        bt_save.postDelayed({ show.dismiss() }, 5000)
+        bt_save.postDelayed({
+            packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)?.apply {
+                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(this)
+            }
+            com.hjq.toast.ToastUtils.show("机器人运行中 请勿人工操作手机~")
+        }, 5000)
+    }
+
+    private val openWsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getStringExtra("type") == "openWs") {
+                needToWork = intent.getBooleanExtra("switch", false)
+            }
+        }
     }
 
 }

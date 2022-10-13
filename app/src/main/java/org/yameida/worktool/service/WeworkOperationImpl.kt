@@ -3,13 +3,14 @@ package org.yameida.worktool.service
 import android.view.accessibility.AccessibilityNodeInfo
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
-import org.yameida.worktool.utils.AccessibilityUtil
-import org.yameida.worktool.utils.Views
-import org.yameida.worktool.utils.WeworkRoomUtil
-import org.yameida.worktool.utils.WeworkTextUtil
 import com.github.yoojia.qrcode.qrcode.QRCodeDecoder
 import com.blankj.utilcode.util.*
+import com.lzy.okgo.OkGo
+import org.yameida.worktool.utils.*
+import java.io.File
 import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -24,21 +25,30 @@ object WeworkOperationImpl {
      * @param at 要at的昵称
      * @see WeworkMessageBean.TEXT_TYPE
      */
-    fun sendMessage(titleList: List<String>, receivedContent: String?, at: String? = null): Boolean {
+    fun sendMessage(
+        titleList: List<String>,
+        receivedContent: String?,
+        at: String? = null,
+        atList: List<String>? = null
+    ): Boolean {
         if (receivedContent.isNullOrEmpty()) {
             LogUtils.d("未发现发送内容")
             return false
         }
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
-                sendChatMessage(receivedContent, at = at)
-                LogUtils.d("$title: 发送成功")
+                if (sendChatMessage(receivedContent, at = at, atList = atList)) {
+                    LogUtils.d("$title: 发送成功")
+                    return true
+                } else {
+                    LogUtils.d("$title: 发送失败")
+                }
             } else {
                 LogUtils.d("$title: 发送失败")
                 error("$title: 发送失败 $receivedContent")
             }
         }
-        return true
+        return false
     }
 
     /**
@@ -134,11 +144,15 @@ object WeworkOperationImpl {
                 ) {
                     LogUtils.d("开始转发")
                     sleep(1000)
-                    relaySelectTarget(nameList, extraText)
+                    if (relaySelectTarget(nameList, extraText)) {
+                        LogUtils.d("$title: 转发成功")
+                    } else {
+                        LogUtils.d("$title: 转发失败")
+                        error("$title: 转发失败 $originalContent")
+                    }
                 }
-                LogUtils.d("$title: 转发成功")
             } else {
-                LogUtils.d("$title: 转发失败")
+                LogUtils.d("$title: 转发失败 未找到房间")
                 error("$title: 转发失败 $originalContent")
             }
         }
@@ -165,11 +179,13 @@ object WeworkOperationImpl {
      * @param groupName 修改群名称
      * @param selectList 添加群成员名称列表 选填
      * @param groupAnnouncement 修改群公告 选填
+     * @param groupRemark 修改群备注 选填
      */
     fun initGroup(
         groupName: String,
         selectList: List<String>?,
-        groupAnnouncement: String?
+        groupAnnouncement: String?,
+        groupRemark: String?
     ): Boolean {
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
             if (!createGroup() || !groupRename(groupName) || !groupAddMember(selectList)
@@ -180,8 +196,10 @@ object WeworkOperationImpl {
                 || !groupChangeAnnouncement(groupAnnouncement)
             ) return false
         }
-        //TODO 暂移除获取群二维码
-//        getGroupQrcode(groupName)
+        if (groupRemark != null) {
+            groupChangeRemark(groupRemark)
+        }
+//        getGroupQrcode(groupName, groupRemark)
         return true
     }
 
@@ -191,6 +209,7 @@ object WeworkOperationImpl {
      * @param groupName 待修改的群
      * @param newGroupName 修改群名 选填
      * @param newGroupAnnouncement 修改群公告 选填
+     * @param groupRemark 修改群备注 选填
      * @param selectList 添加群成员名称列表/拉人 选填
      * @param showMessageHistory 拉人是否附带历史记录 选填
      * @param removeList 移除群成员名称列表/踢人 选填
@@ -199,6 +218,7 @@ object WeworkOperationImpl {
         groupName: String,
         newGroupName: String?,
         newGroupAnnouncement: String?,
+        groupRemark: String?,
         selectList: List<String>?,
         showMessageHistory: Boolean = false,
         removeList: List<String>?
@@ -215,6 +235,9 @@ object WeworkOperationImpl {
             }
             if (newGroupAnnouncement != null) {
                 groupChangeAnnouncement(newGroupAnnouncement)
+            }
+            if (groupRemark != null) {
+                groupChangeRemark(groupRemark)
             }
             backPress()
             return true
@@ -249,10 +272,13 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(shareFileButton)
                     val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
                     AccessibilityUtil.performClick(shareToWorkButton)
-                    relaySelectTarget(titleList, extraText)
-                    val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                    AccessibilityUtil.performClick(stayButton)
-                    return true
+                    if (relaySelectTarget(titleList, extraText)) {
+                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                        AccessibilityUtil.performClick(stayButton)
+                        return true
+                    } else {
+                        LogUtils.e("微盘文件转发失败: $objectName")
+                    }
                 } else {
                     LogUtils.e("微盘未搜索到相关图片: $objectName")
                 }
@@ -290,8 +316,11 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(imageViewList[1])
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                     AccessibilityUtil.performClick(shareFileButton)
-                    relaySelectTarget(titleList, extraText)
-                    return true
+                    if (relaySelectTarget(titleList, extraText)) {
+                        return true
+                    } else {
+                        LogUtils.e("微盘文件转发失败: $objectName")
+                    }
                 } else {
                     LogUtils.e("微盘未搜索到相关文件: $objectName")
                 }
@@ -370,13 +399,62 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(imageViewList[1])
                 val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                 AccessibilityUtil.performClick(shareFileButton)
-                relaySelectTarget(titleList, extraText)
-                return true
+                if (relaySelectTarget(titleList, extraText)) {
+                    return true
+                } else {
+                    LogUtils.e("微盘文件转发失败: $objectName")
+                }
             } else {
                 LogUtils.e("文档未搜索到相关文件: $objectName")
             }
         } else {
             LogUtils.e("未找到文档搜索按钮")
+        }
+        return false
+    }
+
+    /**
+     * 推送文件(网络图片视频和文件等)
+     * @see WeworkMessageBean.PUSH_FILE
+     * @param titleList 待发送姓名列表
+     * @param objectName 文件名称
+     * @param fileUrl 文件网络地址
+     * @param fileType 文件类型
+     * @param extraText 附加留言 可选
+     */
+    fun pushFile(
+        titleList: List<String>,
+        objectName: String,
+        fileUrl: String,
+        fileType: String,
+        extraText: String? = null
+    ): Boolean {
+        LogUtils.i("下载开始 $fileUrl")
+        val execute = OkGo.get<File>(fileUrl).execute()
+        LogUtils.i("下载成功 $fileUrl")
+        val body = execute.body()
+        if (body != null) {
+            val df = SimpleDateFormat("yyyy-MM-dd")
+            val filePath = "${Utils.getApp().getExternalFilesDir("share")}/${df.format(Date())}/$objectName"
+            val newFile = File(filePath)
+            val create = FileUtils.createFileByDeleteOldFile(newFile)
+            if (create && newFile.canWrite()) {
+                newFile.writeBytes(body.bytes())
+                LogUtils.i("文件存储本地成功 $filePath")
+                ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
+                val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                AccessibilityUtil.performClick(shareToWorkButton)
+                if (relaySelectTarget(titleList, extraText)) {
+                    val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                    AccessibilityUtil.performClick(stayButton)
+                    return true
+                } else {
+                    LogUtils.e("文件转发失败: $objectName")
+                }
+            } else {
+                LogUtils.e("文件存储本地失败 $filePath")
+                error("文件存储本地失败 $filePath")
+            }
         }
         return false
     }
@@ -889,38 +967,61 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 修改群备注
+     * 注：首次为发布 后续为编辑
+     * 注2：外部群为edittext 内部群为webview(只能追加文本)
+     */
+    private fun groupChangeRemark(groupRemark: String? = null): Boolean {
+        if (groupRemark == null) return true
+        if (WeworkRoomUtil.intoGroupManager()) {
+            val textView = AccessibilityUtil.findOneByText(getRoot(), "备注", exact = true)
+            if (textView != null) {
+                AccessibilityUtil.performClick(textView)
+                if (AccessibilityUtil.findTextInput(getRoot(), groupRemark)) {
+                    LogUtils.d("群备注修改: $groupRemark")
+                    if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+                        return true
+                    } else {
+                        LogUtils.e("无法进行群备注发布: ")
+                    }
+                } else {
+                    LogUtils.e("无法进行群备注修改: ")
+                }
+            } else {
+                LogUtils.e("未找到群公告按钮")
+            }
+        } else {
+            LogUtils.e("进入群管理页失败")
+        }
+        return false
+    }
+
+    /**
      * 发送消息+@at
      */
-    private fun sendChatMessage(text: String, at: String? = null, reply: Boolean? = false) {
+    private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false): Boolean {
         val voiceFlag = AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (voiceFlag != null) {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
         }
         var atFailed = false
-        if (!at.isNullOrEmpty()) {
-            AccessibilityUtil.findTextInput(getRoot(), "@")
-            val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", timeout = 2000, exact = true)
-            if (atFlag != null) {
-                val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
-                if (rv != null) {
-                    AccessibilityUtil.findTextInput(getRoot(), at)
-                    val atNode =
-                        AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
-                    if (atNode != null) {
-                        AccessibilityUtil.performClick(atNode)
-                    } else {
-                        LogUtils.e("未找到at人: $at")
-                        atFailed = true
-                        backPress()
-                    }
-                    sleep(Constant.POP_WINDOW_INTERVAL)
+        val atList = if (!at.isNullOrEmpty()) listOf(at) else atList
+        if (!atList.isNullOrEmpty()) {
+            atList.forEachIndexed { index, at ->
+                if (index == 0) {
+                    AccessibilityUtil.findTextInput(getRoot(), "@")
                 } else {
-                    val searchFlag = AccessibilityUtil.findOnceByText(getRoot(), "搜索", exact = true)
-                    val list = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)
-                    if (list != null) {
+                    AccessibilityUtil.sendTextForEditText(Utils.getApp(),
+                        AccessibilityUtil.findOnceByClazz(getRoot(), Views.EditText), "@"
+                    )
+                }
+                val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", timeout = 2000, exact = true)
+                if (atFlag != null) {
+                    val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
+                    if (rv != null) {
                         AccessibilityUtil.findTextInput(getRoot(), at)
                         val atNode =
-                            AccessibilityUtil.findOneByText(list, at, root = false, timeout = 2000)
+                            AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
                         if (atNode != null) {
                             AccessibilityUtil.performClick(atNode)
                         } else {
@@ -929,19 +1030,37 @@ object WeworkOperationImpl {
                             backPress()
                         }
                         sleep(Constant.POP_WINDOW_INTERVAL)
+                    } else {
+                        val searchFlag = AccessibilityUtil.findOnceByText(getRoot(), "搜索", exact = true)
+                        val list = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)
+                        if (list != null) {
+                            AccessibilityUtil.findTextInput(getRoot(), at)
+                            val atNode =
+                                AccessibilityUtil.findOneByText(list, at, root = false, timeout = 2000)
+                            if (atNode != null) {
+                                AccessibilityUtil.performClick(atNode)
+                            } else {
+                                LogUtils.e("未找到at人: $at")
+                                atFailed = true
+                                backPress()
+                            }
+                            sleep(Constant.POP_WINDOW_INTERVAL)
+                        }
                     }
                 }
             }
         }
-        val content = if (atFailed) "@$at $text" else "$text"
-        val append = (reply == true) || (!at.isNullOrEmpty() && !atFailed)
+        val content = if (atFailed) "@${atList?.joinToString()} $text" else text
+        val append = (reply == true) || (!atList.isNullOrEmpty() && !atFailed)
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
+            AccessibilityUtil.findOneByText(getRoot(), "发送", exact = true, timeout = 2000)
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
                 .firstOrNull { it.text == "发送" }
             if (sendButton != null) {
                 LogUtils.d("发送消息: \n$content")
                 log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
+                return true
             } else {
                 LogUtils.e("未找到发送按钮")
                 error("未找到发送按钮")
@@ -950,6 +1069,7 @@ object WeworkOperationImpl {
             LogUtils.e("未找到输入框")
             error("未找到输入框")
         }
+        return false
     }
 
     /**
@@ -1015,8 +1135,9 @@ object WeworkOperationImpl {
     /**
      * 获取群二维码并上传后台
      */
-    fun getGroupQrcode(groupName: String): Boolean {
-        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+    fun getGroupQrcode(groupName: String, groupRemark: String?): Boolean {
+        if (AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL) != null ||
+            (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager())) {
             val tvList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.TextView)
             tvList.forEachIndexed { index, tv ->
                 if (tv.text != null && tv.text.contains("微信用户创建")) {
@@ -1054,6 +1175,7 @@ object WeworkOperationImpl {
                                     val weworkMessageBean = WeworkMessageBean()
                                     weworkMessageBean.type = WeworkMessageBean.GET_GROUP_QRCODE
                                     weworkMessageBean.groupName = groupName
+                                    weworkMessageBean.groupRemark = groupRemark
                                     weworkMessageBean.qrcode = qrcode
                                     WeworkController.weworkService.webSocketManager.send(
                                         weworkMessageBean

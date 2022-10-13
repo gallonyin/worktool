@@ -19,7 +19,7 @@ object WeworkRoomUtil {
      * @see WeworkMessageBean.ROOM_TYPE
      */
     fun getRoomType(print: Boolean = true): Int {
-        val roomTitle = getRoomTitle()
+        val roomTitle = getRoomTitle(noCut = true)
         when {
             isExternalSingleChat(roomTitle) -> {
                 LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_CONTACT")
@@ -52,7 +52,7 @@ object WeworkRoomUtil {
      * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
      * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
      */
-    fun getRoomTitle(print: Boolean = true): ArrayList<String> {
+    fun getRoomTitle(print: Boolean = true, noCut: Boolean = false): ArrayList<String> {
         val titleList = arrayListOf<String>()
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
@@ -63,8 +63,8 @@ object WeworkRoomUtil {
                 if (!textView.text.isNullOrBlank()) {
                     val text = textView.text.toString()
                     titleList.add(text.replace("\\(\\d+\\)$".toRegex(), ""))
-                    if (text.contains("\\(\\d+\\)$".toRegex())) {
-                        titleList.add(text)
+                    if (noCut && text.contains("\\(\\d+\\)$".toRegex())) {
+                            titleList.add(text)
                     }
                 }
             }

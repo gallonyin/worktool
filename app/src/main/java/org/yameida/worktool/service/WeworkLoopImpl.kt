@@ -73,7 +73,7 @@ object WeworkLoopImpl {
                                 if (nameList.isEmpty())
                                     break
                                 //todo 可自定义执行任务
-                                Demo.test2(nameList[0])
+//                                Demo.test2(nameList[0])
                             }
                         }
                         return true

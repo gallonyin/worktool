@@ -45,6 +45,8 @@ dependencies {
 
     //工具集
     implementation 'com.blankj:utilcodex:1.31.0'
+    //toast
+    implementation 'com.github.getActivity:ToastUtils:10.5'
     //Gson
     implementation 'com.google.code.gson:gson:2.8.5'
     //网络

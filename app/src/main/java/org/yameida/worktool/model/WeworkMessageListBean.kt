@@ -7,12 +7,13 @@ import org.yameida.worktool.Constant
 import java.util.*
 import kotlin.collections.ArrayList
 
-class WeworkMessageListBean {
+class WeworkMessageListBean<T> {
 
     companion object {
         const val SOCKET_TYPE_HEARTBEAT = 0
         const val SOCKET_TYPE_MESSAGE_CONFIRM = 1
         const val SOCKET_TYPE_MESSAGE_LIST = 2
+        const val SOCKET_TYPE_RAW_CONFIRM = 3
     }
 
     /**
@@ -20,6 +21,7 @@ class WeworkMessageListBean {
      * TYPE_HEARTBEAT 心跳检测
      * TYPE_MESSAGE_CONFIRM 消息确认
      * TYPE_MESSAGE_LIST 消息列表
+     * SOCKET_TYPE_RAW_CONFIRM 执行指令结果确认
      */
     var socketType = SOCKET_TYPE_HEARTBEAT
 
@@ -27,7 +29,7 @@ class WeworkMessageListBean {
     var messageId = TimeUtils.date2String(Date()).replace(" ", "#") + "#" + UUID.randomUUID()
 
     //消息列表
-    var list: ArrayList<WeworkMessageBean> = arrayListOf()
+    var list: ArrayList<T> = arrayListOf()
 
     //加密消息列表
     var encryptedList: String = ""
@@ -35,7 +37,7 @@ class WeworkMessageListBean {
     //消息加密 0不加密 1AES
     var encryptType = Constant.encryptType
 
-    constructor(weworkMessageBean: WeworkMessageBean, type: Int) {
+    constructor(weworkMessageBean: T, type: Int, messageId: String? = null) {
         if (encryptType == 0) {
             list.add(weworkMessageBean)
         } else if (encryptType == 1) {
@@ -47,6 +49,7 @@ class WeworkMessageListBean {
             )
         }
         this.socketType = type
+        if (messageId != null) this.messageId = messageId
     }
 
     constructor(messageId: String, type: Int) {
@@ -54,17 +57,4 @@ class WeworkMessageListBean {
         this.socketType = type
     }
 
-    constructor(weworkMessageBeanList: List<WeworkMessageBean>, type: Int) {
-        if (encryptType == 0) {
-            list.addAll(weworkMessageBeanList)
-        } else if (encryptType == 1) {
-            encryptedList = EncryptUtils.encryptAES2HexString(
-                GsonUtils.toJson(weworkMessageBeanList).toByteArray(),
-                Constant.key,
-                Constant.transformation,
-                Constant.iv
-            )
-        }
-        this.socketType = type
-    }
 }
