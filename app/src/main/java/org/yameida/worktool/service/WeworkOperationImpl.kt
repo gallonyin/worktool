@@ -39,16 +39,16 @@ object WeworkOperationImpl {
             if (WeworkRoomUtil.intoRoom(title)) {
                 if (sendChatMessage(receivedContent, at = at, atList = atList)) {
                     LogUtils.d("$title: 发送成功")
-                    return true
                 } else {
                     LogUtils.d("$title: 发送失败")
+                    error("$title: 发送失败 $receivedContent")
                 }
             } else {
-                LogUtils.d("$title: 发送失败")
-                error("$title: 发送失败 $receivedContent")
+                LogUtils.d("$title: 发送失败 进入房间失败")
+                error("$title: 发送失败 进入房间失败 $receivedContent")
             }
         }
-        return false
+        return true
     }
 
     /**
