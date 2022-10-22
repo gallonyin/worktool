@@ -293,7 +293,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="开启自动回复"
+                        android:text="开启新消息接收"
                         android:textColor="@color/color_333333"
                         android:textSize="@dimen/setting_start_font_size" />
 

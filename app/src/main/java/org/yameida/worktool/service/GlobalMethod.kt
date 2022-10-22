@@ -147,10 +147,10 @@ fun backPress() {
 /**
  * 上传执行指令结果
  */
-fun uploadCommandResult(message: WeworkMessageBean, success: Boolean, reason: String) {
+fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason: String, startTime: Long) {
     WeworkController.weworkService.webSocketManager.send(
         WeworkMessageListBean(
-            ExecCallbackBean(GsonUtils.toJson(message), if (success) 1 else 0, reason),
+            ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0),
             WeworkMessageListBean.SOCKET_TYPE_RAW_CONFIRM,
             messageId = message.messageId
         ), true

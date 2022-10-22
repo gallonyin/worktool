@@ -9,6 +9,7 @@ import com.blankj.utilcode.util.LogUtils
 import com.google.gson.reflect.TypeToken
 import okhttp3.WebSocket
 import org.yameida.worktool.Constant
+import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
 import java.nio.charset.StandardCharsets
@@ -52,7 +53,7 @@ object MyLooper {
 
     fun onMessage(webSocket: WebSocket?, text: String) {
         val messageList: WeworkMessageListBean<WeworkMessageBean> =
-            GsonUtils.fromJson<WeworkMessageListBean<WeworkMessageBean>>(text, object : TypeToken<WeworkMessageListBean<WeworkMessageBean>>(){}.type)
+            GsonUtils.fromJson<WeworkMessageListBean<WeworkMessageBean>>(text, object : TypeToken<WeworkMessageListBean<ExecCallbackBean>>(){}.type)
         if (messageList.socketType == WeworkMessageListBean.SOCKET_TYPE_HEARTBEAT) {
             return
         }
@@ -97,6 +98,9 @@ object MyLooper {
 
     private fun dealWithMessage(message: WeworkMessageBean) {
         when (message.type) {
+            WeworkMessageBean.TYPE_CONSOLE_TOAST -> {
+                WeworkController.consoleToast(message as ExecCallbackBean)
+            }
             WeworkMessageBean.STOP_AND_GO_HOME -> {
                 WeworkController.stopAndGoHome()
             }
@@ -148,7 +152,7 @@ object MyLooper {
                 WeworkController.getFriendInfo(message)
             }
             WeworkMessageBean.GET_MY_INFO -> {
-                WeworkController.getMyInfo()
+                WeworkController.getMyInfo(message)
             }
             WeworkMessageBean.ROBOT_CONTROLLER_TEST -> {
                 WeworkController.test(message)

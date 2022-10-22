@@ -18,7 +18,7 @@ object WeworkGetImpl {
      * 获取群信息
      * @param selectList 群名列表 为空时去群管理页查询并返回群聊页
      */
-    fun getGroupInfo(selectList: List<String>): Boolean {
+    fun getGroupInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
         if (selectList.isNullOrEmpty()) {
             WeworkRoomUtil.intoGroupManager()
             val groupInfo = getGroupInfoDetail()
@@ -39,14 +39,14 @@ object WeworkGetImpl {
      * 获取好友信息
      * @param selectList 好友名列表
      */
-    fun getFriendInfo(selectList: List<String>): Boolean {
+    fun getFriendInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
         return true
     }
 
     /**
      * 获取我的信息
      */
-    fun getMyInfo(): Boolean {
+    fun getMyInfo(message: WeworkMessageBean): Boolean {
         if (!goHomeTab("我")) {
             LogUtils.d("未找到我的信息")
             log("未找到我的信息")

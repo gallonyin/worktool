@@ -2,10 +2,12 @@ package org.yameida.worktool
 
 import android.app.Application
 import android.content.Intent
+import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.Utils
 import com.efs.sdk.base.core.util.PackageUtil
+import com.google.gson.Gson
 import com.hjq.toast.ToastUtils
 import com.tendcloud.tenddata.TalkingDataSDK
 import com.umeng.commonsdk.UMConfigure
@@ -33,6 +35,7 @@ class MyApplication : Application() {
         super.onCreate()
         //初始化工具类
         Utils.init(this)
+        GsonUtils.setGsonDelegate(Gson())
         //初始化 Toast 框架
         ToastUtils.init(this)
         //初始化友盟统计

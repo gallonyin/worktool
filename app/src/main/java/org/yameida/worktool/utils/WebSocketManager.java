@@ -8,6 +8,7 @@ import com.hjq.toast.ToastUtils;
 
 import org.yameida.worktool.model.WeworkMessageBean;
 import org.yameida.worktool.model.WeworkMessageListBean;
+import org.yameida.worktool.service.WeworkController;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -140,6 +141,9 @@ public class WebSocketManager {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
             Log.e(url, "心跳检测" + df.format(new Date()));// new Date()为获取当前系统时间
             if (!connecting && (socket == null || !socket.send(HEARTBEAT))) {
+                //断开链接后关闭新消息接收
+                WeworkController.INSTANCE.setEnableLoopRunning(false);
+                //断开链接后进入重连
                 reConnect();
             }
             ToastUtils.show("机器人运行中 请勿人工操作手机~");

@@ -14,6 +14,7 @@ public class WeworkMessageBean {
      * <p>
      * 消息类型 100
      * 上传消息列表 TYPE_RECEIVE_MESSAGE_LIST
+     * 交互通知 TYPE_CONSOLE_TOAST
      * <p>
      * 全局操作类型 200
      * 停止所有任务并返回首页待命 STOP_AND_GO_HOME
@@ -21,7 +22,7 @@ public class WeworkMessageBean {
      * 在房间内发送消息 SEND_MESSAGE
      * 在房间内指定回复消息 REPLY_MESSAGE
      * 在房间内转发消息 RELAY_MESSAGE
-     * 创建群 CREATE_GROUP
+     * 创建群 INIT_GROUP
      * 进入群聊并修改群配置 INTO_GROUP_AND_CONFIG
      * 推送微盘图片 PUSH_MICRO_DISK_IMAGE
      * 推送微盘文件 PUSH_MICRO_DISK_FILE
@@ -44,6 +45,7 @@ public class WeworkMessageBean {
      */
     public static final int HEART_BEAT = 11;
     public static final int TYPE_RECEIVE_MESSAGE_LIST = 101;
+    public static final int TYPE_CONSOLE_TOAST = 102;
 
     public static final int STOP_AND_GO_HOME = 201;
     public static final int LOOP_RECEIVE_NEW_MESSAGE = 202;
