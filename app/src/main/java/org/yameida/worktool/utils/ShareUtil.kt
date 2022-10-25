@@ -5,6 +5,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.Utils
+import org.yameida.worktool.Constant
 import java.io.File
 
 /**
@@ -60,6 +61,7 @@ object ShareUtil {
             val fileURI = FileProvider.getUriForFile(app, app.packageName + ".fileprovider", file)
             putExtra(Intent.EXTRA_STREAM, fileURI)
         }
+        intent.setPackage(Constant.PACKAGE_NAMES)
         app.startActivity(Intent.createChooser(intent, "WorkTool文件分享").apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK })
         LogUtils.e("分享了 $type ${file.absolutePath}")
         return true

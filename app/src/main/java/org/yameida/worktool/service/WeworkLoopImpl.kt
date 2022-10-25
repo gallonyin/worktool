@@ -54,6 +54,13 @@ object WeworkLoopImpl {
                 if (item.parent.childCount > 1) {
                     LogUtils.d("通讯录有红点")
                     AccessibilityUtil.performClick(item)
+                    val hasRecommendFriend = AccessibilityUtil.findOneByText(getRoot(), "可能的", timeout = Constant.POP_WINDOW_INTERVAL)
+                    if (hasRecommendFriend != null) {
+                        LogUtils.d("有可能认识的人")
+                        AccessibilityUtil.performClick(hasRecommendFriend)
+                        goHome()
+                        return false
+                    }
                     val addButton = AccessibilityUtil.findOneByText(getRoot(), "添加")
                     val backNode = AccessibilityUtil.findBackNode(addButton)
                     if (backNode?.className == Views.TextView) {
