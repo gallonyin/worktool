@@ -82,6 +82,7 @@ object MyLooper {
                     WeworkController.enableLoopRunning = true
                 } else {
                     WeworkController.mainLoopRunning = false
+                    LogUtils.v("加入指令到执行队列", GsonUtils.toJson(message))
                     getInstance().sendMessage(Message.obtain().apply {
                         what = message.type * message.hashCode()
                         obj = message.apply { messageId = messageList.messageId }

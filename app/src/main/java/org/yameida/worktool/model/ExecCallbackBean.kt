@@ -72,4 +72,32 @@ data class ExecCallbackBean(
         const val ERROR_OTHER = 501000
 
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as ExecCallbackBean
+
+        if (rawMsg != other.rawMsg) return false
+        if (errorCode != other.errorCode) return false
+        if (errorReason != other.errorReason) return false
+        if (runTime != other.runTime) return false
+        if (timeCost != other.timeCost) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (rawMsg?.hashCode() ?: 0)
+        result = 31 * result + errorCode
+        result = 31 * result + errorReason.hashCode()
+        result = 31 * result + runTime.hashCode()
+        result = 31 * result + timeCost.hashCode()
+        return result
+    }
+
+
 }

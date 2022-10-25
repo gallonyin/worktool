@@ -104,7 +104,8 @@ object WeworkRoomUtil {
                 sleep(Constant.CHANGE_PAGE_INTERVAL)
                 //消息页搜索结果列表
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
-                val regex = "^$trimTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                val regex = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                 val searchResult = AccessibilityUtil.findOneByTextRegex(
                     selectListView,
                     regex,

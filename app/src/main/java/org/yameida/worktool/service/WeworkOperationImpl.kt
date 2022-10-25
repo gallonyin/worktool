@@ -733,7 +733,8 @@ object WeworkOperationImpl {
                     AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
                     val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
-                    val regex = "^$trimTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                    val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                    val regex = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                     val matchSelect = AccessibilityUtil.findOneByTextRegex(
                         selectListView,
                         regex,
@@ -882,7 +883,8 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.TextView)
-                        val regex = "^$trimTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                        val regex = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
@@ -976,7 +978,8 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextInput(getRoot(), trimTitle)
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.RelativeLayout)
-                        val regex = "^$trimTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                        val regex = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
