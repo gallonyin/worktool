@@ -18,6 +18,7 @@ import android.content.*
 import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.yameida.worktool.utils.HostTestHelper
 import org.yameida.worktool.utils.PermissionHelper
 import org.yameida.worktool.utils.PermissionPageManagement
 
@@ -214,7 +215,7 @@ class ListenActivity : AppCompatActivity() {
                 if (text.matches("ws{1,2}://[^/]+.*".toRegex())) {
                     Constant.host = text
                     tv_host.text = text
-                    ToastUtils.showLong("保存成功")
+                    HostTestHelper.test()
                     commentDialog.dismiss()
                 } else {
                     ToastUtils.showLong("格式异常！")

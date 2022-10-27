@@ -29,6 +29,8 @@ object Constant {
 
     fun getCheckUpdateUrl() = "${getBaseUrl()}/appUpdate/checkUpdate"
 
+    fun getTestUrl() = "${getBaseUrl()}/test"
+
     private fun getBaseUrl() = host.replace("wss", "https").replace("ws", "http")
 
 }
