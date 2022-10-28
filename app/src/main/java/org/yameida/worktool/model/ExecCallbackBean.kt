@@ -32,6 +32,8 @@ data class ExecCallbackBean(
         const val ERROR_ILLEGAL_DATA = 101011
         //非法操作
         const val ERROR_ILLEGAL_OPERATION = 101012
+        //非法权限
+        const val ERROR_ILLEGAL_PERMISSION = 101013
 
         //创建群失败
         const val ERROR_CREATE_GROUP = 201011
@@ -45,6 +47,8 @@ data class ExecCallbackBean(
         const val ERROR_GROUP_CHANGE_ANNOUNCEMENT = 201015
         //改群备注失败
         const val ERROR_GROUP_CHANGE_REMARK = 201016
+        //改群模板失败
+        const val ERROR_GROUP_TEMPLATE = 201017
         //查找聊天窗失败
         const val ERROR_INTO_ROOM = 201101
         //发送消息失败

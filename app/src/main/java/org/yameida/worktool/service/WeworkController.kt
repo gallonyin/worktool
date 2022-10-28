@@ -119,16 +119,18 @@ object WeworkController {
      * @param message#selectList 添加群成员名称列表 选填
      * @param message#groupAnnouncement 修改群公告 选填
      * @param message#groupRemark 修改群备注 选填
+     * @param message#groupTemplate 修改群模板 选填
      */
     @RequestMapping
     fun initGroup(message: WeworkMessageBean): Boolean {
-        LogUtils.d("initGroup(): ${message.groupName} ${message.selectList} ${message.groupAnnouncement} ${message.groupRemark}")
+        LogUtils.d("initGroup(): ${message.groupName} ${message.selectList} ${message.groupAnnouncement} ${message.groupRemark} ${message.groupTemplate}")
         return WeworkOperationImpl.initGroup(
             message,
             message.groupName,
             message.selectList,
             message.groupAnnouncement,
-            message.groupRemark
+            message.groupRemark,
+            message.groupTemplate
         )
     }
 
@@ -150,22 +152,38 @@ object WeworkController {
      * @param message#newGroupName 修改群名 选填
      * @param message#newGroupAnnouncement 修改群公告 选填
      * @param message#groupRemark 修改群备注 选填
+     * @param message#groupTemplate 修改群模板 选填
      * @param message#selectList 添加群成员名称列表/拉人 选填
      * @param message#showMessageHistory 拉人是否附带历史记录 选填
      * @param message#removeList 移除群成员名称列表/踢人 选填
      */
     @RequestMapping
     fun intoGroupAndConfig(message: WeworkMessageBean): Boolean {
-        LogUtils.d("intoGroupAndConfig(): ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList}  ${message.groupRemark}")
+        LogUtils.d("intoGroupAndConfig(): ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList} ${message.groupRemark} ${message.groupTemplate}")
         return WeworkOperationImpl.intoGroupAndConfig(
             message,
             message.groupName,
             message.newGroupName,
             message.newGroupAnnouncement,
             message.groupRemark,
+            message.groupTemplate,
             message.selectList,
             message.showMessageHistory,
             message.removeList
+        )
+    }
+
+    /**
+     * 解散群聊
+     * @see WeworkMessageBean.DISMISS_GROUP
+     * @param message#groupName 待解散的群
+     */
+    @RequestMapping
+    fun dismissGroup(message: WeworkMessageBean): Boolean {
+        LogUtils.d("dismissGroup(): ${message.groupName}")
+        return WeworkOperationImpl.dismissGroup(
+            message,
+            message.groupName
         )
     }
 

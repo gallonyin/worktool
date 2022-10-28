@@ -138,6 +138,9 @@ object MyLooper {
             WeworkMessageBean.PUSH_FILE -> {
                 WeworkController.pushFile(message)
             }
+            WeworkMessageBean.DISMISS_GROUP -> {
+                WeworkController.dismissGroup(message)
+            }
             WeworkMessageBean.PASS_ALL_FRIEND_REQUEST -> {
             }
             WeworkMessageBean.ADD_FRIEND_BY_PHONE -> {

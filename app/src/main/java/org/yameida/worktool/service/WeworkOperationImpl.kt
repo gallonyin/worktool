@@ -195,23 +195,23 @@ object WeworkOperationImpl {
      * 7.设置入群欢迎语 默认为空
      * 8.拉入机器人 暂不开发
      * 9.防骚扰 默认警告模式
-     * 10.使用群配置模板 延迟开发
+     * 10.使用群配置模板
      * 11.消息免打扰 默认禁止
      * 12.保存到通讯录 默认开启
      * 注：群配置模板 1.群名称 2.禁群改名(使用) 3.设置管理员 4.入群欢迎语(使用) 5.自动回复 6.防骚扰规则(使用)
-     * 必须人工给机器人预先设置防骚扰规则 规则名"机器人"
-     * 必须人工给机器人预先设置群配置模板 模板名"机器人"
      * @param groupName 修改群名称
      * @param selectList 添加群成员名称列表 选填
      * @param groupAnnouncement 修改群公告 选填
      * @param groupRemark 修改群备注 选填
+     * @param groupTemplate 修改群模板 选填
      */
     fun initGroup(
         message: WeworkMessageBean,
         groupName: String,
         selectList: List<String>?,
         groupAnnouncement: String?,
-        groupRemark: String?
+        groupRemark: String?,
+        groupTemplate: String
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
@@ -236,6 +236,10 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime)
             return false
         }
+        if (!groupTemplate(groupTemplate)) {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime)
+            return false
+        }
         getGroupQrcode(groupName, groupRemark)
         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
         return true
@@ -248,6 +252,7 @@ object WeworkOperationImpl {
      * @param newGroupName 修改群名 选填
      * @param newGroupAnnouncement 修改群公告 选填
      * @param groupRemark 修改群备注 选填
+     * @param groupTemplate 修改群模板 选填
      * @param selectList 添加群成员名称列表/拉人 选填
      * @param showMessageHistory 拉人是否附带历史记录 选填
      * @param removeList 移除群成员名称列表/踢人 选填
@@ -258,6 +263,7 @@ object WeworkOperationImpl {
         newGroupName: String?,
         newGroupAnnouncement: String?,
         groupRemark: String?,
+        groupTemplate: String?,
         selectList: List<String>?,
         showMessageHistory: Boolean = false,
         removeList: List<String>?
@@ -287,8 +293,54 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime)
             return false
         }
+        if (!groupTemplate(groupTemplate)) {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime)
+            return false
+        }
         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
         return true
+    }
+
+    /**
+     * 解散群聊
+     * @see WeworkMessageBean.DISMISS_GROUP
+     * @param groupName 待解散的群
+     */
+    fun dismissGroup(
+        message: WeworkMessageBean,
+        groupName: String
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+            val groupManagerTv =
+                AccessibilityUtil.findOneByText(getRoot(), "群管理", exact = true, timeout = 2000)
+            if (groupManagerTv != null) {
+                AccessibilityUtil.performClick(groupManagerTv)
+                val dismissTv =
+                    AccessibilityUtil.findOneByText(getRoot(), "解散群聊", exact = true, timeout = 2000)
+                AccessibilityUtil.performClick(dismissTv)
+                if (dismissTv != null) {
+                    val confirmTv = AccessibilityUtil.findOneByText(getRoot(), "解散", "确定", exact = true, timeout = 2000)
+                    if (confirmTv != null) {
+                        AccessibilityUtil.performClick(confirmTv)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        return true
+                    } else {
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散按钮 $groupName", startTime)
+                        return false
+                    }
+                } else {
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散群聊按钮 $groupName", startTime)
+                    return false
+                }
+            } else {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群管理按钮 $groupName", startTime)
+                return false
+            }
+        } else {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime)
+            return false
+        }
     }
 
     /**
@@ -495,6 +547,11 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
+        if (!PermissionUtils.isGrantedDrawOverlays()) {
+            LogUtils.e("未打开悬浮窗权限")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_PERMISSION, "未打开悬浮窗权限", startTime)
+            return false
+        }
         LogUtils.i("下载开始 $fileUrl")
         val execute = OkGo.get<File>(fileUrl).execute()
         LogUtils.i("下载完成 $fileUrl")
@@ -745,7 +802,8 @@ object WeworkOperationImpl {
                         for (i in 0 until selectListView.childCount) {
                             val item = selectListView.getChild(i)
                             val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
-                            if (searchResult != null) {
+                            //过滤已退出的群聊
+                            if (searchResult != null && searchResult.parent.childCount < 3) {
                                 item.refresh()
                                 val imageView =
                                     AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
@@ -1100,6 +1158,43 @@ object WeworkOperationImpl {
                 }
             } else {
                 LogUtils.e("未找到群公告按钮")
+            }
+        } else {
+            LogUtils.e("进入群管理页失败")
+        }
+        return false
+    }
+
+    /**
+     * 修改群模板
+     */
+    private fun groupTemplate(groupTemplate: String?): Boolean {
+        if (groupTemplate == null) return true
+        if (WeworkRoomUtil.intoGroupManager()) {
+            val textView = AccessibilityUtil.findOneByText(getRoot(), "使用模板快速配置群", exact = true)
+            if (textView != null) {
+                AccessibilityUtil.performClick(textView)
+                val item = AccessibilityUtil.findOneByDesc(getRoot(), groupTemplate)
+                if (item != null) {
+                    AccessibilityUtil.performClick(item)
+                    val useTemplateTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用该模板")
+                    if (useTemplateTv != null) {
+                        AccessibilityUtil.performClick(useTemplateTv)
+                        val useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用")
+                        if (useTv != null) {
+                            AccessibilityUtil.performClick(useTv)
+                            return true
+                        } else {
+                            LogUtils.e("未找到使用按钮: $groupTemplate")
+                        }
+                    } else {
+                        LogUtils.e("未找到使用该模板按钮: $groupTemplate")
+                    }
+                } else {
+                    LogUtils.e("未找到指定配置: $groupTemplate")
+                }
+            } else {
+                LogUtils.e("未找到使用模板按钮")
             }
         } else {
             LogUtils.e("进入群管理页失败")

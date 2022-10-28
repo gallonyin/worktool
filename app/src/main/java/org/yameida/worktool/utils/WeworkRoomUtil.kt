@@ -106,17 +106,25 @@ object WeworkRoomUtil {
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                 val regex = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
-                val searchResult = AccessibilityUtil.findOneByTextRegex(
+                val searchResult = AccessibilityUtil.findAllByTextRegex(
                     selectListView,
                     regex,
                     timeout = 2000,
                     root = false
                 )
-                if (searchResult != null) {
-                    AccessibilityUtil.performClick(searchResult)
-                    LogUtils.d("进入房间: $title")
-                    sleep(Constant.CHANGE_PAGE_INTERVAL)
-                    return true
+                if (searchResult.isNotEmpty()) {
+                    //过滤已退出的群聊
+                    val searchItem = searchResult.firstOrNull {
+                        it.parent.childCount < 3
+                    }
+                    if (searchItem != null) {
+                        AccessibilityUtil.performClick(searchItem)
+                        LogUtils.d("进入房间: $title")
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        return true
+                    } else {
+                        LogUtils.e("搜索到已退出群聊")
+                    }
                 } else {
                     LogUtils.e("未搜索到结果")
                 }

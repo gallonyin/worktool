@@ -65,6 +65,7 @@ public class WeworkMessageBean {
     public static final int UPDATE_ANTI_HARASSMENT_RULE = 216;
     public static final int DELETED_ANTI_HARASSMENT_RULE = 217;
     public static final int PUSH_FILE = 218;
+    public static final int DISMISS_GROUP = 219;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
