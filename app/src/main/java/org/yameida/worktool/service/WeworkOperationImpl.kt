@@ -1225,9 +1225,9 @@ object WeworkOperationImpl {
                 if (atFlag != null) {
                     val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
                     if (rv != null) {
-                        AccessibilityUtil.findTextInput(getRoot(), at)
+                        AccessibilityUtil.findTextInput(getRoot(), at.replace("\\(.*?\\)".toRegex(), ""))
                         val atNode =
-                            AccessibilityUtil.findOneByText(rv, at, root = false, timeout = 2000)
+                            AccessibilityUtil.findOneByText(rv, at.replace("\\(.*?\\)".toRegex(), ""), root = false, timeout = 2000)
                         if (atNode != null) {
                             AccessibilityUtil.performClick(atNode)
                         } else {
@@ -1240,9 +1240,9 @@ object WeworkOperationImpl {
                         val searchFlag = AccessibilityUtil.findOnceByText(getRoot(), "搜索", exact = true)
                         val list = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)
                         if (list != null) {
-                            AccessibilityUtil.findTextInput(getRoot(), at)
+                            AccessibilityUtil.findTextInput(getRoot(), at.replace("\\(.*?\\)".toRegex(), ""))
                             val atNode =
-                                AccessibilityUtil.findOneByText(list, at, root = false, timeout = 2000)
+                                AccessibilityUtil.findOneByText(list, at.replace("\\(.*?\\)".toRegex(), ""), root = false, timeout = 2000)
                             if (atNode != null) {
                                 AccessibilityUtil.performClick(atNode)
                             } else {
