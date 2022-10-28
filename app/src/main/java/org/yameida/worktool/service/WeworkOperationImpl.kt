@@ -211,7 +211,7 @@ object WeworkOperationImpl {
         selectList: List<String>?,
         groupAnnouncement: String?,
         groupRemark: String?,
-        groupTemplate: String
+        groupTemplate: String?
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
@@ -808,6 +808,7 @@ object WeworkOperationImpl {
                                 val imageView =
                                     AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                 AccessibilityUtil.performClick(imageView)
+                                break
                             }
                         }
                     }

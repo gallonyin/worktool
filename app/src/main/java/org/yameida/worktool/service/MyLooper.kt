@@ -32,6 +32,7 @@ object MyLooper {
                         dealWithMessage(msg.obj as WeworkMessageBean)
                     } catch (e: Exception) {
                         LogUtils.e(e)
+                        uploadCommandResult(msg.obj as WeworkMessageBean, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, e.message ?: "", 0L)
                     }
                 }
             }
