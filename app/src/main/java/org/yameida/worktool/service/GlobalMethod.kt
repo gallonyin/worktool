@@ -1,10 +1,12 @@
 package org.yameida.worktool.service
 
+import android.content.Intent
 import android.graphics.Rect
 import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ScreenUtils
+import com.blankj.utilcode.util.Utils
 import com.hjq.toast.ToastUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.MyApplication
@@ -102,6 +104,13 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 LogUtils.e("当前不在企业微信: ${root.packageName}")
                 if (System.currentTimeMillis() % 30 == 0L) {
                     error("当前不在企业微信: ${root.packageName}")
+                    if (!root.packageName.contains("(worktool)|(settings)".toRegex())) {
+                        ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
+                        Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)?.apply {
+                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            Utils.getApp().startActivity(this)
+                        }
+                    }
                 }
                 if (ignoreCheck) {
                     return root
