@@ -19,36 +19,40 @@ object UpdateUtil {
         OkGo.get<String>(Constant.getCheckUpdateUrl())
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {
-                    val commonResult =
-                        GsonUtils.fromJson(
-                            response.body(),
-                            CheckUpdateResult::class.java
-                        )
-                    if (commonResult.code != 200) {
-                        return onError(response)
-                    }
-                    LogUtils.i(commonResult.data)
-                    commonResult.data?.apply {
-                        if (AppUtils.getAppVersionCode() < this.versionCode) {
-                            UpdateAppUtils
-                                .getInstance()
-                                .apkUrl(this.downloadUrl)
-                                .updateTitle(this.title)
-                                .updateContent(this.updateLog.replace("\\n", "\n"))
-                                .updateConfig(
-                                    UpdateConfig(
-                                        force = AppUtils.getAppVersionCode() < this.minVersionCode,
-                                        serverVersionName = this.versionName,
-                                        serverVersionCode = this.versionCode
-                                    )
-                                )
-                                .update()
-                        } else {
-                            ToastUtils.showShort(R.string.update_no_update)
+                    try {
+                        val commonResult =
+                            GsonUtils.fromJson(
+                                response.body(),
+                                CheckUpdateResult::class.java
+                            )
+                        if (commonResult.code != 200) {
+                            return onError(response)
                         }
-                        return
+                        LogUtils.i(commonResult.data)
+                        commonResult.data?.apply {
+                            if (AppUtils.getAppVersionCode() < this.versionCode) {
+                                UpdateAppUtils
+                                    .getInstance()
+                                    .apkUrl(this.downloadUrl)
+                                    .updateTitle(this.title)
+                                    .updateContent(this.updateLog.replace("\\n", "\n"))
+                                    .updateConfig(
+                                        UpdateConfig(
+                                            force = AppUtils.getAppVersionCode() < this.minVersionCode,
+                                            serverVersionName = this.versionName,
+                                            serverVersionCode = this.versionCode
+                                        )
+                                    )
+                                    .update()
+                            } else {
+                                ToastUtils.showShort(R.string.update_no_update)
+                            }
+                            return
+                        }
+                    } catch (e: Exception) {
+                        LogUtils.e(e)
+                        onError(response)
                     }
-                    ToastUtils.showLong(R.string.update_failed)
                 }
 
                 override fun onError(response: Response<String>) {
