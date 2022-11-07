@@ -36,7 +36,7 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         if (receivedContent.isNullOrEmpty()) {
             LogUtils.d("未发现发送内容")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "发送内容为空", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "发送内容为空", startTime, listOf(), titleList)
             return false
         }
         val successList = arrayListOf<String>()
@@ -58,10 +58,10 @@ object WeworkOperationImpl {
             }
         }
         if (failList.isNotEmpty()) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "发送成功: ${successList.joinToString()} 发送失败: ${failList.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "发送成功: ${successList.joinToString()} 发送失败: ${failList.joinToString()}", startTime, successList, failList)
             return false
         }
-        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, successList, failList)
         return true
     }
 
@@ -265,7 +265,7 @@ object WeworkOperationImpl {
         groupRemark: String?,
         groupTemplate: String?,
         selectList: List<String>?,
-        showMessageHistory: Boolean = false,
+        showMessageHistory: Boolean?,
         removeList: List<String>?
     ): Boolean {
         val startTime = System.currentTimeMillis()
@@ -277,7 +277,7 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "进入房间成功 群改名失败", startTime)
             return false
         }
-        if (!groupAddMember(selectList, showMessageHistory)) {
+        if (!groupAddMember(selectList, showMessageHistory == true)) {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败 ${selectList?.joinToString()}", startTime)
             return false
         }
@@ -535,6 +535,7 @@ object WeworkOperationImpl {
      * @param titleList 待发送姓名列表
      * @param objectName 文件名称
      * @param fileUrl 文件网络地址
+     * @param fileBase64 文件Base64
      * @param fileType 文件类型
      * @param extraText 附加留言 可选
      */
@@ -542,7 +543,8 @@ object WeworkOperationImpl {
         message: WeworkMessageBean,
         titleList: List<String>,
         objectName: String,
-        fileUrl: String,
+        fileUrl: String?,
+        fileBase64: String?,
         fileType: String,
         extraText: String? = null
     ): Boolean {
@@ -552,17 +554,68 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_PERMISSION, "未打开悬浮窗权限", startTime)
             return false
         }
-        LogUtils.i("下载开始 $fileUrl")
-        val execute = OkGo.get<File>(fileUrl).execute()
-        LogUtils.i("下载完成 $fileUrl")
-        val body = execute.body()
-        if (body != null) {
+        if (fileUrl != null) {
+            LogUtils.i("下载开始 $fileUrl")
+            val execute = OkGo.get<File>(fileUrl).execute()
+            LogUtils.i("下载完成 $fileUrl")
+            val body = execute.body()
+            if (body != null) {
+                val df = SimpleDateFormat("yyyy-MM-dd")
+                val filePath = "${
+                    Utils.getApp().getExternalFilesDir("share")
+                }/${df.format(Date())}/$objectName"
+                val newFile = File(filePath)
+                val create = FileUtils.createFileByDeleteOldFile(newFile)
+                if (create && newFile.canWrite()) {
+                    newFile.writeBytes(body.bytes())
+                    LogUtils.i("文件存储本地成功 $filePath")
+                    ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
+                    val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    AccessibilityUtil.performClick(shareToWorkButton)
+                    if (relaySelectTarget(titleList, extraText)) {
+                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                        AccessibilityUtil.performClick(stayButton)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        return true
+                    } else {
+                        LogUtils.e("文件转发失败: $objectName")
+                        uploadCommandResult(
+                            message,
+                            ExecCallbackBean.ERROR_RELAY,
+                            "文件转发失败: $objectName",
+                            startTime
+                        )
+                        return false
+                    }
+                } else {
+                    LogUtils.e("文件存储本地失败 $filePath")
+                    uploadCommandResult(
+                        message,
+                        ExecCallbackBean.ERROR_FILE_STORAGE,
+                        "文件存储本地失败 $filePath",
+                        startTime
+                    )
+                    return false
+                }
+            } else {
+                LogUtils.e("文件下载失败")
+                uploadCommandResult(
+                    message,
+                    ExecCallbackBean.ERROR_FILE_DOWNLOAD,
+                    "文件下载失败 $fileUrl",
+                    startTime
+                )
+                return false
+            }
+        } else if (fileBase64 != null) {
             val df = SimpleDateFormat("yyyy-MM-dd")
-            val filePath = "${Utils.getApp().getExternalFilesDir("share")}/${df.format(Date())}/$objectName"
+            val filePath = "${
+                Utils.getApp().getExternalFilesDir("share")
+            }/${df.format(Date())}/$objectName"
             val newFile = File(filePath)
             val create = FileUtils.createFileByDeleteOldFile(newFile)
             if (create && newFile.canWrite()) {
-                newFile.writeBytes(body.bytes())
+                newFile.writeBytes(EncodeUtils.base64Decode(fileBase64))
                 LogUtils.i("文件存储本地成功 $filePath")
                 ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
                 val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
@@ -574,17 +627,31 @@ object WeworkOperationImpl {
                     return true
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "文件转发失败: $objectName", startTime)
+                    uploadCommandResult(
+                        message,
+                        ExecCallbackBean.ERROR_RELAY,
+                        "文件转发失败: $objectName",
+                        startTime
+                    )
                     return false
                 }
             } else {
                 LogUtils.e("文件存储本地失败 $filePath")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_STORAGE, "文件存储本地失败 $filePath", startTime)
+                uploadCommandResult(
+                    message,
+                    ExecCallbackBean.ERROR_FILE_STORAGE,
+                    "文件存储本地失败 $filePath",
+                    startTime
+                )
                 return false
             }
         } else {
-            LogUtils.e("文件下载失败")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_DOWNLOAD, "文件下载失败 $fileUrl", startTime)
+            uploadCommandResult(
+                message,
+                ExecCallbackBean.ERROR_ILLEGAL_DATA,
+                "未找到文件资源参数",
+                startTime
+            )
             return false
         }
     }

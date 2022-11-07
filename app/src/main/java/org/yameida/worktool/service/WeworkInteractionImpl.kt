@@ -17,8 +17,8 @@ object WeworkInteractionImpl {
      */
     fun consoleToast(
         message: ExecCallbackBean,
-        errorCode: Int,
-        errorReason: String
+        errorCode: Int?,
+        errorReason: String?
     ): Boolean {
         LogUtils.e("错误提示 错误码: $errorCode 错误信息: $errorReason")
         ToastUtils.show("错误提示 错误码: $errorCode 错误信息: $errorReason")

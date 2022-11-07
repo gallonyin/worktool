@@ -8,16 +8,22 @@ data class ExecCallbackBean(
     var rawMsg: String? = null,
 
     //0成功 其他是失败错误码
-    var errorCode: Int = 0,
+    var errorCode: Int? = null,
 
     //失败原因
-    var errorReason: String = "",
+    var errorReason: String? = null,
 
     //执行时间
-    var runTime: Long = 0,
+    var runTime: Long? = null,
 
     //执行耗时
-    var timeCost: Double = 0.0
+    var timeCost: Double? = null,
+
+    //成功名单
+    var successList: List<String>? = null,
+
+    //失败名单
+    var failList: List<String>? = null
 
 ) : WeworkMessageBean() {
     companion object {
@@ -49,6 +55,8 @@ data class ExecCallbackBean(
         const val ERROR_GROUP_CHANGE_REMARK = 201016
         //改群模板失败
         const val ERROR_GROUP_TEMPLATE = 201017
+        //创建群达到上限
+        const val ERROR_CREATE_GROUP_LIMIT = 201018
         //查找聊天窗失败
         const val ERROR_INTO_ROOM = 201101
         //发送消息失败
@@ -89,6 +97,8 @@ data class ExecCallbackBean(
         if (errorReason != other.errorReason) return false
         if (runTime != other.runTime) return false
         if (timeCost != other.timeCost) return false
+        if (successList != other.successList) return false
+        if (failList != other.failList) return false
 
         return true
     }
@@ -96,12 +106,13 @@ data class ExecCallbackBean(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + (rawMsg?.hashCode() ?: 0)
-        result = 31 * result + errorCode
-        result = 31 * result + errorReason.hashCode()
-        result = 31 * result + runTime.hashCode()
-        result = 31 * result + timeCost.hashCode()
+        result = 31 * result + (errorCode ?: 0)
+        result = 31 * result + (errorReason?.hashCode() ?: 0)
+        result = 31 * result + (runTime?.hashCode() ?: 0)
+        result = 31 * result + (timeCost?.hashCode() ?: 0)
+        result = 31 * result + (successList?.hashCode() ?: 0)
+        result = 31 * result + (failList?.hashCode() ?: 0)
         return result
     }
-
 
 }

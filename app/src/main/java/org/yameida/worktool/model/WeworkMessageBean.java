@@ -181,7 +181,7 @@ public class WeworkMessageBean {
     //踢人列表
     public List<String> removeList;
     //拉人是否附带历史记录
-    public boolean showMessageHistory = false;
+    public Boolean showMessageHistory;
     //我的信息
     public MyInfo myInfo;
     //对象名称(图片、文件、小程序等)
@@ -193,6 +193,7 @@ public class WeworkMessageBean {
     public Friend friend;
 
     //网络文件
+    public String fileBase64;
     public String fileUrl;
     public String fileType;
 
@@ -293,18 +294,19 @@ public class WeworkMessageBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WeworkMessageBean that = (WeworkMessageBean) o;
-        return textType == that.textType && showMessageHistory == that.showMessageHistory && type == that.type && Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType);
+        return textType == that.textType && showMessageHistory == that.showMessageHistory && type == that.type && Objects.equals(messageId, that.messageId) && Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileBase64, that.fileBase64) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(titleList, messageList, log, roomType, receivedName, receivedContent, at, atList, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, groupRemark, groupTemplate, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, qrcode, friend, fileUrl, fileType, type);
+        return Objects.hash(messageId, titleList, messageList, log, roomType, receivedName, receivedContent, at, atList, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, groupRemark, groupTemplate, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, qrcode, friend, fileBase64, fileUrl, fileType, type);
     }
 
     @Override
     public String toString() {
         return "WeworkMessageBean{" +
-                "titleList=" + titleList +
+                "messageId='" + messageId + '\'' +
+                ", titleList=" + titleList +
                 ", messageList=" + messageList +
                 ", log='" + log + '\'' +
                 ", roomType=" + roomType +
@@ -331,6 +333,7 @@ public class WeworkMessageBean {
                 ", objectName='" + objectName + '\'' +
                 ", qrcode='" + qrcode + '\'' +
                 ", friend=" + friend +
+                ", fileBase64='" + fileBase64 + '\'' +
                 ", fileUrl='" + fileUrl + '\'' +
                 ", fileType='" + fileType + '\'' +
                 ", type=" + type +

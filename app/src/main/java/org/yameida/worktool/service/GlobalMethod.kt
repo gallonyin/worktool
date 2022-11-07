@@ -156,14 +156,17 @@ fun backPress() {
 /**
  * 上传执行指令结果
  */
-fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason: String, startTime: Long) {
+fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason: String, startTime: Long, successList: List<String> = listOf(), failList: List<String> = listOf()) {
     WeworkController.weworkService.webSocketManager.send(
         WeworkMessageListBean(
-            ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0),
+            ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0, successList, failList),
             WeworkMessageListBean.SOCKET_TYPE_RAW_CONFIRM,
             messageId = message.messageId
         ), true
     )
+    if (errorCode != 0) {
+        ToastUtils.show("错误提示 错误码: $errorCode 错误信息: $errorReason")
+    }
 }
 
 /**

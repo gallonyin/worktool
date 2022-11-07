@@ -266,17 +266,19 @@ object WeworkController {
      * @param message#titleList 待发送姓名列表
      * @param message#objectName 文件名称
      * @param message#fileUrl 文件网络地址
+     * @param message#fileBase64 文件Base64
      * @param message#fileType 文件类型
      * @param message#extraText 附加留言 可选
      */
     @RequestMapping
     fun pushFile(message: WeworkMessageBean): Boolean {
-        LogUtils.d("pushFile(): ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileType} ${message.extraText}")
+        LogUtils.d("pushFile(): ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileBase64} ${message.fileType} ${message.extraText}")
         return WeworkOperationImpl.pushFile(
             message,
             message.titleList,
             message.objectName,
             message.fileUrl,
+            message.fileBase64,
             message.fileType,
             message.extraText
         )
