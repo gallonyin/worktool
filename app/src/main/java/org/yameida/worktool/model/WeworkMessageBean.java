@@ -32,6 +32,8 @@ public class WeworkMessageBean {
      * 按手机号添加好友 ADD_FRIEND_BY_PHONE
      * 展示群信息 SHOW_GROUP_INFO
      * 推送文件(网络图片视频和文件等) PUSH_FILE
+     * 解散群聊 DISMISS_GROUP
+     * 从外部群添加好友 ADD_FRIEND_BY_GROUP
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -66,6 +68,7 @@ public class WeworkMessageBean {
     public static final int DELETED_ANTI_HARASSMENT_RULE = 217;
     public static final int PUSH_FILE = 218;
     public static final int DISMISS_GROUP = 219;
+    public static final int ADD_FRIEND_BY_GROUP = 220;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -286,6 +289,20 @@ public class WeworkMessageBean {
         @Override
         public int hashCode() {
             return Objects.hash(phone, name, markName, markCorp, markExtra, tagList, newFriend, leavingMsg);
+        }
+
+        @Override
+        public String toString() {
+            return "Friend{" +
+                    "phone='" + phone + '\'' +
+                    ", name='" + name + '\'' +
+                    ", markName='" + markName + '\'' +
+                    ", markCorp='" + markCorp + '\'' +
+                    ", markExtra='" + markExtra + '\'' +
+                    ", tagList=" + tagList +
+                    ", newFriend=" + newFriend +
+                    ", leavingMsg='" + leavingMsg + '\'' +
+                    '}';
         }
     }
 

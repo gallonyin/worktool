@@ -86,8 +86,10 @@ class WeworkService : AccessibilityService() {
             Log.e(TAG, "链接建立")
             val robotId = SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID, "")
             val appVersion = SPUtils.getInstance().getString("appVersion", "")
-            val workVersion= SPUtils.getInstance().getString("workVersion", "")
-            log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion")
+            val workVersion = SPUtils.getInstance().getString("workVersion", "")
+            val deviceRooted = SPUtils.getInstance().getBoolean("deviceRooted", false)
+            val hook = SPUtils.getInstance().getBoolean("hook", false)
+            log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion deviceRooted: $deviceRooted hook: $hook")
             LogUtils.i("设置自动跳转企业微信")
             sendBroadcast(true)
         }

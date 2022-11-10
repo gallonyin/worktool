@@ -188,6 +188,22 @@ object WeworkController {
     }
 
     /**
+     * 从外部群添加好友
+     * @see WeworkMessageBean.ADD_FRIEND_BY_GROUP
+     * @param message#groupName 外部群
+     * @param message#friend 待添加用户
+     */
+    @RequestMapping
+    fun addFriendByGroup(message: WeworkMessageBean): Boolean {
+        LogUtils.d("addFriendByGroup(): ${message.groupName} ${message.friend}")
+        return WeworkOperationImpl.addFriendByGroup(
+            message,
+            message.groupName,
+            message.friend
+        )
+    }
+
+    /**
      * 推送微盘图片
      * @see WeworkMessageBean.PUSH_MICRO_DISK_IMAGE
      * @param message#titleList 待发送姓名列表
@@ -287,7 +303,7 @@ object WeworkController {
     /**
      * 按手机号添加好友
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
-     * @param message#friend 待添加用户列表
+     * @param message#friend 待添加用户
      */
     @RequestMapping
     fun addFriendByPhone(message: WeworkMessageBean): Boolean {

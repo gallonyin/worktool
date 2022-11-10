@@ -117,7 +117,7 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 }
             }
         }
-        sleep(1000)
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
     }
 }
 

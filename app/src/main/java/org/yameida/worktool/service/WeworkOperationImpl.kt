@@ -219,13 +219,19 @@ object WeworkOperationImpl {
                 uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime)
                 return false
             }
+            if (createGroupLimit()) {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime)
+                return false
+            } else {
+                LogUtils.v("未发现建群达到上限")
+            }
         }
         if (!groupRename(groupName)) {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime)
             return false
         }
         if (!groupAddMember(selectList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败 ${selectList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime)
             return false
         }
         if (!groupChangeAnnouncement(groupAnnouncement)) {
@@ -278,11 +284,11 @@ object WeworkOperationImpl {
             return false
         }
         if (!groupAddMember(selectList, showMessageHistory == true)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败 ${selectList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime)
             return false
         }
         if (!groupRemoveMember(removeList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败 ${removeList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败: ${removeList?.joinToString()}", startTime)
             return false
         }
         if (!groupChangeAnnouncement(newGroupAnnouncement)) {
@@ -657,15 +663,69 @@ object WeworkOperationImpl {
     }
 
     /**
-     * 手机号添加好友
+     * 手机号添加好友或修改好友信息
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
-     * @param friend 待添加用户列表
+     * @param friend 待添加用户
      */
     fun addFriendByPhone(
         message: WeworkMessageBean,
         friend: WeworkMessageBean.Friend
     ): Boolean {
         val startTime = System.currentTimeMillis()
+        //如果已经是好友的可以传name修改好友信息
+        if (friend.phone == null && friend.name != null) {
+            if (getFriendInfo(friend.name)) {
+                if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话", "描述", "设置备注和描述", exact = true) != null) {
+                    var markTv =
+                        AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
+                    if (markTv == null) {
+                        markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业", exact = true)
+                    }
+                    if (markTv == null) {
+                        markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述", exact = true)
+                    }
+                    //设置备注
+                    if (markTv != null && (friend.markName != null
+                                || friend.markCorp != null || friend.markExtra != null)
+                    ) {
+                        AccessibilityUtil.performClick(markTv)
+                        val etList =
+                            AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
+                        if (etList.size >= 5) {
+                            if (friend.markName != null) {
+                                AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                            }
+                            if (friend.markCorp != null) {
+                                AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
+                            }
+                            if (friend.markExtra != null) {
+                                AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
+                            }
+                        }
+                        AccessibilityUtil.findTextAndClick(getRoot(), "保存")
+                    }
+                    //设置标签
+                    if (!friend.tagList.isNullOrEmpty()) {
+                        if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
+                            setFriendTags(friend.tagList)
+                        }
+                    }
+                } else {
+                    LogUtils.e("未找到标签")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到标签", startTime)
+                    return false
+                }
+                LogUtils.d("修改好友信息成功: ${friend.name}")
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                sleep(3000)
+                return true
+            } else {
+                LogUtils.e("未找到用户: ${friend.name}")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到用户: ${friend.name}", startTime)
+                return false
+            }
+        }
+        //手机号添加好友
         goHome()
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
         if (list != null) {
@@ -685,7 +745,8 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextAndClick(getRoot(), "搜索手机号添加")
                         AccessibilityUtil.findTextInput(getRoot(), friend.phone.trim())
                         if (AccessibilityUtil.findTextAndClick(getRoot(), "网络查找手机")) {
-                            val bothUsedTv = AccessibilityUtil.findOneByText(getRoot(), "对方同时使用", "标签", "电话")
+                            sleep(Constant.POP_WINDOW_INTERVAL)
+                            val bothUsedTv = AccessibilityUtil.findOneByTextRegex(getRoot(), "(对方同时使用.*?)|(标签)|(电话)|(描述)|(设置备注和描述)", timeout = 2000)
                             val bothUsedText = bothUsedTv?.text
                             if (bothUsedText != null && bothUsedText.contains("对方同时使用")) {
                                 AccessibilityUtil.performClick(
@@ -695,62 +756,14 @@ object WeworkOperationImpl {
                                     )
                                 )
                             }
-                            if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话") != null) {
-                                var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
-                                if (markTv == null) {
-                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业", exact = true)
-                                }
-                                if (markTv == null) {
-                                    markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述", exact = true)
-                                }
-                                //设置备注
-                                if (markTv != null && (friend.markName != null
-                                            || friend.markCorp != null || friend.markExtra != null)
-                                ) {
-                                    AccessibilityUtil.performClick(markTv)
-                                    val etList =
-                                        AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
-                                    if (etList.size >= 5) {
-                                        if (friend.markName != null) {
-                                            AccessibilityUtil.editTextInput(etList[0], friend.markName)
-                                        }
-                                        if (friend.markCorp != null) {
-                                            AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
-                                        }
-                                        if (friend.markExtra != null) {
-                                            AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
-                                        }
-                                    }
-                                    AccessibilityUtil.findTextAndClick(getRoot(), "保存")
-                                }
-                                //设置标签
-                                if (!friend.tagList.isNullOrEmpty()) {
-                                    if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
-                                        setFriendTags(friend.tagList)
-                                    }
-                                }
-                                //添加联系人
-                                val imageView =
-                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
-                                if (imageView != null) {
-                                    val textViewList = AccessibilityUtil.findAllOnceByClazz(
-                                        imageView.parent,
-                                        Views.TextView
-                                    )
-                                    val filter =
-                                        textViewList.filter { it.text != null && it.text.toString() != "微信" }
-                                    if (filter.isNotEmpty()) {
-                                        val tvNick = filter[0]
-                                        LogUtils.d("好友昵称或备注名: " + tvNick.text)
-                                    }
-                                }
+                            if (modifyFriendInfo(friend)) {
                                 if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
-                                    LogUtils.d("准备发送好友邀请: " + friend.phone)
+                                    LogUtils.d("准备发送好友邀请: ${friend.phone}")
                                     if (!friend.leavingMsg.isNullOrEmpty()) {
                                         AccessibilityUtil.findTextInput(getRoot(), friend.leavingMsg)
                                     }
                                     if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
-                                        LogUtils.d("发送添加邀请成功: " + friend.phone)
+                                        LogUtils.d("发送添加邀请成功: ${friend.phone}")
                                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                                         return true
                                     } else {
@@ -770,8 +783,8 @@ object WeworkOperationImpl {
                                     }
                                 }
                             } else {
-                                LogUtils.e("未找到标签")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到标签", startTime)
+                                LogUtils.e("修改用户信息失败: ${friend.phone}")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.phone}", startTime)
                                 return false
                             }
                         } else {
@@ -797,6 +810,119 @@ object WeworkOperationImpl {
         } else {
             LogUtils.e("未找到聊天列表")
             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到聊天列表", startTime)
+            return false
+        }
+    }
+
+    /**
+     * 从外部群添加好友
+     * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
+     * @param groupName 外部群
+     * @param friend 待添加用户
+     */
+    fun addFriendByGroup(
+        message: WeworkMessageBean,
+        groupName: String,
+        friend: WeworkMessageBean.Friend
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "查看全部群成员")) {
+                val title = friend.name
+                val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list != null) {
+                    val frontNode = AccessibilityUtil.findFrontNode(list)
+                    val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+                        .filter { it.text == null }
+                    if (textViewList.size >= 2) {
+                        val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                        AccessibilityUtil.performClick(searchButton)
+                        val needTrim = title.contains(Constant.regTrimTitle)
+                        val trimTitle = title.replace(Constant.regTrimTitle, "")
+                        AccessibilityUtil.findTextInput(getRoot(), trimTitle)
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        //消息页搜索结果列表
+                        val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                        val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                        val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val regex2 = ".*?\\($reverseRegexTitle\\)$"
+                        val regex = "($regex1)|($regex2)"
+                        val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                            selectListView,
+                            regex,
+                            timeout = 2000,
+                            root = false
+                        )
+                        if (selectListView != null && matchSelect != null) {
+                            for (i in 0 until selectListView.childCount) {
+                                val item = selectListView.getChild(i)
+                                val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                                //过滤异常好友
+                                if (searchResult != null && searchResult.parent.childCount < 3) {
+                                    item.refresh()
+                                    val imageView =
+                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    AccessibilityUtil.performClick(imageView)
+                                    break
+                                }
+                            }
+                            if (modifyFriendInfo(friend)) {
+                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
+                                    LogUtils.d("准备发送好友邀请: ${friend.name}")
+                                    if (!friend.leavingMsg.isNullOrEmpty()) {
+                                        AccessibilityUtil.findTextInput(getRoot(), friend.leavingMsg)
+                                    }
+                                    if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
+                                        LogUtils.d("发送添加邀请成功: ${friend.name}")
+                                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                        return true
+                                    } else {
+                                        if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
+                                            LogUtils.d("已经添加成功: ${friend.name}")
+                                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                            return true
+                                        }
+                                        LogUtils.e("未找到发送邀请按钮")
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到发送邀请按钮", startTime)
+                                        return false
+                                    }
+                                } else {
+                                    if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
+                                        LogUtils.e("已经添加联系人，请勿重复添加: ${friend.name}")
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_REPEAT, "已经添加联系人，请勿重复添加 ${friend.name}", startTime)
+                                        return false
+                                    } else {
+                                        LogUtils.e("未找到添加为联系人")
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加为联系人", startTime)
+                                        return false
+                                    }
+                                }
+                            } else {
+                                LogUtils.e("修改用户信息失败: ${friend.name}")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime)
+                                return false
+                            }
+                        } else {
+                            LogUtils.e("未搜索到结果: ${friend.name}")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime)
+                            return false
+                        }
+                    } else {
+                        LogUtils.e("未发现搜索按钮")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现搜索按钮", startTime)
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未发现通讯录列表")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现通讯录列表", startTime)
+                    return false
+                }
+            } else {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查看全部群成员按钮 $groupName", startTime)
+                return false
+            }
+        } else {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime)
             return false
         }
     }
@@ -884,7 +1010,7 @@ object WeworkOperationImpl {
                     if (matchSelect != null) {
                         LogUtils.d("找到搜索结果: $select")
                     } else {
-                        LogUtils.e("未搜索到结果")
+                        LogUtils.e("未搜索到结果: $select")
                     }
                     sleep(Constant.POP_WINDOW_INTERVAL)
                 }
@@ -902,18 +1028,18 @@ object WeworkOperationImpl {
                         AccessibilityUtil.performClick(sendButton)
                         return true
                     }
-                    LogUtils.e("未发现发送按钮: ")
+                    LogUtils.e("未发现发送按钮")
                     return false
                 } else {
-                    LogUtils.e("未发现确认按钮: ")
+                    LogUtils.e("未发现确认按钮")
                     return false
                 }
             } else {
-                LogUtils.e("未发现搜索和多选按钮: ")
+                LogUtils.e("未发现搜索和多选按钮")
                 return false
             }
         }
-        LogUtils.e("未知错误: ")
+        LogUtils.e("未知错误")
         return false
     }
 
@@ -934,6 +1060,15 @@ object WeworkOperationImpl {
         LogUtils.e("未找到客户群应用")
         log("未找到客户群应用")
         return false
+    }
+
+    /**
+     * 检查是否达到当日建群上限
+     */
+    private fun createGroupLimit(): Boolean {
+        val hasLimit =
+            AccessibilityUtil.findOneByText(getRoot(), "新建群聊功能暂时被限制", "未验证企业", timeout = 2000)
+        return hasLimit != null
     }
 
     /**
@@ -1047,8 +1182,8 @@ object WeworkOperationImpl {
                         if (matchSelect != null) {
                             LogUtils.d("找到搜索结果: $select")
                         } else {
-                            LogUtils.e("未搜索到结果")
-                            return false
+                            LogUtils.e("未搜索到结果: $select")
+                            if (Constant.groupStrict) return false
                         }
                     }
                     if (showMessageHistory) {
@@ -1059,7 +1194,7 @@ object WeworkOperationImpl {
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
                     } else {
-                        LogUtils.e("未发现确认按钮: ")
+                        LogUtils.e("未发现确认按钮")
                         return false
                     }
                 } else {
@@ -1138,8 +1273,8 @@ object WeworkOperationImpl {
                         if (matchSelect != null) {
                             LogUtils.d("找到搜索结果: $select")
                         } else {
-                            LogUtils.e("未搜索到结果")
-                            return false
+                            LogUtils.e("未搜索到结果: $select")
+                            if (Constant.groupStrict) return false
                         }
                     }
                     val confirmButton =
@@ -1147,7 +1282,7 @@ object WeworkOperationImpl {
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
                     } else {
-                        LogUtils.e("未发现移出按钮: ")
+                        LogUtils.e("未发现移出按钮")
                         return false
                     }
                 } else {
@@ -1193,10 +1328,10 @@ object WeworkOperationImpl {
                         }
                         sleep(3000)
                     } else {
-                        LogUtils.e("无法进行群公告发布: ")
+                        LogUtils.e("无法进行群公告发布")
                     }
                 } else {
-                    LogUtils.e("无法进行群公告发布和编辑: ")
+                    LogUtils.e("无法进行群公告发布和编辑")
                     return false
                 }
             } else {
@@ -1225,10 +1360,10 @@ object WeworkOperationImpl {
                     if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
                         return true
                     } else {
-                        LogUtils.e("无法进行群备注发布: ")
+                        LogUtils.e("无法进行群备注发布")
                     }
                 } else {
-                    LogUtils.e("无法进行群备注修改: ")
+                    LogUtils.e("无法进行群备注修改")
                 }
             } else {
                 LogUtils.e("未找到群公告按钮")
@@ -1353,6 +1488,141 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 从通讯录查询好友信息
+     */
+    private fun getFriendInfo(title: String): Boolean {
+        goHomeTab("通讯录")
+        val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+        if (list != null) {
+            val frontNode = AccessibilityUtil.findFrontNode(list)
+            val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+            if (textViewList.size >= 2) {
+                val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
+                val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                AccessibilityUtil.performClick(searchButton)
+                val needTrim = title.contains(Constant.regTrimTitle)
+                val trimTitle = title.replace(Constant.regTrimTitle, "")
+                AccessibilityUtil.findTextInput(getRoot(), trimTitle)
+                sleep(Constant.CHANGE_PAGE_INTERVAL)
+                //消息页搜索结果列表
+                val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                val regex2 = ".*?\\($reverseRegexTitle\\)$"
+                val regex = "($regex1)|($regex2)"
+                val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                    selectListView,
+                    regex,
+                    timeout = 2000,
+                    root = false
+                )
+                if (selectListView != null && matchSelect != null) {
+                    for (i in 0 until selectListView.childCount) {
+                        val item = selectListView.getChild(i)
+                        val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                        //过滤异常好友
+                        if (searchResult != null && searchResult.parent.childCount < 3) {
+                            item.refresh()
+                            val imageView =
+                                AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                            AccessibilityUtil.performClick(imageView)
+                            break
+                        }
+                    }
+                }
+                if (matchSelect != null) {
+                    LogUtils.d("找到搜索结果: $title")
+                    return true
+                } else {
+                    LogUtils.e("未搜索到结果: $title")
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * 修改好友信息
+     */
+    private fun modifyFriendInfo(friend: WeworkMessageBean.Friend): Boolean {
+        if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话", "描述", "设置备注和描述", exact = true) != null) {
+            var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
+            if (markTv == null) {
+                markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业", exact = true)
+            }
+            if (markTv == null) {
+                markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述", exact = true)
+            }
+            //设置备注
+            if (markTv != null && (friend.markName != null
+                        || friend.markCorp != null || friend.markExtra != null)
+            ) {
+                AccessibilityUtil.performClick(markTv)
+                val etList =
+                    AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 2)
+                if (etList.size >= 5) {
+                    //微信用户 备注/企业/电话/电话/描述
+                    if (friend.markName != null) {
+                        AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                    }
+                    if (friend.markCorp != null) {
+                        AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
+                    }
+                    if (friend.markExtra != null) {
+                        AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
+                    }
+                } else if (etList.size == 2) {
+                    //同企业内部用户 备注/描述
+                    if (friend.markName != null) {
+                        AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                    }
+                    if (friend.markExtra != null) {
+                        AccessibilityUtil.editTextInput(etList[1], friend.markExtra)
+                    }
+                } else if (etList.size == 3) {
+                    //外部企业用户 备注/电话/描述
+                    if (friend.markName != null) {
+                        AccessibilityUtil.editTextInput(etList[0], friend.markName)
+                    }
+                    if (friend.markExtra != null) {
+                        AccessibilityUtil.editTextInput(etList[2], friend.markExtra)
+                    }
+                }
+                AccessibilityUtil.findTextAndClick(getRoot(), "保存")
+            }
+            //设置标签
+            if (!friend.tagList.isNullOrEmpty()) {
+                if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
+                    setFriendTags(friend.tagList)
+                }
+            }
+            //添加联系人
+            val imageView =
+                AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
+            if (imageView != null) {
+                val textViewList = AccessibilityUtil.findAllOnceByClazz(
+                    imageView.parent,
+                    Views.TextView
+                )
+                val filter =
+                    textViewList.filter { it.text != null && it.text.toString() != "微信" }
+                if (filter.isNotEmpty()) {
+                    val tvNick = filter[0]
+                    LogUtils.d("好友昵称或备注名: ${tvNick.text}")
+                }
+            }
+            return true
+        } else {
+            if (AccessibilityUtil.findOnceByText(getRoot(), "无权查看") != null) {
+                LogUtils.e("无权查看该用户")
+                return false
+            }
+            LogUtils.e("未找到标签")
+            return false
+        }
+    }
+
+    /**
      * 设置好友标签
      */
     private fun setFriendTags(tagList: List<String>): Boolean {
@@ -1462,7 +1732,6 @@ object WeworkOperationImpl {
                                     )
                                     return true
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
                                     LogUtils.e(e)
                                 }
                             }

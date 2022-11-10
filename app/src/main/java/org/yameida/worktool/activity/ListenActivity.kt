@@ -21,6 +21,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.yameida.worktool.utils.HostTestHelper
 import org.yameida.worktool.utils.PermissionHelper
 import org.yameida.worktool.utils.PermissionPageManagement
+import org.yameida.worktool.utils.envcheck.CheckHook
+import org.yameida.worktool.utils.envcheck.CheckRoot
 
 
 class ListenActivity : AppCompatActivity() {
@@ -87,7 +89,15 @@ class ListenActivity : AppCompatActivity() {
             true
         }
         val version = "${AppUtils.getAppVersionName()}     Android ${DeviceUtils.getSDKVersionName()} ${DeviceUtils.getManufacturer()} ${DeviceUtils.getModel()}"
-        tv_version.text = version
+        val deviceRooted = CheckRoot.isDeviceRooted()
+        val hook = CheckHook.isHook(applicationContext)
+        if (hook) {
+            tv_version.text = "当前设备存在侵入代码，请勿在本设备使用本程序！！！"
+        } else if (deviceRooted) {
+            tv_version.text = "$version\n本设备已Root，存在一定风险！"
+        } else {
+            tv_version.text = version
+        }
         val workVersionName = AppUtils.getAppInfo(Constant.PACKAGE_NAMES)?.versionName
         when (workVersionName) {
             null -> {
@@ -107,6 +117,8 @@ class ListenActivity : AppCompatActivity() {
         }
         SPUtils.getInstance().put("appVersion", version)
         SPUtils.getInstance().put("workVersion", workVersionName)
+        SPUtils.getInstance().put("deviceRooted", deviceRooted)
+        SPUtils.getInstance().put("hook", hook)
     }
 
     private fun initAccessibility() {
@@ -215,7 +227,7 @@ class ListenActivity : AppCompatActivity() {
                 if (text.matches("ws{1,2}://[^/]+.*".toRegex())) {
                     Constant.host = text
                     tv_host.text = text
-                    HostTestHelper.test()
+                    HostTestHelper.testWs()
                     commentDialog.dismiss()
                 } else {
                     ToastUtils.showLong("格式异常！")
