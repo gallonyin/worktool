@@ -34,6 +34,8 @@ public class WeworkMessageBean {
      * 推送文件(网络图片视频和文件等) PUSH_FILE
      * 解散群聊 DISMISS_GROUP
      * 从外部群添加好友 ADD_FRIEND_BY_GROUP
+     * 添加待办 ADD_NEED_DEAL
+     * 打卡 CLOCK_IN
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -69,6 +71,8 @@ public class WeworkMessageBean {
     public static final int PUSH_FILE = 218;
     public static final int DISMISS_GROUP = 219;
     public static final int ADD_FRIEND_BY_GROUP = 220;
+    public static final int ADD_NEED_DEAL = 221;
+    public static final int CLOCK_IN = 222;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;

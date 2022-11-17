@@ -66,4 +66,6 @@ dependencies {
     implementation 'com.lzy.net:okgo:3.0.4'
     //qrcode
     implementation 'com.github.yoojia:next-qrcode:2.0-2'
+    //QMUI
+    implementation 'com.qmuiteam:qmui:2.0.0-alpha10'
 }

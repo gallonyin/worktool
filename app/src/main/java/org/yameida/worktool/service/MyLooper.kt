@@ -150,6 +150,12 @@ object MyLooper {
             WeworkMessageBean.ADD_FRIEND_BY_GROUP -> {
                 WeworkController.addFriendByGroup(message)
             }
+            WeworkMessageBean.ADD_NEED_DEAL -> {
+                WeworkController.addNeedDeal(message)
+            }
+            WeworkMessageBean.CLOCK_IN -> {
+                WeworkController.clockIn(message)
+            }
             WeworkMessageBean.SHOW_GROUP_INFO -> {
                 WeworkController.showGroupInfo(message)
             }

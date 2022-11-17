@@ -13,11 +13,10 @@ import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
 import org.yameida.worktool.service.WeworkService
 import org.yameida.worktool.utils.UpdateUtil
-import android.app.Dialog
 import android.content.*
-import android.widget.Button
-import android.widget.EditText
+import android.text.InputType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog
 import org.yameida.worktool.utils.HostTestHelper
 import org.yameida.worktool.utils.PermissionHelper
 import org.yameida.worktool.utils.PermissionPageManagement
@@ -84,8 +83,11 @@ class ListenActivity : AppCompatActivity() {
             SPUtils.getInstance().put("autoReply", Constant.autoReply)
         })
         tv_host.text = Constant.host
+        tv_host.setOnClickListener {
+            showSelectHostDialog()
+        }
         tv_host.setOnLongClickListener {
-            showInputDialog()
+            showInputHostDialog()
             true
         }
         val version = "${AppUtils.getAppVersionName()}     Android ${DeviceUtils.getSDKVersionName()} ${DeviceUtils.getManufacturer()} ${DeviceUtils.getModel()}"
@@ -214,33 +216,64 @@ class ListenActivity : AppCompatActivity() {
         }
     }
 
-    private fun showInputDialog() {
-        ToastUtils.showLong("请输入专线网络")
-        val commentDialog = Dialog(this)
-        commentDialog.setContentView(R.layout.dialog_input)
-        val et: EditText = commentDialog.findViewById(R.id.body) as EditText
-        et.setText(tv_host.text)
-        val okBtn: Button = commentDialog.findViewById(R.id.ok) as Button
-        okBtn.setOnClickListener {
-            val text = et.text.toString()
-            if (text.isNotBlank()) {
-                if (text.matches("ws{1,2}://[^/]+.*".toRegex())) {
-                    Constant.host = text
-                    tv_host.text = text
+    private fun showSelectHostDialog() {
+        val hostList = SPUtils.getInstance().getStringSet("host_list", mutableSetOf(Constant.host))
+        if (hostList.isNotEmpty()) {
+            val hostArray = hostList.toTypedArray()
+            QMUIDialog.CheckableDialogBuilder(this)
+                .setTitle(getString(R.string.host_list))
+                .addItems(hostArray) { dialog, which ->
+                    Constant.host = hostArray[which]
+                    tv_host.text = hostArray[which]
                     HostTestHelper.testWs()
-                    commentDialog.dismiss()
-                } else {
-                    ToastUtils.showLong("格式异常！")
+                    dialog.dismiss()
                 }
-            } else {
-                ToastUtils.showLong("请勿为空！")
+                .setCheckedIndex(hostList.indexOf(Constant.host))
+                .create(R.style.QMUI_Dialog)
+                .show()
+        }
+    }
+
+    private fun showInputHostDialog() {
+        ToastUtils.showLong("请输入专线网络")
+        val builder = QMUIDialog.EditTextDialogBuilder(this)
+        builder.setTitle(getString(R.string.tip))
+            .setPlaceholder(getString(R.string.input_new_host))
+            .setDefaultText(tv_host.text)
+            .setInputType(InputType.TYPE_CLASS_TEXT)
+            .addAction(getString(R.string.delete)) { dialog, index ->
+                val hostList = SPUtils.getInstance().getStringSet("host_list", mutableSetOf(Constant.host))
+                if (hostList.size > 1) {
+                    hostList.remove(Constant.host)
+                    Constant.host = hostList.elementAt(0)
+                    tv_host.text = Constant.host
+                    HostTestHelper.testWs()
+                    SPUtils.getInstance().put("host_list", hostList)
+                    dialog.dismiss()
+                } else {
+                    ToastUtils.showLong("至少保留一个host！")
+                }
             }
-        }
-        val cancelBtn: Button = commentDialog.findViewById(R.id.cancel) as Button
-        cancelBtn.setOnClickListener {
-            commentDialog.dismiss()
-        }
-        commentDialog.show()
+            .addAction(getString(R.string.cancel)) { dialog, index -> dialog.dismiss() }
+            .addAction(getString(R.string.add)) { dialog, index ->
+                val text = builder.editText.text
+                if (text != null && text.isNotEmpty()) {
+                    if (text.matches("ws{1,2}://[^/]+.*".toRegex())) {
+                        val hostList = SPUtils.getInstance().getStringSet("host_list", mutableSetOf(Constant.host))
+                        hostList.add(text.toString())
+                        SPUtils.getInstance().put("host_list", hostList)
+                        Constant.host = text.toString()
+                        tv_host.text = text
+                        HostTestHelper.testWs()
+                        dialog.dismiss()
+                    } else {
+                        ToastUtils.showLong("格式异常！")
+                    }
+                } else {
+                    ToastUtils.showLong("请勿为空！")
+                }
+            }
+            .create(R.style.QMUI_Dialog).show()
     }
 
     private var needToWork = false

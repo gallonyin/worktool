@@ -40,10 +40,12 @@ object HostTestHelper {
 
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     ToastUtils.showLong("链接: ${Constant.getWsUrl()}\nonMessage\ntext:$text")
+                    webSocket.close(1000, "接口测试成功")
                 }
 
                 override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                     ToastUtils.showLong("链接: ${Constant.getWsUrl()}\nonMessage\nbytes:$bytes")
+                    webSocket.close(1000, "接口测试成功")
                 }
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

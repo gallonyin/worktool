@@ -204,6 +204,32 @@ object WeworkController {
     }
 
     /**
+     * 添加待办
+     * @see WeworkMessageBean.ADD_NEED_DEAL
+     * @param message#titleList 内部用户昵称列表
+     * @param message#receivedContent 回复内容
+     */
+    @RequestMapping
+    fun addNeedDeal(message: WeworkMessageBean): Boolean {
+        LogUtils.d("addNeedDeal(): ${message.titleList} ${message.receivedContent}")
+        return WeworkOperationImpl.addNeedDeal(
+            message,
+            message.titleList,
+            message.receivedContent
+        )
+    }
+
+    /**
+     * 打卡
+     * @see WeworkMessageBean.CLOCK_IN
+     */
+    @RequestMapping
+    fun clockIn(message: WeworkMessageBean): Boolean {
+        LogUtils.d("clockIn(): ")
+        return WeworkOperationImpl.clockIn(message)
+    }
+
+    /**
      * 推送微盘图片
      * @see WeworkMessageBean.PUSH_MICRO_DISK_IMAGE
      * @param message#titleList 待发送姓名列表

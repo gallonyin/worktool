@@ -928,6 +928,110 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 添加待办
+     * @see WeworkMessageBean.ADD_NEED_DEAL
+     * @param titleList 内部用户昵称列表
+     * @param receivedContent 回复内容
+     */
+    fun addNeedDeal(
+        message: WeworkMessageBean,
+        titleList: MutableList<String>,
+        receivedContent: String
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        goHome()
+        val tvDiaryFlag = AccessibilityUtil.findOneByText(getRoot(), "日程", exact = true)
+        if (tvDiaryFlag != null && tvDiaryFlag.parent.childCount == 2) {
+            AccessibilityUtil.performClick(tvDiaryFlag)
+            val tvNeedDealFlag = AccessibilityUtil.findOneByTextRegex(getRoot(), "^待办( · .*?)?$")
+            if (tvNeedDealFlag != null) {
+                AccessibilityUtil.performClick(tvNeedDealFlag)
+                sleep(Constant.POP_WINDOW_INTERVAL)
+                val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
+                if (rv != null) {
+                    val frontNode = AccessibilityUtil.findFrontNode(rv.parent)
+                    val textViewList =
+                        AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+                    if (textViewList.size >= 2) {
+                        val addButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                        AccessibilityUtil.performClick(addButton)
+                        AccessibilityUtil.findTextInput(getRoot(), receivedContent)
+                        AccessibilityUtil.findTextAndClick(getRoot(), "参与人")
+                        if (relaySelectTarget(titleList, needSend = false)) {
+                            LogUtils.e("添加参与人成功")
+                            if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天")) {
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                return true
+                            } else {
+                                LogUtils.e("未找到保存并发送按钮")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到保存并发送按钮", startTime)
+                                return false
+                            }
+                        } else {
+                            LogUtils.e("添加参与人失败")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "添加参与人失败: $titleList", startTime)
+                            return false
+                        }
+                    } else {
+                        LogUtils.e("未找到添加按钮")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加按钮", startTime)
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未找到待办列表")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办列表", startTime)
+                    return false
+                }
+            } else {
+                LogUtils.e("未找到待办按钮")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办按钮", startTime)
+                return false
+            }
+        } else {
+            LogUtils.e("未找到日程按钮")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到日程按钮", startTime)
+            return false
+        }
+    }
+
+    /**
+     * 打卡
+     * @see WeworkMessageBean.CLOCK_IN
+     */
+    fun clockIn(message: WeworkMessageBean): Boolean {
+        val startTime = System.currentTimeMillis()
+        goHomeTab("工作台")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "打卡")
+        if (node != null) {
+            AccessibilityUtil.performClick(node)
+            sleep(Constant.POP_WINDOW_INTERVAL)
+            val clockInFlag =
+                AccessibilityUtil.findOneByText(getRoot(), "你已在打卡范围内", timeout = 10000)
+            if (clockInFlag != null) {
+                AccessibilityUtil.findTextAndClick(getRoot(), "上班打卡", "下班打卡")
+                val doneFlag = AccessibilityUtil.findOneByText(getRoot(), "上班·正常", "之后可打下班卡", "今日打卡已完成")
+                if (doneFlag != null) {
+                    LogUtils.d("打卡成功")
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                    return true
+                } else {
+                    LogUtils.e("未发现完成打卡")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现完成打卡", startTime)
+                    return false
+                }
+            } else {
+                LogUtils.e("未找到上下班打卡")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到上下班打卡", startTime)
+                return false
+            }
+        } else {
+            LogUtils.e("未找到在打卡范围")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到在打卡范围", startTime)
+            return false
+        }
+    }
+
+    /**
      * 展示群信息
      * @see WeworkMessageBean.SHOW_GROUP_INFO
      * @param titleList 待查询群名
@@ -966,7 +1070,7 @@ object WeworkOperationImpl {
      * selectList 昵称或群名列表
      * extraText 转发是否附加一条文本
      */
-    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null): Boolean {
+    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true): Boolean {
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
@@ -1019,6 +1123,9 @@ object WeworkOperationImpl {
                 if (confirmButton != null) {
                     AccessibilityUtil.performClick(confirmButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
+                    if (!needSend) {
+                        return true
+                    }
                     if (!extraText.isNullOrBlank()) {
                         LogUtils.d("extraText: $extraText")
                         AccessibilityUtil.findTextInput(getRoot(), extraText)
