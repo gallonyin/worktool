@@ -12,25 +12,32 @@ import com.umeng.analytics.MobclickAgent
 import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
 import org.yameida.worktool.service.WeworkService
-import org.yameida.worktool.utils.UpdateUtil
 import android.content.*
 import android.text.InputType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog
-import org.yameida.worktool.utils.HostTestHelper
-import org.yameida.worktool.utils.PermissionHelper
-import org.yameida.worktool.utils.PermissionPageManagement
+import org.yameida.worktool.utils.*
 import org.yameida.worktool.utils.envcheck.CheckHook
 import org.yameida.worktool.utils.envcheck.CheckRoot
 
 
 class ListenActivity : AppCompatActivity() {
 
+    companion object {
+        /**
+         * @param type 0=游客登录
+         */
+        fun enterActivity(context: Context, type: Int) {
+            context.startActivity(Intent(context, ListenActivity::class.java).apply {
+                putExtra("type", type)
+            })
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        title = "WorkTool"
         setContentView(R.layout.activity_listen)
 
         initView()
@@ -152,6 +159,7 @@ class ListenActivity : AppCompatActivity() {
                         override fun onGranted() {
                             ToastUtils.showLong("请同时打开后台弹出界面权限~")
                             PermissionPageManagement.goToSetting(this@ListenActivity)
+                            FloatWindowHelper.showWindow()
                         }
 
                         override fun onDenied() { sw_accessibility.isChecked = false }
@@ -164,6 +172,9 @@ class ListenActivity : AppCompatActivity() {
                 }
             }
         })
+        if (PermissionUtils.isGrantedDrawOverlays()) {
+            FloatWindowHelper.showWindow()
+        }
     }
 
     /**

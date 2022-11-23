@@ -157,7 +157,7 @@ object WeworkGetImpl {
             val groupNameTv = AccessibilityUtil.findOnceByText(getRoot(), "群聊名称", exact = true)
             if (groupNameTv != null) {
                 val tvList = AccessibilityUtil.findAllOnceByClazz(
-                    groupNameTv.parent.parent.parent,
+                    groupNameTv.parent?.parent?.parent,
                     Views.TextView
                 )
                 if (tvList.size >= 2) {

@@ -50,8 +50,8 @@ object WeworkLoopImpl {
     fun getFriendRequest(): Boolean {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "通讯录", exact = true)
         for (item in list) {
-            if (item.parent.parent.parent.childCount == 5) {
-                if (item.parent.childCount > 1) {
+            if (item.parent?.parent?.parent?.childCount == 5) {
+                if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("通讯录有红点")
                     AccessibilityUtil.performClick(item)
                     val hasRecommendFriend = AccessibilityUtil.findOneByText(getRoot(), "可能的", timeout = Constant.POP_WINDOW_INTERVAL)
@@ -99,8 +99,10 @@ object WeworkLoopImpl {
      * 聊天页
      * 1.获取群名
      * 2.获取消息列表
+     * @param needInfer 是否需要推断@me并等待回复
+     * @param timeout 在房间内等待回复的时长
      */
-    fun getChatMessageList(timeout: Long = 3000): Boolean {
+    fun getChatMessageList(needInfer: Boolean = true, timeout: Long = 3000): Boolean {
         if (Constant.autoReply == 0) return true
         AccessibilityUtil.performScrollDown(getRoot(), 0)
         val roomType = WeworkRoomUtil.getRoomType()
@@ -133,24 +135,32 @@ object WeworkLoopImpl {
                         null
                     )
                 )
-                val lastMessage = messageList.lastOrNull { it.sender == 0 }
-                if (lastMessage != null) {
-                    var tempContent = ""
-                    for (itemMessage in lastMessage.itemMessageList) {
-                        if (itemMessage.text.contains("@" + Constant.myName)
-                            || itemMessage.text.isDigitsOnly()) {
-                            tempContent = itemMessage.text
+                //推测是否回复并在房间等待指令
+                if (needInfer) {
+                    val lastMessage = messageList.lastOrNull { it.sender == 0 }
+                    if (lastMessage != null) {
+                        var tempContent = ""
+                        for (itemMessage in lastMessage.itemMessageList) {
+                            if (itemMessage.text.contains("@" + Constant.myName)
+                                || itemMessage.text.isDigitsOnly()
+                            ) {
+                                tempContent = itemMessage.text
+                            }
                         }
-                    }
-                    if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
-                        || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
-                        || tempContent.isNotBlank()) {
-                        LogUtils.v("推测需要回复: $tempContent")
-                        val startTime = System.currentTimeMillis()
-                        var currentTime = startTime
-                        while (mainLoopRunning && currentTime - startTime <= timeout) {
-                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
-                            currentTime = System.currentTimeMillis()
+                        if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
+                            || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
+                            || tempContent.isNotBlank()
+                        ) {
+                            LogUtils.v("推测需要回复: $tempContent")
+                            val startTime = System.currentTimeMillis()
+                            var currentTime = startTime
+                            while (mainLoopRunning && currentTime - startTime < timeout) {
+                                sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                                currentTime = System.currentTimeMillis()
+                            }
+                            if (mainLoopRunning) {
+                                return getChatMessageList(needInfer = false)
+                            }
                         }
                     }
                 }
@@ -175,6 +185,10 @@ object WeworkLoopImpl {
             if (filter.isNotEmpty()) {
                 val tvNick = filter[0]
                 LogUtils.d("好友请求: " + tvNick.text)
+                //设置标签
+                if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
+                    WeworkOperationImpl.setFriendTags(arrayListOf("worktool自动通过"))
+                }
                 AccessibilityUtil.findTextAndClick(getRoot(), "通过验证")
                 AccessibilityUtil.findTextAndClick(getRoot(), "完成")
                 if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
@@ -211,8 +225,8 @@ object WeworkLoopImpl {
 
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
-            if (item.parent.parent.parent.childCount == 5) {
-                if (item.parent.childCount > 1) {
+            if (item.parent?.parent?.parent?.childCount == 5) {
+                if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("消息有红点")
                     AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
                     sleep(100)

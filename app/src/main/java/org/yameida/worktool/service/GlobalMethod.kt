@@ -3,10 +3,7 @@ package org.yameida.worktool.service
 import android.content.Intent
 import android.graphics.Rect
 import android.view.accessibility.AccessibilityNodeInfo
-import com.blankj.utilcode.util.GsonUtils
-import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.ScreenUtils
-import com.blankj.utilcode.util.Utils
+import com.blankj.utilcode.util.*
 import com.hjq.toast.ToastUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.MyApplication
@@ -37,7 +34,7 @@ fun goHomeTab(title: String): Boolean {
     while (!atHome) {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
-            if (item.parent.parent.parent.childCount == 5) {
+            if (item.parent?.parent?.parent?.childCount == 5) {
                 //处理侧边栏抽屉打开
                 if (title == "消息") {
                     val rect = Rect()
@@ -49,7 +46,7 @@ fun goHomeTab(title: String): Boolean {
                 atHome = true
                 val tempList = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
                 for (tempItem in tempList) {
-                    if (tempItem.parent.parent.parent.childCount == 5) {
+                    if (tempItem.parent?.parent?.parent?.childCount == 5) {
                         AccessibilityUtil.performClick(tempItem)
                         sleep(300)
                         find = true
@@ -77,7 +74,7 @@ fun goHomeTab(title: String): Boolean {
  */
 fun isAtHome(): Boolean {
     val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
-    return list.count { it.parent.parent.parent.childCount == 5 } > 0
+    return list.count { it.parent?.parent?.parent?.childCount == 5 } > 0
 }
 
 /**
@@ -146,11 +143,19 @@ fun backPress() {
                 if (confirm != null) {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)
+                } else {
+                    LogUtils.d("未找到对话框 点击bar中心")
+                    AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
+                    sleep(Constant.POP_WINDOW_INTERVAL)
+                    val firstEmptyTextView = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView).firstOrNull { it.text.isNullOrEmpty() }
+                    if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
+                        AccessibilityUtil.performClick(firstEmptyTextView)
+                    }
                 }
             }
         }
     }
-    sleep(500)
+    sleep(Constant.POP_WINDOW_INTERVAL)
 }
 
 /**

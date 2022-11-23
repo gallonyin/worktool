@@ -212,7 +212,8 @@ object WeworkTextUtil {
             tvCount == 1 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_PLAIN
             tvCount == 0 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_IMAGE
             tvCount == 2 && ivCount == 2 -> {
-                if (tvList[0].parent.childCount > 3) {
+                val parent = tvList[0].parent
+                if (parent != null && parent.childCount > 3) {
                     WeworkMessageBean.TEXT_TYPE_VIDEO
                 } else {
                     WeworkMessageBean.TEXT_TYPE_OFFICE

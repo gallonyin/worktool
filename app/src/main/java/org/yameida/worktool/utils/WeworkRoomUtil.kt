@@ -57,7 +57,7 @@ object WeworkRoomUtil {
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ListView)
         if (list != null) {
-            val frontNode = findFrontNode(list.parent.parent)
+            val frontNode = findFrontNode(list.parent?.parent)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             for (textView in textViewList) {
                 if (!textView.text.isNullOrBlank()) {
@@ -105,7 +105,7 @@ object WeworkRoomUtil {
                 //消息页搜索结果列表
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                 val regex2 = ".*?\\($reverseRegexTitle\\)$"
                 val regex = "($regex1)|($regex2)"
                 val searchResult = AccessibilityUtil.findAllByTextRegex(
@@ -117,7 +117,7 @@ object WeworkRoomUtil {
                 if (searchResult.isNotEmpty()) {
                     //过滤已退出的群聊
                     val searchItem = searchResult.firstOrNull {
-                        it.parent.childCount < 3
+                        it.parent != null && it.parent.childCount < 3
                     }
                     if (searchItem != null) {
                         AccessibilityUtil.performClick(searchItem)
@@ -150,7 +150,7 @@ object WeworkRoomUtil {
         //群详情列表
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
-            val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
+            val frontNode = AccessibilityUtil.findFrontNode(list.parent?.parent)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val multiButton = textViewList.lastOrNull()
@@ -175,7 +175,7 @@ object WeworkRoomUtil {
         //同群详情列表
         val list = findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
-            val frontNode = AccessibilityUtil.findFrontNode(list.parent.parent)
+            val frontNode = AccessibilityUtil.findFrontNode(list.parent?.parent)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val multiButton = textViewList.lastOrNull()

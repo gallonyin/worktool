@@ -838,8 +838,9 @@ object AccessibilityUtil {
      */
     fun clickByNode(
         service: AccessibilityService,
-        nodeInfo: AccessibilityNodeInfo
+        nodeInfo: AccessibilityNodeInfo?
     ): Boolean {
+        if (nodeInfo == null) return false
         nodeInfo.refresh()
         val rect = Rect()
         nodeInfo.getBoundsInScreen(rect)
@@ -869,8 +870,9 @@ object AccessibilityUtil {
      */
     fun scrollDownByNode(
         service: AccessibilityService,
-        nodeInfo: AccessibilityNodeInfo
+        nodeInfo: AccessibilityNodeInfo?
     ): Boolean {
+        if (nodeInfo == null) return false
         val rect = Rect()
         nodeInfo.getBoundsInScreen(rect)
         val x: Int = (rect.left + rect.right) / 2
@@ -900,10 +902,11 @@ object AccessibilityUtil {
      */
     fun scrollByNode(
         service: AccessibilityService,
-        nodeInfo: AccessibilityNodeInfo,
+        nodeInfo: AccessibilityNodeInfo?,
         distanceX: Int = 0,
         distanceY: Int = 0
     ): Boolean {
+        if (nodeInfo == null) return false
         val rect = Rect()
         nodeInfo.getBoundsInScreen(rect)
         val point = Point((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)

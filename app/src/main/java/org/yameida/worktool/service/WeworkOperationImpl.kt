@@ -675,50 +675,15 @@ object WeworkOperationImpl {
         //如果已经是好友的可以传name修改好友信息
         if (friend.phone == null && friend.name != null) {
             if (getFriendInfo(friend.name)) {
-                if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话", "描述", "设置备注和描述", exact = true) != null) {
-                    var markTv =
-                        AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
-                    if (markTv == null) {
-                        markTv = AccessibilityUtil.findOnceByText(getRoot(), "企业", exact = true)
-                    }
-                    if (markTv == null) {
-                        markTv = AccessibilityUtil.findOnceByText(getRoot(), "描述", exact = true)
-                    }
-                    //设置备注
-                    if (markTv != null && (friend.markName != null
-                                || friend.markCorp != null || friend.markExtra != null)
-                    ) {
-                        AccessibilityUtil.performClick(markTv)
-                        val etList =
-                            AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 5)
-                        if (etList.size >= 5) {
-                            if (friend.markName != null) {
-                                AccessibilityUtil.editTextInput(etList[0], friend.markName)
-                            }
-                            if (friend.markCorp != null) {
-                                AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
-                            }
-                            if (friend.markExtra != null) {
-                                AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
-                            }
-                        }
-                        AccessibilityUtil.findTextAndClick(getRoot(), "保存")
-                    }
-                    //设置标签
-                    if (!friend.tagList.isNullOrEmpty()) {
-                        if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
-                            setFriendTags(friend.tagList)
-                        }
-                    }
+                if (modifyFriendInfo(friend, addFriend = false)) {
+                    LogUtils.d("修改好友信息成功: ${friend.name}")
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                    return true
                 } else {
-                    LogUtils.e("未找到标签")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到标签", startTime)
+                    LogUtils.e("修改用户信息失败: ${friend.name}")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime)
                     return false
                 }
-                LogUtils.d("修改好友信息成功: ${friend.name}")
-                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
-                sleep(3000)
-                return true
             } else {
                 LogUtils.e("未找到用户: ${friend.name}")
                 uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到用户: ${friend.name}", startTime)
@@ -844,7 +809,7 @@ object WeworkOperationImpl {
                         //消息页搜索结果列表
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -858,7 +823,7 @@ object WeworkOperationImpl {
                                 val item = selectListView.getChild(i)
                                 val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
                                 //过滤异常好友
-                                if (searchResult != null && searchResult.parent.childCount < 3) {
+                                if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                                     item.refresh()
                                     val imageView =
                                         AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
@@ -941,15 +906,15 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         goHome()
         val tvDiaryFlag = AccessibilityUtil.findOneByText(getRoot(), "日程", exact = true)
-        if (tvDiaryFlag != null && tvDiaryFlag.parent.childCount == 2) {
+        if (tvDiaryFlag != null && (tvDiaryFlag.parent?.childCount == 2 || tvDiaryFlag.parent?.childCount == 3)) {
             AccessibilityUtil.performClick(tvDiaryFlag)
             val tvNeedDealFlag = AccessibilityUtil.findOneByTextRegex(getRoot(), "^待办( · .*?)?$")
             if (tvNeedDealFlag != null) {
                 AccessibilityUtil.performClick(tvNeedDealFlag)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
-                if (rv != null) {
-                    val frontNode = AccessibilityUtil.findFrontNode(rv.parent)
+                val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
+                if (list != null) {
+                    val frontNode = AccessibilityUtil.findFrontNode(if (list.className == Views.RecyclerView) list.parent else list)
                     val textViewList =
                         AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                     if (textViewList.size >= 2) {
@@ -959,7 +924,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextAndClick(getRoot(), "参与人")
                         if (relaySelectTarget(titleList, needSend = false)) {
                             LogUtils.e("添加参与人成功")
-                            if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天")) {
+                            if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天", "保存并建群发送")) {
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                                 return true
                             } else {
@@ -1088,7 +1053,7 @@ object WeworkOperationImpl {
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
                     val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
                     val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                    val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                    val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                     val regex2 = ".*?\\($reverseRegexTitle\\)$"
                     val regex = "($regex1)|($regex2)"
                     val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -1102,7 +1067,7 @@ object WeworkOperationImpl {
                             val item = selectListView.getChild(i)
                             val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
                             //过滤已退出的群聊
-                            if (searchResult != null && searchResult.parent.childCount < 3) {
+                            if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                                 item.refresh()
                                 val imageView =
                                     AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
@@ -1246,6 +1211,7 @@ object WeworkOperationImpl {
                 val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
+                    var count = 0
                     for (select in selectList) {
                         val needTrim = select.contains(Constant.regTrimTitle)
                         val trimTitle = select.replace(Constant.regTrimTitle, "")
@@ -1254,7 +1220,7 @@ object WeworkOperationImpl {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.TextView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -1272,8 +1238,11 @@ object WeworkOperationImpl {
                                     item.refresh()
                                     val imageView =
                                         AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
-                                    if (AccessibilityUtil.performClick(imageView)) {
+                                    if (imageView != null && !imageView.isEnabled) {
                                         flag = true
+                                    } else if (AccessibilityUtil.performClick(imageView)) {
+                                        flag = true
+                                        count += 1
                                     }
                                 }
                             }
@@ -1293,6 +1262,13 @@ object WeworkOperationImpl {
                             if (Constant.groupStrict) return false
                         }
                     }
+                    if (count == 0) {
+                        while (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") == null && !isAtHome()) {
+                            backPress()
+                        }
+                        LogUtils.d("拉入0人")
+                        return true
+                    }
                     if (showMessageHistory) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "聊天记录")
                     }
@@ -1300,6 +1276,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
+                        return true
                     } else {
                         LogUtils.e("未发现确认按钮")
                         return false
@@ -1312,8 +1289,10 @@ object WeworkOperationImpl {
                 LogUtils.e("未找到成员列表")
                 return false
             }
+        } else {
+            LogUtils.e("进入群详情失败")
+            return false
         }
-        return true
     }
 
     /**
@@ -1328,6 +1307,7 @@ object WeworkOperationImpl {
                     .filter { it.text == null }.size
                 LogUtils.v("tvEmptySize: $tvEmptySize")
                 if (tvEmptySize <= 1) {
+                    LogUtils.e("未找到踢人按钮")
                     return true
                 } else if (tvEmptySize == 2) {
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
@@ -1343,6 +1323,7 @@ object WeworkOperationImpl {
                 val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
+                    var count = 0
                     for (select in removeList) {
                         val needTrim = select.contains(Constant.regTrimTitle)
                         val trimTitle = select.replace(Constant.regTrimTitle, "")
@@ -1351,7 +1332,7 @@ object WeworkOperationImpl {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.RelativeLayout)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                        val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -1368,7 +1349,9 @@ object WeworkOperationImpl {
                                     item.refresh()
                                     val imageView =
                                         AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
-                                    AccessibilityUtil.performClick(imageView)
+                                    if (AccessibilityUtil.performClick(imageView)) {
+                                        count += 1
+                                    }
                                 }
                             }
                         }
@@ -1381,13 +1364,22 @@ object WeworkOperationImpl {
                             LogUtils.d("找到搜索结果: $select")
                         } else {
                             LogUtils.e("未搜索到结果: $select")
-                            if (Constant.groupStrict) return false
+                            //待踢人已经不在群里的不算失败
+//                            if (Constant.groupStrict) return false
                         }
+                    }
+                    if (count == 0) {
+                        while (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") == null && !isAtHome()) {
+                            backPress()
+                        }
+                        LogUtils.d("移出0人")
+                        return true
                     }
                     val confirmButton =
                         AccessibilityUtil.findOneByText(getRoot(), "移出(")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
+                        return true
                     } else {
                         LogUtils.e("未发现移出按钮")
                         return false
@@ -1400,8 +1392,10 @@ object WeworkOperationImpl {
                 LogUtils.e("未找到成员列表")
                 return false
             }
+        } else {
+            LogUtils.e("进入群详情失败")
+            return false
         }
-        return true
     }
 
     /**
@@ -1522,13 +1516,14 @@ object WeworkOperationImpl {
      * 发送消息+@at
      */
     private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false): Boolean {
+        val roomType = WeworkRoomUtil.getRoomType()
         val voiceFlag = AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (voiceFlag != null) {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
         }
         var atFailed = false
         val atList = if (!at.isNullOrEmpty()) listOf(at) else atList
-        if (!atList.isNullOrEmpty()) {
+        if (!atList.isNullOrEmpty() && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
             atList.forEachIndexed { index, at ->
                 if (index == 0) {
                     AccessibilityUtil.findTextInput(getRoot(), "@")
@@ -1572,6 +1567,7 @@ object WeworkOperationImpl {
                 }
             }
         }
+        LogUtils.v("atFailed: $atFailed")
         val content = if (atFailed) "@${atList?.joinToString()} $text" else text
         val append = (reply == true) || (!atList.isNullOrEmpty() && !atFailed)
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
@@ -1614,7 +1610,7 @@ object WeworkOperationImpl {
                 //消息页搜索结果列表
                 val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                val regex1 = "^$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
+                val regex1 = "^(微信昵称:)?$reverseRegexTitle" + if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$"
                 val regex2 = ".*?\\($reverseRegexTitle\\)$"
                 val regex = "($regex1)|($regex2)"
                 val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -1628,7 +1624,7 @@ object WeworkOperationImpl {
                         val item = selectListView.getChild(i)
                         val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
                         //过滤异常好友
-                        if (searchResult != null && searchResult.parent.childCount < 3) {
+                        if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                             item.refresh()
                             val imageView =
                                 AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
@@ -1651,7 +1647,7 @@ object WeworkOperationImpl {
     /**
      * 修改好友信息
      */
-    private fun modifyFriendInfo(friend: WeworkMessageBean.Friend): Boolean {
+    private fun modifyFriendInfo(friend: WeworkMessageBean.Friend, addFriend: Boolean = true): Boolean {
         if (AccessibilityUtil.findOneByText(getRoot(), "标签", "电话", "描述", "设置备注和描述", exact = true) != null) {
             var markTv = AccessibilityUtil.findOnceByText(getRoot(), "设置备注和描述", exact = true)
             if (markTv == null) {
@@ -1667,7 +1663,7 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(markTv)
                 val etList =
                     AccessibilityUtil.findAllByClazz(getRoot(), Views.EditText, minSize = 2)
-                if (etList.size >= 5) {
+                if (etList.size >= 4) {
                     //微信用户 备注/企业/电话/电话/描述
                     if (friend.markName != null) {
                         AccessibilityUtil.editTextInput(etList[0], friend.markName)
@@ -1676,7 +1672,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.editTextInput(etList[1], friend.markCorp)
                     }
                     if (friend.markExtra != null) {
-                        AccessibilityUtil.editTextInput(etList[4], friend.markExtra)
+                        AccessibilityUtil.editTextInput(etList[etList.size - 1], friend.markExtra)
                     }
                 } else if (etList.size == 2) {
                     //同企业内部用户 备注/描述
@@ -1684,7 +1680,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.editTextInput(etList[0], friend.markName)
                     }
                     if (friend.markExtra != null) {
-                        AccessibilityUtil.editTextInput(etList[1], friend.markExtra)
+                        AccessibilityUtil.editTextInput(etList[etList.size - 1], friend.markExtra)
                     }
                 } else if (etList.size == 3) {
                     //外部企业用户 备注/电话/描述
@@ -1692,7 +1688,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.editTextInput(etList[0], friend.markName)
                     }
                     if (friend.markExtra != null) {
-                        AccessibilityUtil.editTextInput(etList[2], friend.markExtra)
+                        AccessibilityUtil.editTextInput(etList[etList.size - 1], friend.markExtra)
                     }
                 }
                 AccessibilityUtil.findTextAndClick(getRoot(), "保存")
@@ -1702,6 +1698,9 @@ object WeworkOperationImpl {
                 if (AccessibilityUtil.findTextAndClick(getRoot(), "标签")) {
                     setFriendTags(friend.tagList)
                 }
+            }
+            if (!addFriend) {
+                return true
             }
             //添加联系人
             val imageView =
@@ -1732,7 +1731,7 @@ object WeworkOperationImpl {
     /**
      * 设置好友标签
      */
-    private fun setFriendTags(tagList: List<String>): Boolean {
+    fun setFriendTags(tagList: List<String>): Boolean {
         val tagList = if (tagList.size > 5) tagList.subList(0, 5) else tagList
         val tvTag = AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull()
         val oldTagList = arrayListOf<String>()
