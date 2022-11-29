@@ -20,6 +20,7 @@ object Constant {
     var encryptType = SPUtils.getInstance().getInt("encryptType", 1)
     var autoReply = SPUtils.getInstance().getInt("autoReply", 1)
     var groupStrict = false
+    var friendRemarkStrict = false
     var host: String
         get() = SPUtils.getInstance().getString("host", DEFAULT_HOST)
         set(value) {
