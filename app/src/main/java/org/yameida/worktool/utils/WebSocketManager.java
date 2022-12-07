@@ -146,7 +146,7 @@ public class WebSocketManager {
                 //断开链接后进入重连
                 reConnect();
             }
-            ToastUtils.show("机器人运行中 请勿人工操作手机~");
+//            ToastUtils.show("机器人运行中 请勿人工操作手机~");
         };
 
         //每heartBeatRate秒发一次心跳包

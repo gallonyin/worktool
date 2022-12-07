@@ -303,7 +303,6 @@ class ListenActivity : AppCompatActivity() {
                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(this)
             }
-            com.hjq.toast.ToastUtils.show("机器人运行中 请勿人工操作手机~")
         }, 5000)
     }
 

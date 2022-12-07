@@ -379,7 +379,7 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(shareFileButton)
                     val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
                     AccessibilityUtil.performClick(shareToWorkButton)
-                    if (relaySelectTarget(titleList, extraText)) {
+                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         return true
@@ -578,7 +578,7 @@ object WeworkOperationImpl {
                     ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
                     val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
                     AccessibilityUtil.performClick(shareToWorkButton)
-                    if (relaySelectTarget(titleList, extraText)) {
+                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
@@ -626,7 +626,7 @@ object WeworkOperationImpl {
                 ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
                 val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
                 AccessibilityUtil.performClick(shareToWorkButton)
-                if (relaySelectTarget(titleList, extraText)) {
+                if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                     val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                     AccessibilityUtil.performClick(stayButton)
                     uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
@@ -1036,7 +1036,11 @@ object WeworkOperationImpl {
      * selectList 昵称或群名列表
      * extraText 转发是否附加一条文本
      */
-    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true): Boolean {
+    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): Boolean {
+        if (AccessibilityUtil.findOneByText(getRoot(), "选择联系人", "选择参与人", exact = true, timeout = timeout) == null) {
+            LogUtils.e("未找到选择联系人/选择参与人")
+            return false
+        }
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
         if (list != null) {
