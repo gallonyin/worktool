@@ -95,7 +95,7 @@ class WeworkService : AccessibilityService() {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            LogUtils.i("onMessage: $text")
+            LogUtils.i("onMessage: ${ if (text.length > 1000) (text.substring(0, 1000) + "...") else text }")
             try {
                 MyLooper.onMessage(webSocket, text)
             } catch (e: Exception) {

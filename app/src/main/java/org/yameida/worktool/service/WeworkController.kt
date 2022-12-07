@@ -314,7 +314,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushFile(message: WeworkMessageBean): Boolean {
-        LogUtils.d("pushFile(): ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileBase64} ${message.fileType} ${message.extraText}")
+        LogUtils.d("pushFile(): ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileBase64?.substring(0, 100)} ${message.fileType} ${message.extraText}")
         return WeworkOperationImpl.pushFile(
             message,
             message.titleList,
