@@ -21,4 +21,44 @@
         <item name="android:textColorHint">@color/textInputLayout</item>
     </style>
 
+    <style name="ds_rec_btn">
+        <item name="android:textSize">
+            @dimen/size_button
+        </item>
+        <item name="android:textColor">
+            @android:color/white
+        </item>
+        <item name="android:gravity">
+            center
+        </item>
+        <item name="android:background">@drawable/comment_red_btn</item>
+        <item name="android:paddingTop">
+            @dimen/btn_top_bottom_padding
+        </item>
+        <item name="android:paddingBottom">
+            @dimen/btn_top_bottom_padding
+        </item>
+        <item name="android:layout_width">
+            match_parent
+        </item>
+        <item name="android:layout_height">
+            @dimen/btn_height
+        </item>
+    </style>
+
+    <style name="rec_top_btn" parent="@style/ds_rec_btn">
+        <item name="android:layout_marginStart">
+            25dp
+        </item>
+        <item name="android:layout_marginTop">
+            17dp
+        </item>
+        <item name="android:layout_marginEnd">
+            25.0dp
+        </item>
+        <item name="android:layout_marginBottom">
+            8dp
+        </item>
+    </style>
+
 </resources>

@@ -15,6 +15,7 @@ import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
 import org.yameida.worktool.utils.*
 import java.lang.Exception
+import kotlin.concurrent.thread
 
 /**
  * 企业微信辅助服务
@@ -24,6 +25,8 @@ import java.lang.Exception
 class WeworkService : AccessibilityService() {
     private val TAG = "WeworkService"
     lateinit var webSocketManager: WebSocketManager
+    var currentPackage = ""
+    var currentClass = ""
 
     override fun onServiceConnected() {
         LogUtils.i("初始化成功")
@@ -35,7 +38,7 @@ class WeworkService : AccessibilityService() {
         //初始化消息处理器
         MyLooper.init()
         //开发者可以在这里添加测试代码 启动时调用一次
-        Demo.test(AppUtils.isAppDebug())
+        thread { Demo.test(AppUtils.isAppDebug()) }
 
         //监听是否修改链接号并重新长连接
         registerReceiver(object : BroadcastReceiver() {
@@ -62,6 +65,11 @@ class WeworkService : AccessibilityService() {
      * @param event
      */
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        currentPackage = event.packageName?.toString() ?: ""
+        val className = event.className?.toString() ?: ""
+        if (className.contains(currentPackage)) {
+            currentClass = className
+        }
     }
 
     override fun onInterrupt() {
@@ -83,13 +91,13 @@ class WeworkService : AccessibilityService() {
         private lateinit var socket: WebSocket
         override fun onOpen(webSocket: WebSocket, response: Response) {
             socket = webSocket
-            Log.e(TAG, "链接建立")
-            val robotId = SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID, "")
+            Log.e(TAG, "连接建立")
+            val robotId = Constant.robotId
             val appVersion = SPUtils.getInstance().getString("appVersion", "")
             val workVersion = SPUtils.getInstance().getString("workVersion", "")
             val deviceRooted = SPUtils.getInstance().getBoolean("deviceRooted", false)
             val hook = SPUtils.getInstance().getBoolean("hook", false)
-            log("链接建立: $robotId appVersion: $appVersion workVersion: $workVersion deviceRooted: $deviceRooted hook: $hook")
+            log("连接建立: $robotId appVersion: $appVersion workVersion: $workVersion deviceRooted: $deviceRooted hook: $hook")
             LogUtils.i("设置自动跳转企业微信")
             sendBroadcast(true)
         }
@@ -107,7 +115,7 @@ class WeworkService : AccessibilityService() {
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosed(webSocket, code, reason)
             //服务器关闭后
-            Log.e(TAG, "链接关闭 $reason")
+            Log.e(TAG, "连接关闭 $reason")
             sendBroadcast(false)
         }
 
@@ -120,7 +128,7 @@ class WeworkService : AccessibilityService() {
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             //服务器中断
-            Log.e(TAG, "链接错误: " + t.toString() + response.toString())
+            Log.e(TAG, "连接错误: " + t.toString() + response.toString())
             sendBroadcast(false)
         }
 

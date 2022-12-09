@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_window_background_left"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#66333333">
+
+    <FrameLayout
+        android:id="@+id/fl_window_measure_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="190dp"
+            android:visibility="visible">
+
+
+            <ImageView
+                android:id="@+id/iv_start_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_marginEnd="@dimen/float_margin_start"
+                android:src="@drawable/float_icon_record" />
+
+            <ImageView
+                android:id="@+id/iv_shot_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_marginStart="@dimen/float_margin_start"
+                android:layout_marginTop="29dp"
+                android:src="@drawable/float_icon_pause" />
+
+            <ImageView
+                android:id="@+id/iv_back_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_below="@id/iv_shot_left"
+                android:layout_marginStart="@dimen/float_margin_start"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/float_icon_home" />
+
+            <ImageView
+                android:id="@+id/iv_logo_left"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/iv_start_left"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="55dp"
+                android:src="@mipmap/ic_launcher_round" />
+
+            <ImageView
+                android:id="@+id/iv_settings_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_below="@id/iv_logo_left"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="@dimen/float_margin_start"
+                android:scaleX="1.05"
+                android:scaleY="1.05"
+                android:src="@drawable/float_icon_setting" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="190dp"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:paddingEnd="2dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_logo_left2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="2dp"
+                android:src="@mipmap/ic_launcher_round" />
+
+            <ImageView
+                android:id="@+id/iv_resume_pause_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_marginStart="2dp"
+                android:src="@drawable/float_icon_pause" />
+
+            <ImageView
+                android:id="@+id/iv_stop_left"
+                android:layout_width="@dimen/float_size"
+                android:layout_height="@dimen/float_size"
+                android:layout_marginStart="-5dp"
+                android:src="@drawable/float_icon_stop" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

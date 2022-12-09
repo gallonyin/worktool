@@ -12,6 +12,7 @@ import com.hjq.toast.ToastUtils
 import com.tendcloud.tenddata.TalkingDataSDK
 import com.umeng.commonsdk.UMConfigure
 import org.yameida.worktool.config.GlobalException
+import org.yameida.worktool.utils.IWWAPIUtil
 import update.UpdateAppUtils
 
 class MyApplication : Application() {
@@ -46,7 +47,9 @@ class MyApplication : Application() {
         if (SPUtils.getInstance().getString("uminit", "1") == "1") {
             UMConfigure.init(this, key, channel, UMConfigure.DEVICE_TYPE_PHONE, "")
         }
-        TalkingDataSDK.init(this, "80E9C84E39904DAFB28562910FF7C86C", "worktool_master", SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID));
+        TalkingDataSDK.init(this, "80E9C84E39904DAFB28562910FF7C86C", "worktool_master", Constant.robotId);
+        //初始化企业微信sdk
+        IWWAPIUtil.init(this)
         //初始化自动更新
         UpdateAppUtils.init(this)
         //设置全局异常捕获重启

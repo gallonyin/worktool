@@ -19,7 +19,7 @@ object WeworkRoomUtil {
      * @see WeworkMessageBean.ROOM_TYPE
      */
     fun getRoomType(print: Boolean = true): Int {
-        val roomTitle = getRoomTitle(noCut = true)
+        val roomTitle = getRoomTitle(noCut = true, print = false)
         when {
             isExternalSingleChat(roomTitle) -> {
                 LogUtils.d("ROOM_TYPE: ROOM_TYPE_EXTERNAL_CONTACT")

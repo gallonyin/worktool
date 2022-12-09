@@ -5,9 +5,46 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
+    <RelativeLayout
+        android:id="@+id/rl_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/color_dashen"
+            android:text="@string/app_name"
+            />
+
+        <ImageView
+            android:id="@+id/iv_settings"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/tab_settings_check" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/list_divider_line"
+            android:layout_alignParentBottom="true"
+            />
+
+    </RelativeLayout>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_bar">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -240,76 +277,6 @@
                 android:paddingBottom="@dimen/setting_vertical_padding">
 
                 <Switch
-                    android:id="@+id/sw_encrypt"
-                    android:layout_width="@dimen/setting_end_font_width"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/setting_end_start_padding" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/setting_start_padding"
-                    android:layout_toStartOf="@id/sw_encrypt"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="开启通讯加密"
-                        android:textColor="@color/color_333333"
-                        android:textSize="@dimen/setting_start_font_size" />
-
-                </LinearLayout>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="@dimen/setting_start_padding"
-                android:paddingTop="@dimen/setting_vertical_padding"
-                android:paddingEnd="@dimen/setting_end_start_padding"
-                android:paddingBottom="@dimen/setting_vertical_padding">
-
-                <Switch
-                    android:id="@+id/sw_auto_reply"
-                    android:layout_width="@dimen/setting_end_font_width"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/setting_end_start_padding" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/setting_start_padding"
-                    android:layout_toStartOf="@id/sw_auto_reply"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="开启新消息接收"
-                        android:textColor="@color/color_333333"
-                        android:textSize="@dimen/setting_start_font_size" />
-
-                </LinearLayout>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="@dimen/setting_start_padding"
-                android:paddingTop="@dimen/setting_vertical_padding"
-                android:paddingEnd="@dimen/setting_end_start_padding"
-                android:paddingBottom="@dimen/setting_vertical_padding">
-
-                <Switch
                     android:id="@+id/sw_overlay"
                     android:layout_width="@dimen/setting_end_font_width"
                     android:layout_height="wrap_content"
@@ -384,6 +351,9 @@
                     android:background="@drawable/comment_red_btn"
                     android:paddingStart="50dp"
                     android:paddingEnd="50dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
                     android:text="保存" />
 
 

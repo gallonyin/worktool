@@ -390,4 +390,14 @@ object WeworkController {
         return WeworkGetImpl.getMyInfo(message)
     }
 
+    /**
+     * 获取最近聊天列表
+     * @see WeworkMessageBean.GET_RECENT_LIST
+     */
+    @RequestMapping
+    fun getRecentList(message: WeworkMessageBean): Boolean {
+        LogUtils.d("getRecentList():")
+        return WeworkGetImpl.getRecentList(message)
+    }
+
 }

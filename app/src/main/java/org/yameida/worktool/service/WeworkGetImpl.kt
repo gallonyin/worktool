@@ -197,4 +197,45 @@ object WeworkGetImpl {
         backPress()
         return weworkMessageBean
     }
+
+    /**
+     * 获取最近聊天列表
+     */
+    fun getRecentList(message: WeworkMessageBean): Boolean {
+        goHome()
+        AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
+        val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+        if (list != null && list.childCount >= 2) {
+            val listBriefList = LinkedHashSet<WeworkMessageBean.SubMessageBean>()
+            val onScrollListener = object : AccessibilityUtil.OnScrollListener() {
+                override fun onScroll(): Boolean {
+                    list.refresh()
+                    for (i in 0 until list.childCount) {
+                        val item = list.getChild(i)
+                        val tempList = arrayListOf<WeworkMessageBean.ItemMessageBean>()
+                        val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
+                        tvList.forEach { tempList.add(WeworkMessageBean.ItemMessageBean(null, it.toString())) }
+                        listBriefList.add(WeworkMessageBean.SubMessageBean(null, null, tempList, null))
+                        //tvList title/time/content
+                        if (tvList.size == 3) {
+                            //只查看最近一周内的消息
+                            if (tvList[1].isNotBlank() && !tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
+                                return true
+                            }
+                        }
+                    }
+                    return false
+                }
+            }
+            //滚动前先获取一次
+            onScrollListener.onScroll()
+            AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = onScrollListener)
+            LogUtils.d("最近聊天列表", GsonUtils.toJson(listBriefList))
+            val weworkMessageBean = WeworkMessageBean()
+            weworkMessageBean.type = WeworkMessageBean.GET_RECENT_LIST
+            weworkMessageBean.messageList = listBriefList.toList()
+            WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
+        }
+        return true
+    }
 }

@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.CompoundButton
-import android.widget.Switch
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.*
 import com.umeng.analytics.MobclickAgent
 import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
-import org.yameida.worktool.service.WeworkService
 import android.content.*
 import android.text.InputType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -28,7 +26,9 @@ class ListenActivity : AppCompatActivity() {
          * @param type 0=游客登录
          */
         fun enterActivity(context: Context, type: Int) {
+            LogUtils.d("ListenActivity.enterActivity type: $type")
             context.startActivity(Intent(context, ListenActivity::class.java).apply {
+                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra("type", type)
             })
         }
@@ -56,10 +56,7 @@ class ListenActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         sw_overlay.isChecked = PermissionUtils.isGrantedDrawOverlays()
-        freshOpenServiceSwitch(
-            WeworkService::class.java,
-            sw_accessibility
-        )
+        freshOpenServiceSwitch()
         if (needToWork) {
             needToWork = false
             goToWork()
@@ -67,28 +64,19 @@ class ListenActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        et_channel.setText(SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID))
+        iv_settings.setOnClickListener {
+            SettingsActivity.enterActivity(this)
+        }
+        et_channel.setText(Constant.robotId)
         bt_save.setOnClickListener {
             val channel = et_channel.text.toString().trim()
-            SPUtils.getInstance().put(Constant.LISTEN_CHANNEL_ID, channel)
+            Constant.robotId = channel
             ToastUtils.showLong("保存成功")
             sendBroadcast(Intent(Constant.WEWORK_NOTIFY).apply {
                 putExtra("type", "modify_channel")
             })
             MobclickAgent.onProfileSignIn(channel)
         }
-        sw_encrypt.isChecked = Constant.encryptType == 1
-        sw_encrypt.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            LogUtils.i("sw_encrypt onCheckedChanged: $isChecked")
-            Constant.encryptType = if (isChecked) 1 else 0
-            SPUtils.getInstance().put("encryptType", Constant.encryptType)
-        })
-        sw_auto_reply.isChecked = Constant.autoReply == 1
-        sw_auto_reply.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            LogUtils.i("sw_auto_reply onCheckedChanged: $isChecked")
-            Constant.autoReply = if (isChecked) 1 else 0
-            SPUtils.getInstance().put("autoReply", Constant.autoReply)
-        })
         tv_host.text = Constant.host
         tv_host.setOnClickListener {
             showSelectHostDialog()
@@ -134,7 +122,7 @@ class ListenActivity : AppCompatActivity() {
         sw_accessibility.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             LogUtils.i("sw_accessibility onCheckedChanged: $isChecked")
             if (isChecked) {
-                if (SPUtils.getInstance().getString(Constant.LISTEN_CHANNEL_ID).isNullOrBlank()) {
+                if (Constant.robotId.isBlank()) {
                     sw_accessibility.isChecked = false
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!PermissionHelper.isAccessibilitySettingOn()) {
@@ -183,24 +171,15 @@ class ListenActivity : AppCompatActivity() {
     private fun openAccessibility() {
         val clickListener =
             DialogInterface.OnClickListener { dialog, which ->
-                freshOpenServiceSwitch(
-                    WeworkService::class.java,
-                    sw_accessibility
-                )
+                freshOpenServiceSwitch()
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 startActivity(intent)
             }
         val cancel = DialogInterface.OnCancelListener {
-            freshOpenServiceSwitch(
-                WeworkService::class.java,
-                sw_accessibility
-            )
+            freshOpenServiceSwitch()
         }
         val cancelListener = DialogInterface.OnClickListener { dialog, which ->
-            freshOpenServiceSwitch(
-                WeworkService::class.java,
-                sw_accessibility
-            )
+            freshOpenServiceSwitch()
         }
         val dialog: AlertDialog = AlertDialog.Builder(this)
             .setMessage(R.string.tips)
@@ -211,20 +190,8 @@ class ListenActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun freshOpenServiceSwitch(clazz: Class<*>, s: Switch) {
-        if (PermissionHelper.isAccessibilitySettingOn()) {
-            s.isChecked = true
-            when (s.id) {
-                R.id.sw_accessibility -> {
-                }
-            }
-        } else {
-            s.isChecked = false
-            when (s.id) {
-                R.id.sw_accessibility -> {
-                }
-            }
-        }
+    private fun freshOpenServiceSwitch() {
+        sw_accessibility.isChecked = PermissionHelper.isAccessibilitySettingOn()
     }
 
     private fun showSelectHostDialog() {

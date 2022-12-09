@@ -104,7 +104,7 @@ public class CheckRoot {
                 fullResponse.add(line);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.i(LOG_TAG, "Unexpected error - Here is what I know: " + e.getMessage());
         }
         Log.i(LOG_TAG, "–> Full response was: " + fullResponse);
         return fullResponse;
@@ -137,7 +137,7 @@ public class CheckRoot {
                 }
                 process.destroy();
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.i(LOG_TAG, "Unexpected error - Here is what I know: " + e.getMessage());
             }
         }
     }
@@ -181,8 +181,7 @@ public class CheckRoot {
                 return false;
             }
         } catch (Exception e) {
-            Log.i(LOG_TAG, "Unexpected error - Here is what I know: "
-                    + e.getMessage());
+            Log.i(LOG_TAG, "Unexpected error - Here is what I know: " + e.getMessage());
             return false;
         }
     }
@@ -195,7 +194,7 @@ public class CheckRoot {
             fout.close();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.i(LOG_TAG, "Unexpected error - Here is what I know: " + e.getMessage());
             return false;
         }
     }
@@ -214,7 +213,7 @@ public class CheckRoot {
             Log.i(LOG_TAG, result);
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.i(LOG_TAG, "Unexpected error - Here is what I know: " + e.getMessage());
             return null;
         }
     }

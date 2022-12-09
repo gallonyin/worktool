@@ -15,9 +15,10 @@ object RegexHelper {
             .replace("{", "\\{")
             .replace("}", "\\}")
             .replace("|", "\\|")
-//            .replace("-", "\\-") //企微自身限制
-//            .replace("(", "\\(") //企微自身限制
-//            .replace(")", "\\)") //企微自身限制
+            //企微自身存在限制
+            .replace("-", "\\-")
+            .replace("(", "\\(")
+            .replace(")", "\\)")
     }
 
 }

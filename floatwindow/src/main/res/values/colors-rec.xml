@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">@color/color_f5f5f5</color>
+    <color name="list_divider_line">@color/color_e5e5e5</color>
+    <color name="white">#fff</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_999999">#999999</color>
+    <color name="color_b2000000">#b2000000</color>
+    <color name="color_dashen">#ff5215</color>
+    <color name="color_dashen_passed">#e54b12</color>
+    <color name="float_time_color">#f58220</color>
+
+    <color name="color_e5e5e5">#e5e5e5</color>
+    <color name="color_f5f5f5">#f5f5f5</color>
+    <color name="c8c8c8">#c8c8c8</color>
+</resources>

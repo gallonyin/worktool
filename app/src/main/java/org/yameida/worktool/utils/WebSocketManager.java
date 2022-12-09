@@ -37,6 +37,7 @@ public class WebSocketManager {
     private String url;
     private WebSocketListener listener;
     private boolean connecting = false;
+    private long lastConnectedTime = 0L;
 
     public WebSocketManager(String url, WebSocketListener listener) {
         Log.e(url, "新建链接");
@@ -113,18 +114,25 @@ public class WebSocketManager {
         Log.e(url, "重连");
         boolean isConnect = false;
         int interval = reconnectInt;
-        while (!isConnect) {
+        while (true) {
             try {
                 isConnect = connect();
-                Thread.sleep(interval);
-                if (interval < 600000) {
-                    interval *= 2;
+                if (isConnect) {
+                    connecting = false;
+                    break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            try {
+                Thread.sleep(interval);
+                if (interval < 600000) {
+                    interval *= 2;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        connecting = false;
     }
 
     private boolean connect() {
@@ -137,6 +145,7 @@ public class WebSocketManager {
     }
 
     private ScheduledFuture heartCheckStart() {
+        lastConnectedTime = System.currentTimeMillis();
         Runnable r = () -> {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
             Log.e(url, "心跳检测" + df.format(new Date()));// new Date()为获取当前系统时间
@@ -145,8 +154,12 @@ public class WebSocketManager {
                 WeworkController.INSTANCE.setEnableLoopRunning(false);
                 //断开链接后进入重连
                 reConnect();
+                //重连后刷新连接时间
+                lastConnectedTime = System.currentTimeMillis();
             }
-//            ToastUtils.show("机器人运行中 请勿人工操作手机~");
+            if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 2000 && !FloatWindowHelper.INSTANCE.isPause()) {
+                ToastUtils.show("机器人运行中 请勿人工操作手机~");
+            }
         };
 
         //每heartBeatRate秒发一次心跳包

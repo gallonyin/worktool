@@ -46,6 +46,7 @@ public class WeworkMessageBean {
      * 获取群信息 GET_GROUP_INFO
      * 获取好友信息 GET_FRIEND_INFO
      * 获取我的信息 GET_MY_INFO
+     * 获取最近聊天列表 GET_RECENT_LIST
      */
     public static final int HEART_BEAT = 11;
     public static final int TYPE_RECEIVE_MESSAGE_LIST = 101;
@@ -82,6 +83,7 @@ public class WeworkMessageBean {
     public static final int GET_FRIEND_INFO = 502;
     public static final int GET_MY_INFO = 503;
     public static final int GET_GROUP_QRCODE = 504;
+    public static final int GET_RECENT_LIST = 505;
 
     /**
      * roomType
@@ -165,7 +167,7 @@ public class WeworkMessageBean {
     //转发附加留言
     public String extraText;
     //接收消息类型
-    public int textType;
+    public Integer textType;
 
     //群名
     public String groupName;
@@ -206,7 +208,7 @@ public class WeworkMessageBean {
 
     public WeworkMessageBean() {}
 
-    public WeworkMessageBean(String receivedName, String receivedContent, int type, Integer roomType, List<String> titleList, List<SubMessageBean> messageList, String log) {
+    public WeworkMessageBean(String receivedName, String receivedContent, Integer type, Integer roomType, List<String> titleList, List<SubMessageBean> messageList, String log) {
         this.type = type;
         this.roomType = roomType;
         this.titleList = titleList;
@@ -217,22 +219,35 @@ public class WeworkMessageBean {
     }
 
     //消息类型
-    public int type = 0;
+    public Integer type = 0;
 
     //消息列表的每条消息
     public static class SubMessageBean {
         //0其他人 1机器人自己 2unknown(如系统消息)
-        public int sender = 0;
+        public Integer sender;
         //消息类型判断 仅针对sender=0
-        public int textType;
+        public Integer textType;
         public List<ItemMessageBean> itemMessageList;
         public List<String> nameList;
 
-        public SubMessageBean(int sender, int textType, List<ItemMessageBean> itemMessageList, List<String> nameList) {
+        public SubMessageBean(Integer sender, Integer textType, List<ItemMessageBean> itemMessageList, List<String> nameList) {
             this.sender = sender;
             this.textType = textType;
             this.itemMessageList = itemMessageList;
             this.nameList = nameList;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SubMessageBean that = (SubMessageBean) o;
+            return Objects.equals(sender, that.sender) && Objects.equals(textType, that.textType) && Objects.equals(itemMessageList, that.itemMessageList) && Objects.equals(nameList, that.nameList);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sender, textType, itemMessageList, nameList);
         }
     }
 
@@ -240,12 +255,25 @@ public class WeworkMessageBean {
     public static class ItemMessageBean {
         //0消息主体上方信息 如日期等 系统消息(拉人/撤回/外部群等居中的提示语)
         //2消息内容
-        public int feature = 0;
+        public Integer feature;
         public String text;
 
-        public ItemMessageBean(int feature, String text) {
+        public ItemMessageBean(Integer feature, String text) {
             this.feature = feature;
             this.text = text;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ItemMessageBean that = (ItemMessageBean) o;
+            return Objects.equals(feature, that.feature) && Objects.equals(text, that.text);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(feature, text);
         }
     }
 
@@ -315,7 +343,7 @@ public class WeworkMessageBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WeworkMessageBean that = (WeworkMessageBean) o;
-        return textType == that.textType && showMessageHistory == that.showMessageHistory && type == that.type && Objects.equals(messageId, that.messageId) && Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileBase64, that.fileBase64) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType);
+        return Objects.equals(messageId, that.messageId) && Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(textType, that.textType) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(showMessageHistory, that.showMessageHistory) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileBase64, that.fileBase64) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType) && Objects.equals(type, that.type);
     }
 
     @Override

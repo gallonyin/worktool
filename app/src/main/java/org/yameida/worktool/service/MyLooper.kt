@@ -6,12 +6,14 @@ import android.os.Message
 import com.blankj.utilcode.util.EncryptUtils
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.SPUtils
 import com.google.gson.reflect.TypeToken
 import okhttp3.WebSocket
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
+import org.yameida.worktool.utils.FloatWindowHelper
 import java.nio.charset.StandardCharsets
 import java.util.LinkedHashSet
 import kotlin.concurrent.thread
@@ -21,12 +23,16 @@ object MyLooper {
     private var threadHandler: Handler? = null
 
     val looper = thread {
-        LogUtils.e("myLooper starting...")
+        LogUtils.i("myLooper starting...")
         Looper.prepare()
         val myLooper = Looper.myLooper()
         if (myLooper != null) {
             threadHandler = object : Handler(myLooper) {
                 override fun handleMessage(msg: Message) {
+                    while (FloatWindowHelper.isPause) {
+                        LogUtils.i("主功能暂停...")
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                    }
                     LogUtils.d("handle message: " + Thread.currentThread().name, msg)
                     try {
                         dealWithMessage(msg.obj as WeworkMessageBean)
@@ -42,7 +48,11 @@ object MyLooper {
         Looper.loop()
     }
 
-    fun init() {}
+    fun init() {
+        LogUtils.i("init myLooper...")
+        SPUtils.getInstance("noTipMessage").clear()
+        SPUtils.getInstance("limit").clear()
+    }
 
     fun getInstance(): Handler {
         while (true) {
@@ -167,6 +177,9 @@ object MyLooper {
             }
             WeworkMessageBean.GET_MY_INFO -> {
                 WeworkController.getMyInfo(message)
+            }
+            WeworkMessageBean.GET_RECENT_LIST -> {
+                WeworkController.getRecentList(message)
             }
             WeworkMessageBean.ROBOT_CONTROLLER_TEST -> {
                 WeworkController.test(message)

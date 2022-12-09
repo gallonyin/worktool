@@ -17,7 +17,6 @@ object PermissionHelper {
         val canonicalName = WeworkService::class.java.canonicalName ?: ""
         val serviceName = context.packageName + "/" + canonicalName
         val serviceShortName = context.packageName + "/" + canonicalName.replace(context.packageName, "")
-        LogUtils.i("isAccessibilitySettingOn: $serviceName $serviceShortName")
         try {
             enable = Settings.Secure.getInt(
                 context.contentResolver,
@@ -27,6 +26,7 @@ object PermissionHelper {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        var flag = false
         if (enable == 1) {
             val stringSplitter = TextUtils.SimpleStringSplitter(':')
             val settingVal = Settings.Secure.getString(
@@ -38,14 +38,14 @@ object PermissionHelper {
                 while (stringSplitter.hasNext()) {
                     val accessibilityService = stringSplitter.next()
                     if (accessibilityService == serviceName || accessibilityService == serviceShortName) {
-                        LogUtils.i("isAccessibilitySettingOn: true")
-                        return true
+                        flag = true
+                        break
                     }
                 }
             }
         }
-        LogUtils.i("isAccessibilitySettingOn: false")
-        return false
+        LogUtils.v("isAccessibilitySettingOn: $serviceName $serviceShortName $flag")
+        return flag
     }
 
 }

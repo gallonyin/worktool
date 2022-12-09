@@ -22,6 +22,7 @@ import org.yameida.worktool.service.WeworkController
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import java.lang.StringBuilder
 
 
 /**
@@ -54,11 +55,21 @@ import android.content.Context
  * performLongClick 对某个节点或父节点进行长按
  * performLongClickWithSon 对某个节点或子节点进行长按
  *
+ * 注意：操作均为阻塞式，原则上本工具类所有操作都应在子线程执行
  */
 object AccessibilityUtil {
     private const val tag = "AccessibilityUtil"
     private const val SHORT_INTERVAL = 150L
-    private const val SCROLL_INTERVAL = 500L
+    private const val SCROLL_INTERVAL_NATIVE = 500L
+    private const val SCROLL_INTERVAL = 800L
+
+    /**
+     * 滚动监听
+     * 如果期望停止滚动则在onScroll回调中返回true 否则返回false
+     */
+    abstract class OnScrollListener {
+        abstract fun onScroll(): Boolean
+    }
 
     //编辑EditView(粘贴 不推荐)
     fun sendTextForEditText(context: Context, nodeInfo: AccessibilityNodeInfo?, text: String): Boolean {
@@ -84,8 +95,13 @@ object AccessibilityUtil {
     }
 
     //寻找第一个文本匹配(关键词)并点击
-    fun findTextAndClick(nodeInfo: AccessibilityNodeInfo?, vararg textList: String): Boolean {
-        val textView = findOneByText(nodeInfo, *textList) ?: return false
+    fun findTextAndClick(nodeInfo: AccessibilityNodeInfo?,
+        vararg textList: String,
+        exact: Boolean = false,
+        timeout: Long = 5000,
+        root: Boolean = true
+    ): Boolean {
+        val textView = findOneByText(nodeInfo, *textList, exact = exact, timeout = timeout, root = root) ?: return false
         return performClick(textView)
     }
 
@@ -117,6 +133,106 @@ object AccessibilityUtil {
         return false
     }
 
+    //滚动到顶部
+    fun scrollToTop(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo,
+        scrollNodeIndex: Int = 0,
+        tryUseGesture: Boolean = true,
+        listener: OnScrollListener? = null,
+        maxRetry: Int = 10
+    ): Boolean {
+        var textChanged = false
+        var index = 0
+        while (index++ < maxRetry) {
+            val scrollBefore = findAllOnceByClazz(getRoot(), Views.TextView)
+            performScrollUp(nodeInfo, scrollNodeIndex)
+            if (scrollBefore == findAllOnceByClazz(getRoot(), Views.TextView)) {
+                LogUtils.d("已经滚动到顶部")
+                if (textChanged) {
+                    return true
+                } else {
+                    break
+                }
+            } else {
+                textChanged = true
+                LogUtils.v("未滚动到顶部 $index")
+            }
+        }
+        if (tryUseGesture) {
+            LogUtils.d("未找到可滚动列表 使用手势滚动")
+            val width = ScreenUtils.getScreenWidth()
+            val height = ScreenUtils.getScreenHeight()
+            index = 0
+            while (index++ < maxRetry) {
+                val scrollBefore = findAllOnceByClazz(getRoot(), Views.TextView)
+                scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, height / 3)
+                if (scrollBefore == findAllOnceByClazz(getRoot(), Views.TextView)) {
+                    LogUtils.d("已经滚动到顶部")
+                    break
+                } else {
+                    LogUtils.v("未滚动到顶部 $index")
+                    if (listener != null && listener.onScroll()) {
+                        LogUtils.d("提前终止滚动")
+                        return true
+                    }
+                }
+            }
+            return true
+        }
+        return false
+    }
+
+    //滚动到顶部
+    fun scrollToBottom(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo,
+        scrollNodeIndex: Int = 0,
+        tryUseGesture: Boolean = true,
+        listener: OnScrollListener? = null,
+        maxRetry: Int = 10
+    ): Boolean {
+        var textChanged = false
+        var index = 0
+        while (index++ < maxRetry) {
+            val scrollBefore = findAllOnceByClazz(getRoot(), Views.TextView)
+            performScrollDown(nodeInfo, scrollNodeIndex)
+            if (scrollBefore == findAllOnceByClazz(getRoot(), Views.TextView)) {
+                LogUtils.d("已经滚动到底部")
+                if (textChanged) {
+                    return true
+                } else {
+                    break
+                }
+            } else {
+                textChanged = true
+                LogUtils.v("未滚动到底部 $index")
+                if (listener != null && listener.onScroll()) {
+                    LogUtils.d("提前终止滚动")
+                    return true
+                }
+            }
+        }
+        if (tryUseGesture) {
+            LogUtils.d("未找到可滚动列表 使用手势滚动")
+            val width = ScreenUtils.getScreenWidth()
+            val height = ScreenUtils.getScreenHeight()
+            index = 0
+            while (index++ < maxRetry) {
+                val scrollBefore = findAllOnceByClazz(getRoot(), Views.TextView)
+                scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, -height / 3)
+                if (scrollBefore == findAllOnceByClazz(getRoot(), Views.TextView)) {
+                    LogUtils.d("已经滚动到底部")
+                    break
+                } else {
+                    LogUtils.v("未滚动到底部 $index")
+                }
+            }
+            return true
+        }
+        return false
+    }
+
     //滚动并按文本寻找第一个控件
     fun scrollAndFindByText(
         service: AccessibilityService,
@@ -124,6 +240,10 @@ object AccessibilityUtil {
         vararg textList: String,
         maxRetry: Int = 3
     ): AccessibilityNodeInfo? {
+        val node = findOnceByText(nodeInfo, *textList)
+        if (node != null) {
+            return node
+        }
         var index = 0
         while (index++ < maxRetry) {
             performScrollDown(nodeInfo, 0)
@@ -146,8 +266,7 @@ object AccessibilityUtil {
         val height = ScreenUtils.getScreenHeight()
         index = 0
         while (index++ < maxRetry * 2) {
-            scrollByXY(service, width / 2, height / 2, 0, -height / 2)
-            sleep(SCROLL_INTERVAL)
+            scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, -height / 3)
             val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
@@ -155,8 +274,7 @@ object AccessibilityUtil {
         }
         index = 0
         while (index++ < maxRetry * 3) {
-            scrollByXY(service, width / 2, height / 2, 0, height / 2)
-            sleep(SCROLL_INTERVAL)
+            scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, height / 3)
             val node = findOnceByText(nodeInfo, *textList)
             if (node != null) {
                 return node
@@ -299,7 +417,7 @@ object AccessibilityUtil {
         val canScrollNodeList = findCanScrollNode(node)
         if (canScrollNodeList.size > index) {
             canScrollNodeList[index].performAction(AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD)
-            sleep(SCROLL_INTERVAL)
+            sleep(SCROLL_INTERVAL_NATIVE)
             return true
         }
         return false
@@ -311,7 +429,7 @@ object AccessibilityUtil {
         val canScrollNodeList = findCanScrollNode(node)
         if (canScrollNodeList.size > index) {
             canScrollNodeList[index].performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
-            sleep(SCROLL_INTERVAL)
+            sleep(SCROLL_INTERVAL_NATIVE)
             return true
         }
         return false
@@ -814,22 +932,31 @@ object AccessibilityUtil {
         node: AccessibilityNodeInfo?,
         printText: Boolean = true,
         depth: Int = 0
-    ) {
-        if (node == null) return
+    ): StringBuilder {
+        val sb = StringBuilder()
+        if (node == null) return sb
         var s = ""
         for (i in 0 until depth) {
             s += "---"
         }
-        Log.d(tag, "$s depth: $depth className: " + node.className + " isClickable: " + node.isClickable)
+        val temp = "$s depth: $depth className: " + node.className + " isClickable: " + node.isClickable
+        Log.d(tag, temp)
+        sb.append(temp).append("\n")
+        var text = ""
         if (printText && node.text != null) {
-            Log.d(tag, "$s depth: $depth text: " + node.text)
+            text = "$s depth: $depth text: " + node.text
+            Log.d(tag, text)
+            sb.append(text).append("\n")
         }
         if (printText && node.contentDescription != null) {
-            Log.d(tag, "$s depth: $depth desc: " + node.contentDescription)
+            val desc = "$s depth: $depth desc: " + node.contentDescription
+            Log.d(tag, desc)
+            sb.append(desc).append("\n")
         }
         for (i in 0 until node.childCount) {
-            printNodeClazzTree(node.getChild(i), printText, depth + 1)
+            sb.append(printNodeClazzTree(node.getChild(i), printText, depth + 1))
         }
+        return sb
     }
 
     /**
@@ -946,7 +1073,7 @@ object AccessibilityUtil {
         path.lineTo(x.toFloat() + distanceX, y.toFloat() + distanceY)
         builder.addStroke(StrokeDescription(path, 0L, 300L))
         val gesture = builder.build()
-        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+        val dispatchGesture = service.dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription) {
                 LogUtils.v("scroll ok onCompleted")
             }
@@ -955,5 +1082,7 @@ object AccessibilityUtil {
                 LogUtils.v("scroll ok onCancelled")
             }
         }, null)
+        sleep(SCROLL_INTERVAL)
+        return dispatchGesture
     }
 }

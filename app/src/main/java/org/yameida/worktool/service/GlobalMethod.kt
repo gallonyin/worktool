@@ -144,12 +144,18 @@ fun backPress() {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)
                 } else {
-                    LogUtils.d("未找到对话框 点击bar中心")
-                    AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
-                    sleep(Constant.POP_WINDOW_INTERVAL)
-                    val firstEmptyTextView = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView).firstOrNull { it.text.isNullOrEmpty() }
-                    if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
-                        AccessibilityUtil.performClick(firstEmptyTextView)
+                    val stayButton = AccessibilityUtil.findOnceByText(getRoot(true), "关闭应用", "等待", exact = true)
+                    if (stayButton != null) {
+                        LogUtils.d("疑似ANR 尝试点击等待")
+                        AccessibilityUtil.performClick(stayButton)
+                    } else {
+                        LogUtils.d("未找到对话框 点击bar中心")
+                        AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        val firstEmptyTextView = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView).firstOrNull { it.text.isNullOrEmpty() }
+                        if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
+                            AccessibilityUtil.performClick(firstEmptyTextView)
+                        }
                     }
                 }
             }

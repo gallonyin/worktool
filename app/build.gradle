@@ -31,35 +31,12 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'com.google.android.material:material:1.4.0'
-
-    //工具集
-    implementation 'com.blankj:utilcodex:1.31.0'
-    //toast
-    implementation 'com.github.getActivity:ToastUtils:10.5'
-    //Gson
-    implementation 'com.google.code.gson:gson:2.8.5'
-    //网络
-    implementation 'com.github.bumptech.glide:okhttp3-integration:4.9.0'
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation project(':baselibrary')
+    implementation project(':floatwindow')
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 
     //友盟统计SDK
     implementation  'com.umeng.umsdk:common:9.4.7'// 必选
     implementation  'com.umeng.umsdk:asms:1.4.1'// 必选
     implementation 'com.umeng.umsdk:apm:1.5.2' // 错误分析升级为独立SDK，看crash数据请一定集成，可选
-
-    //自动更新
-    implementation 'com.teprinciple:updateapputilsx:2.3.0'
-    //ok
-    implementation 'com.lzy.net:okgo:3.0.4'
-    //qrcode
-    implementation 'com.github.yoojia:next-qrcode:2.0-2'
-    //QMUI
-    implementation 'com.qmuiteam:qmui:2.0.0-alpha10'
 }

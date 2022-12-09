@@ -215,6 +215,10 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
+            if (!beforeCreateGroupCheck()) {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime)
+                return false
+            }
             if (!createGroup()) {
                 uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime)
                 return false
@@ -720,9 +724,13 @@ object WeworkOperationImpl {
                                         Views.ImageView
                                     )
                                 )
+                            } else if (AccessibilityUtil.findOnceByText(getRoot(), "该用户不存在") != null) {
+                                LogUtils.e("该用户不存在: ${friend.phone}")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "该用户不存在: ${friend.phone}", startTime)
+                                return false
                             }
                             if (modifyFriendInfo(friend)) {
-                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
+                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人", timeout = 2000)) {
                                     LogUtils.d("准备发送好友邀请: ${friend.phone}")
                                     if (!friend.leavingMsg.isNullOrEmpty()) {
                                         AccessibilityUtil.findTextInput(getRoot(), friend.leavingMsg)
@@ -833,7 +841,7 @@ object WeworkOperationImpl {
                                 }
                             }
                             if (modifyFriendInfo(friend)) {
-                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人")) {
+                                if (AccessibilityUtil.findTextAndClick(getRoot(), "添加为联系人", timeout = 2000)) {
                                     LogUtils.d("准备发送好友邀请: ${friend.name}")
                                     if (!friend.leavingMsg.isNullOrEmpty()) {
                                         AccessibilityUtil.findTextInput(getRoot(), friend.leavingMsg)
@@ -906,6 +914,9 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         goHome()
+        if (AccessibilityUtil.findOnceByText(getRoot(), "日程", exact = true) == null) {
+            AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
+        }
         val tvDiaryFlag = AccessibilityUtil.findOneByText(getRoot(), "日程", exact = true)
         if (tvDiaryFlag != null && (tvDiaryFlag.parent?.childCount == 2 || tvDiaryFlag.parent?.childCount == 3)) {
             AccessibilityUtil.performClick(tvDiaryFlag)
@@ -1141,11 +1152,34 @@ object WeworkOperationImpl {
     }
 
     /**
-     * 检查是否达到当日建群上限
+     * 建群前检查是否达到当日建群上限
+     * @return true允许建群 false不允许建群
+     */
+    private fun beforeCreateGroupCheck(): Boolean {
+        //有建群权限且最近300秒内发现限制建群
+        if (SPUtils.getInstance("limit").getBoolean("canCreateGroup", false)) {
+            val interval = System.currentTimeMillis() / 1000 - SPUtils.getInstance("limit").getLong("createGroupLimit", 0)
+            if (interval < 300) {
+                LogUtils.e("发现达到当日建群上限 请等待${300 - interval}秒后再试!")
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * 建群后检查是否达到当日建群上限
+     * @return true达到上限 false为达到上限
      */
     private fun createGroupLimit(): Boolean {
         val hasLimit =
             AccessibilityUtil.findOneByText(getRoot(), "新建群聊功能暂时被限制", "未验证企业", timeout = 2000)
+        if (hasLimit == null) {
+            SPUtils.getInstance("limit").put("canCreateGroup", true)
+        } else if (SPUtils.getInstance("limit").getBoolean("canCreateGroup", false)) {
+            SPUtils.getInstance("limit").put("createGroupLimit", System.currentTimeMillis() / 1000)
+            LogUtils.e("发现达到当日建群上限")
+        }
         return hasLimit != null
     }
 

@@ -1,0 +1,67 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api 'androidx.core:core-ktx:1.3.2'
+    api 'androidx.appcompat:appcompat:1.3.1'
+    api 'com.google.android.material:material:1.4.0'
+
+    //工具集
+    api 'com.blankj:utilcodex:1.31.0'
+    //toast
+    api 'com.github.getActivity:ToastUtils:10.5'
+    //Gson
+    api 'com.google.code.gson:gson:2.8.5'
+    //网络
+    api 'com.github.bumptech.glide:okhttp3-integration:4.9.0'
+    //自动更新
+    api 'com.teprinciple:updateapputilsx:2.3.0'
+    //okgo
+    api 'com.lzy.net:okgo:3.0.4'
+    //qrcode
+    api 'com.github.yoojia:next-qrcode:2.0-2'
+    //QMUI
+    api 'com.qmuiteam:qmui:2.0.0-alpha10'
+    //recyclerview
+    api 'androidx.recyclerview:recyclerview:1.2.0-alpha05'
+    //glide
+    api 'com.github.bumptech.glide:glide:4.9.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    //photoview
+    api 'com.github.chrisbanes:PhotoView:2.1.3'
+    //悬浮窗框架
+    api 'com.github.princekin-f:EasyFloat:1.3.4'
+
+    //leak
+//    debugApi 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+//    releaseApi 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+//    testApi 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+}
+repositories {
+    mavenCentral()
+}
