@@ -631,7 +631,7 @@ object AccessibilityUtil {
         timeout: Long = 5000,
         root: Boolean = true,
         minSize: Int = 1
-    ): List<AccessibilityNodeInfo> {
+    ): ArrayList<AccessibilityNodeInfo> {
         var node = node ?: return arrayListOf()
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
@@ -692,7 +692,7 @@ object AccessibilityUtil {
         timeout: Long = 5000,
         root: Boolean = true,
         minSize: Int = 1
-    ): List<AccessibilityNodeInfo> {
+    ): ArrayList<AccessibilityNodeInfo> {
         var node = node ?: return arrayListOf()
         val startTime = System.currentTimeMillis()
         var currentTime = startTime

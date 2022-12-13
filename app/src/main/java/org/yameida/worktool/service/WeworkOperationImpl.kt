@@ -1574,38 +1574,33 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findOnceByClazz(getRoot(), Views.EditText), "@"
                     )
                 }
-                val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", timeout = 2000, exact = true)
+                val atFlag = AccessibilityUtil.findOneByText(getRoot(), "选择提醒的人", exact = true)
                 if (atFlag != null) {
-                    val rv = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
-                    if (rv != null) {
-                        AccessibilityUtil.findTextInput(getRoot(), at.replace("\\(.*?\\)".toRegex(), ""))
-                        val atNode =
-                            AccessibilityUtil.findOneByText(rv, at.replace("\\(.*?\\)".toRegex(), ""), root = false, timeout = 2000)
+                    val searchFlag = AccessibilityUtil.findOneByText(getRoot(), "搜索", exact = true)
+                    val container = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)?.parent
+                    if (container != null) {
+                        val atNode = AccessibilityUtil.findOnceByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?")
                         if (atNode != null) {
                             AccessibilityUtil.performClick(atNode)
                         } else {
-                            LogUtils.e("未找到at人: $at")
-                            atFailed = true
-                            backPress()
-                        }
-                        sleep(Constant.POP_WINDOW_INTERVAL)
-                    } else {
-                        val searchFlag = AccessibilityUtil.findOnceByText(getRoot(), "搜索", exact = true)
-                        val list = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)
-                        if (list != null) {
-                            AccessibilityUtil.findTextInput(getRoot(), at.replace("\\(.*?\\)".toRegex(), ""))
-                            val atNode =
-                                AccessibilityUtil.findOneByText(list, at.replace("\\(.*?\\)".toRegex(), ""), root = false, timeout = 2000)
-                            if (atNode != null) {
-                                AccessibilityUtil.performClick(atNode)
+                            AccessibilityUtil.findTextInput(getRoot(), at)
+                            val atNodeList = AccessibilityUtil.findAllByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?", root = false, minSize = 2)
+                            if (atNodeList.size > 1 && at != "@所有人") {
+                                AccessibilityUtil.performClick(atNodeList[1])
                             } else {
                                 LogUtils.e("未找到at人: $at")
                                 atFailed = true
                                 backPress()
                             }
-                            sleep(Constant.POP_WINDOW_INTERVAL)
                         }
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                    } else {
+                        LogUtils.e("未找到搜索按钮和@列表")
+                        backPress()
+                        sleep(Constant.POP_WINDOW_INTERVAL)
                     }
+                } else {
+                    LogUtils.e("未找到选择提醒的人按钮")
                 }
             }
         }
