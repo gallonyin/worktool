@@ -5,6 +5,7 @@ import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.SPUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.Demo
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
@@ -188,8 +189,12 @@ object WeworkLoopImpl {
                     WeworkOperationImpl.setFriendTags(arrayListOf("worktool自动通过"))
                 }
                 AccessibilityUtil.findTextAndClick(getRoot(), "通过验证")
-                AccessibilityUtil.findTextAndClick(getRoot(), "完成")
-                if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+                var textNode = AccessibilityUtil.findOneByText(getRoot(), "完成", "发消息", "添加请求已过期，添加失败", exact = true)
+                if (textNode?.text == "完成") {
+                    AccessibilityUtil.performClick(textNode)
+                }
+                textNode = AccessibilityUtil.findOneByText(getRoot(), "发消息", "添加请求已过期，添加失败", exact = true)
+                if (textNode?.text == "添加请求已过期，添加失败") {
                     LogUtils.d("添加好友失败")
                 } else {
                     val weworkMessageBean = WeworkMessageBean()

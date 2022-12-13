@@ -102,7 +102,8 @@ object AccessibilityUtil {
         root: Boolean = true
     ): Boolean {
         val textView = findOneByText(nodeInfo, *textList, exact = exact, timeout = timeout, root = root) ?: return false
-        return performClick(textView)
+        performClick(textView)
+        return true
     }
 
     //寻找第一个EditView编辑框并输入文本

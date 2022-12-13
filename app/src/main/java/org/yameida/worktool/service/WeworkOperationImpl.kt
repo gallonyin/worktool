@@ -1823,7 +1823,10 @@ object WeworkOperationImpl {
             if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 //可能有两次确定 另一次为添加新tag
-                AccessibilityUtil.findTextAndClick(getRoot(), "确定")
+                val textNode = AccessibilityUtil.findOneByText(getRoot(), "确定", "个人信息")
+                if (textNode?.text == "确定") {
+                    AccessibilityUtil.performClick(textNode)
+                }
                 return true
             }
         }
