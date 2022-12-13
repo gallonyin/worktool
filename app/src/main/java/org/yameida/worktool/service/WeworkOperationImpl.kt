@@ -1615,7 +1615,7 @@ object WeworkOperationImpl {
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
             AccessibilityUtil.findOneByText(getRoot(), "发送", exact = true, timeout = 2000)
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
-                .firstOrNull { it.text == "发送" }
+                .firstOrNull { it.text?.toString() == "发送" }
             if (sendButton != null) {
                 LogUtils.d("发送消息: \n$content")
                 log("发送消息: \n$content")
@@ -1808,7 +1808,7 @@ object WeworkOperationImpl {
                     val text = child.text
                     val selected = child.isSelected
                     LogUtils.v("text: $text selected: $selected")
-                    if (tagList.count { it == text } > 0) {
+                    if (tagList.count { it == text?.toString() } > 0) {
                         if (!selected) {
                             AccessibilityUtil.performClick(child)
                         }
@@ -1824,7 +1824,7 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 //可能有两次确定 另一次为添加新tag
                 val textNode = AccessibilityUtil.findOneByText(getRoot(), "确定", "个人信息")
-                if (textNode?.text == "确定") {
+                if (textNode?.text?.toString() == "确定") {
                     AccessibilityUtil.performClick(textNode)
                 }
                 return true

@@ -190,11 +190,11 @@ object WeworkLoopImpl {
                 }
                 AccessibilityUtil.findTextAndClick(getRoot(), "通过验证")
                 var textNode = AccessibilityUtil.findOneByText(getRoot(), "完成", "发消息", "添加请求已过期，添加失败", exact = true)
-                if (textNode?.text == "完成") {
+                if (textNode?.text?.toString() == "完成") {
                     AccessibilityUtil.performClick(textNode)
                 }
                 textNode = AccessibilityUtil.findOneByText(getRoot(), "发消息", "添加请求已过期，添加失败", exact = true)
-                if (textNode?.text == "添加请求已过期，添加失败") {
+                if (textNode?.text?.toString() == "添加请求已过期，添加失败") {
                     LogUtils.d("添加好友失败")
                 } else {
                     val weworkMessageBean = WeworkMessageBean()
