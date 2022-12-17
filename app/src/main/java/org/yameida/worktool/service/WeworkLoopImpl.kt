@@ -51,7 +51,8 @@ object WeworkLoopImpl {
     fun getFriendRequest(): Boolean {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "通讯录", exact = true)
         for (item in list) {
-            if (item.parent?.parent?.parent?.childCount == 5) {
+            val childCount = item.parent?.parent?.parent?.childCount
+            if (childCount == 4 || childCount == 5) {
                 if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("通讯录有红点")
                     AccessibilityUtil.performClick(item)
@@ -228,7 +229,8 @@ object WeworkLoopImpl {
 
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
-            if (item.parent?.parent?.parent?.childCount == 5) {
+            val childCount = item.parent?.parent?.parent?.childCount
+            if (childCount == 4 || childCount == 5) {
                 if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("消息有红点")
                     AccessibilityUtil.clickByNode(WeworkController.weworkService, item)

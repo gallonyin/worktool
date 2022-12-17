@@ -34,7 +34,8 @@ fun goHomeTab(title: String): Boolean {
     while (!atHome) {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
-            if (item.parent?.parent?.parent?.childCount == 5) {
+            val childCount = item.parent?.parent?.parent?.childCount
+            if (childCount == 4 || childCount == 5) {
                 //处理侧边栏抽屉打开
                 if (title == "消息") {
                     val rect = Rect()
@@ -46,7 +47,8 @@ fun goHomeTab(title: String): Boolean {
                 atHome = true
                 val tempList = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
                 for (tempItem in tempList) {
-                    if (tempItem.parent?.parent?.parent?.childCount == 5) {
+                    val tempChildCount = tempItem.parent?.parent?.parent?.childCount
+                    if (tempChildCount == 4 || tempChildCount == 5) {
                         AccessibilityUtil.performClick(tempItem)
                         sleep(300)
                         find = true
@@ -74,7 +76,10 @@ fun goHomeTab(title: String): Boolean {
  */
 fun isAtHome(): Boolean {
     val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
-    return list.count { it.parent?.parent?.parent?.childCount == 5 } > 0
+    return list.count {
+        val childCount = it.parent?.parent?.parent?.childCount
+        childCount == 4 || childCount == 5
+    } > 0
 }
 
 /**
