@@ -16,7 +16,11 @@ object WeworkRoomUtil {
 
     /**
      * 房间类型 ROOM_TYPE
-     * @see WeworkMessageBean.ROOM_TYPE
+     * @see WeworkMessageBean.ROOM_TYPE_UNKNOWN
+     * @see WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
+     * @see WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
+     * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
+     * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
      */
     fun getRoomType(print: Boolean = true): Int {
         val roomTitle = getRoomTitle(noCut = true, print = false)
@@ -45,12 +49,7 @@ object WeworkRoomUtil {
     }
 
     /**
-     * 房间类型
-     * @see WeworkMessageBean.ROOM_TYPE_UNKNOWN
-     * @see WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
-     * @see WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
-     * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP
-     * @see WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
+     * 房间标题
      */
     fun getRoomTitle(print: Boolean = true, noCut: Boolean = false): ArrayList<String> {
         val titleList = arrayListOf<String>()

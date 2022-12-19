@@ -114,6 +114,7 @@ object WeworkController {
 
     /**
      * 初始化群设置
+     * 群名称、群公告、拉人、踢人、群备注、群模板
      * @see WeworkMessageBean.INIT_GROUP
      * @param message#groupName 修改群名称
      * @param message#selectList 添加群成员名称列表 选填

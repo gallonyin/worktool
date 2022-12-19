@@ -187,19 +187,9 @@ object WeworkOperationImpl {
 
     /**
      * 初始化群设置
-     * 1.修改群名
-     * 2.添加群成员 默认为空
-     * 3.修改群公告 默认为空
-     * 4.成员改群名 默认禁止
-     * 5.私自邀请 默认开启
-     * 6.设置群管理员 延迟开发
-     * 7.设置入群欢迎语 默认为空
-     * 8.拉入机器人 暂不开发
-     * 9.防骚扰 默认警告模式
-     * 10.使用群配置模板
-     * 11.消息免打扰 默认禁止
-     * 12.保存到通讯录 默认开启
+     * 群名称、群公告、拉人、踢人、群备注、群模板
      * 注：群配置模板 1.群名称 2.禁群改名(使用) 3.设置管理员 4.入群欢迎语(使用) 5.自动回复 6.防骚扰规则(使用)
+     * @see WeworkMessageBean.INIT_GROUP
      * @param groupName 修改群名称
      * @param selectList 添加群成员名称列表 选填
      * @param groupAnnouncement 修改群公告 选填
@@ -259,6 +249,7 @@ object WeworkOperationImpl {
     /**
      * 进入群聊并修改群配置
      * 群名称、群公告、拉人、踢人、群备注、群模板
+     * @see WeworkMessageBean.INTO_GROUP_AND_CONFIG
      * @param groupName 待修改的群
      * @param newGroupName 修改群名 选填
      * @param newGroupAnnouncement 修改群公告 选填
