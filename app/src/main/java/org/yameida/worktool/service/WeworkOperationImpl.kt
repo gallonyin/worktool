@@ -37,6 +37,7 @@ object WeworkOperationImpl {
         if (receivedContent.isNullOrEmpty()) {
             LogUtils.d("未发现发送内容")
             uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "发送内容为空", startTime, listOf(), titleList)
+            goHome()
             return false
         }
         val successList = arrayListOf<String>()
