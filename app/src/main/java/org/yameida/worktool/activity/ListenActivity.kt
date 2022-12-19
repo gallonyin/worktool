@@ -55,8 +55,8 @@ class ListenActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        sw_overlay.isChecked = PermissionUtils.isGrantedDrawOverlays()
-        freshOpenServiceSwitch()
+        sw_overlay.isChecked = Settings.canDrawOverlays(Utils.getApp()) && FlowPermissionHelper.canBackgroundStart(Utils.getApp())
+        sw_accessibility.isChecked = PermissionHelper.isAccessibilitySettingOn()
         if (needToWork) {
             needToWork = false
             goToWork()
@@ -126,7 +126,7 @@ class ListenActivity : AppCompatActivity() {
                     sw_accessibility.isChecked = false
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!PermissionHelper.isAccessibilitySettingOn()) {
-                    openAccessibility()
+                    startActivity(Intent(this, AccessibilityGuideActivity::class.java))
                 }
             } else {
                 if (PermissionHelper.isAccessibilitySettingOn()) {
@@ -142,56 +142,17 @@ class ListenActivity : AppCompatActivity() {
         sw_overlay.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             LogUtils.i("sw_overlay onCheckedChanged: $isChecked")
             if (isChecked) {
-                if (!PermissionUtils.isGrantedDrawOverlays()) {
-                    PermissionUtils.requestDrawOverlays(object : PermissionUtils.SimpleCallback {
-                        override fun onGranted() {
-                            ToastUtils.showLong("请同时打开后台弹出界面权限~")
-                            PermissionPageManagement.goToSetting(this@ListenActivity)
-                            FloatWindowHelper.showWindow()
-                        }
-
-                        override fun onDenied() { sw_accessibility.isChecked = false }
-                    })
-                }
+                startActivity(Intent(this, FloatViewGuideActivity::class.java))
             } else {
-                if (PermissionUtils.isGrantedDrawOverlays()) {
+                if (Settings.canDrawOverlays(Utils.getApp()) && FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
                     sw_overlay.isChecked = true
                     PermissionPageManagement.goToSetting(this)
                 }
             }
         })
-        if (PermissionUtils.isGrantedDrawOverlays()) {
+        if (Settings.canDrawOverlays(Utils.getApp()) && FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
             FloatWindowHelper.showWindow()
         }
-    }
-
-    /**
-     * 打开辅助
-     */
-    private fun openAccessibility() {
-        val clickListener =
-            DialogInterface.OnClickListener { dialog, which ->
-                freshOpenServiceSwitch()
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
-            }
-        val cancel = DialogInterface.OnCancelListener {
-            freshOpenServiceSwitch()
-        }
-        val cancelListener = DialogInterface.OnClickListener { dialog, which ->
-            freshOpenServiceSwitch()
-        }
-        val dialog: AlertDialog = AlertDialog.Builder(this)
-            .setMessage(R.string.tips)
-            .setOnCancelListener(cancel)
-            .setNegativeButton("取消", cancelListener)
-            .setPositiveButton("确定", clickListener)
-            .create()
-        dialog.show()
-    }
-
-    private fun freshOpenServiceSwitch() {
-        sw_accessibility.isChecked = PermissionHelper.isAccessibilitySettingOn()
     }
 
     private fun showSelectHostDialog() {

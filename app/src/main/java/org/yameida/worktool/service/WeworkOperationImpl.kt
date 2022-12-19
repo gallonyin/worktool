@@ -257,7 +257,7 @@ object WeworkOperationImpl {
 
     /**
      * 进入群聊并修改群配置
-     * 群名称、群公告、拉人、踢人
+     * 群名称、群公告、拉人、踢人、群备注、群模板
      * @param groupName 待修改的群
      * @param newGroupName 修改群名 选填
      * @param newGroupAnnouncement 修改群公告 选填

@@ -66,6 +66,12 @@
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name="org.yameida.worktool.activity.AccessibilityGuideActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden"
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme">
+        </activity>
         <service
             android:name="org.yameida.worktool.service.WeworkService"
             android:enabled="true"

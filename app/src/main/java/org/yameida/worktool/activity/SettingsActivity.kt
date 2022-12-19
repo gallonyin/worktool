@@ -78,10 +78,11 @@ class SettingsActivity : AppCompatActivity() {
                 if (!FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
                     ToastUtils.showLong("请同时打开后台弹出界面权限~")
                     PermissionPageManagement.goToSetting(this)
+                } else {
+                    FloatWindowHelper.showWindow()
                 }
-                FloatWindowHelper.showWindow()
             } else {
-                startActivityForResult(Intent(this, FloatViewGuideActivity::class.java), 0)
+                startActivity(Intent(this, FloatViewGuideActivity::class.java))
             }
         }
         freshOpenMain()
@@ -94,21 +95,9 @@ class SettingsActivity : AppCompatActivity() {
                 if (Constant.robotId.isBlank()) {
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!PermissionHelper.isAccessibilitySettingOn()) {
-                    openAccessibility()
+                    startActivity(Intent(this, AccessibilityGuideActivity::class.java))
                 }
             }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        freshOpenFlow()
-        if (Settings.canDrawOverlays(Utils.getApp())) {
-            if (!FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
-                ToastUtils.showLong("请同时打开后台弹出界面权限~")
-                PermissionPageManagement.goToSetting(this)
-            }
-            FloatWindowHelper.showWindow()
         }
     }
 
@@ -187,31 +176,6 @@ class SettingsActivity : AppCompatActivity() {
             bt_open_main.setBackgroundResource(R.drawable.comment_red_btn)
             bt_open_main.text = "开启主功能"
         }
-    }
-
-    /**
-     * 打开辅助
-     */
-    private fun openAccessibility() {
-        val clickListener =
-            DialogInterface.OnClickListener { dialog, which ->
-                freshOpenMain()
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
-            }
-        val cancel = DialogInterface.OnCancelListener {
-            freshOpenMain()
-        }
-        val cancelListener = DialogInterface.OnClickListener { dialog, which ->
-            freshOpenMain()
-        }
-        val dialog: AlertDialog = AlertDialog.Builder(this)
-            .setMessage(R.string.tips)
-            .setOnCancelListener(cancel)
-            .setNegativeButton("取消", cancelListener)
-            .setPositiveButton("确定", clickListener)
-            .create()
-        dialog.show()
     }
 
     private fun updateRobotQaUrl(callbackUrl: String) {

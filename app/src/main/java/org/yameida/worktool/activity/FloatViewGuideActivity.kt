@@ -10,15 +10,21 @@ import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.SPUtils
+import com.blankj.utilcode.util.ToastUtils
 import com.blankj.utilcode.util.Utils
 import kotlinx.android.synthetic.main.activity_float_guide.*
 import org.yameida.worktool.R
+import org.yameida.worktool.utils.FloatWindowHelper
+import org.yameida.worktool.utils.FlowPermissionHelper
+import org.yameida.worktool.utils.PermissionPageManagement
 
 /**
  * Created by gallon on 2019/7/20.
  * 提示开启悬浮窗权限
  */
 class FloatViewGuideActivity: AppCompatActivity() {
+
+    private var goToSetting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +67,21 @@ class FloatViewGuideActivity: AppCompatActivity() {
         val canDrawOverlays = Settings.canDrawOverlays(Utils.getApp())
         LogUtils.d("Settings.canDrawOverlays: $canDrawOverlays")
         if (canDrawOverlays) {
-            finish()
+            if (goToSetting) {
+                if (FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
+                    FloatWindowHelper.showWindow()
+                }
+                finish()
+            } else if (!FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
+                ToastUtils.showLong("请同时打开后台弹出界面权限~")
+                PermissionPageManagement.goToSetting(this)
+                goToSetting = true
+            } else {
+                if (FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
+                    FloatWindowHelper.showWindow()
+                }
+                finish()
+            }
         }
     }
 
