@@ -13,4 +13,5 @@ public class Views {
     public static String RelativeLayout = "android.widget.RelativeLayout";
     public static String LinearLayout = "android.widget.LinearLayout";
     public static String ProgressBar = "android.widget.ProgressBar";
+    public static String ScrollView = "android.widget.ScrollView";
 }

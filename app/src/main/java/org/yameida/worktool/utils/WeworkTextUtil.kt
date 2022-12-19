@@ -204,7 +204,8 @@ object WeworkTextUtil {
      * 企微消息类型 TEXT_TYPE
      * @see WeworkMessageBean.TEXT_TYPE
      */
-    fun getTextType(node: AccessibilityNodeInfo, isGroup: Boolean = true): Int {
+    fun getTextType(node: AccessibilityNodeInfo?, isGroup: Boolean = true): Int {
+        if (node == null) return WeworkMessageBean.TEXT_TYPE_UNKNOWN
         val tvList = findAllOnceByClazz(node, Views.TextView)
         val tvCount = tvList.size
         val ivCount = findAllOnceByClazz(node, Views.ImageView).size

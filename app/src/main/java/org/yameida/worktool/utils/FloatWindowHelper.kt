@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import org.yameida.floatwindow.FloatWindowManager
 import org.yameida.floatwindow.DefaultFloatService
 import org.yameida.floatwindow.listener.OnClickListener
+import org.yameida.worktool.Constant
 import org.yameida.worktool.R
 import org.yameida.worktool.activity.ListenActivity
 import org.yameida.worktool.activity.SettingsActivity
@@ -127,10 +128,13 @@ object FloatWindowHelper {
                             }
                         }
                         3 -> {
-                            ListenActivity.enterActivity(Utils.getApp(), 0)
+                            Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)?.apply {
+                                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                Utils.getApp().startActivity(this)
+                            }
                         }
                         4 -> {
-                            SettingsActivity.enterActivity(Utils.getApp())
+                            ListenActivity.enterActivity(Utils.getApp(), 0)
                         }
                     }
                 }
