@@ -216,7 +216,7 @@ class SettingsActivity : AppCompatActivity() {
         try {
             val json = hashMapOf<String, Any>()
             json["robotId"] = Constant.robotId
-            json["replyAll"] = type
+            json["replyAll"] = type - 1
             val requestBody = RequestBody.create(
                 MediaType.parse("application/json;charset=UTF-8"),
                 GsonUtils.toJson(json)
