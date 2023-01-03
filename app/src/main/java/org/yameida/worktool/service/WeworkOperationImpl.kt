@@ -299,6 +299,7 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime)
             return false
         }
+        getGroupQrcode(groupName, groupRemark)
         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
         return true
     }
@@ -781,7 +782,7 @@ object WeworkOperationImpl {
 
     /**
      * 从外部群添加好友
-     * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
+     * @see WeworkMessageBean.ADD_FRIEND_BY_GROUP
      * @param groupName 外部群
      * @param friend 待添加用户
      */
