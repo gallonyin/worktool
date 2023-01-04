@@ -157,7 +157,7 @@ public class WebSocketManager {
                 //重连后刷新连接时间
                 lastConnectedTime = System.currentTimeMillis();
             }
-            if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 2000 && !FloatWindowHelper.INSTANCE.isPause()) {
+            if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 3000 && !FloatWindowHelper.INSTANCE.isPause()) {
                 ToastUtils.show("机器人运行中 请勿人工操作手机~");
             }
         };

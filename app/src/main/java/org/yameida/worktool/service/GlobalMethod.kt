@@ -30,9 +30,8 @@ fun goHome() {
  */
 fun goHomeTab(title: String): Boolean {
     var atHome = false
-    var find = false
     while (!atHome) {
-        val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
+        val list = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
         for (item in list) {
             val childCount = item.parent?.parent?.parent?.childCount
             if (childCount == 4 || childCount == 5) {
@@ -41,19 +40,14 @@ fun goHomeTab(title: String): Boolean {
                     val rect = Rect()
                     item.getBoundsInScreen(rect)
                     if (rect.left > ScreenUtils.getScreenWidth() / 2) {
-                        goHomeTab("工作台")
+                        return goHomeTab("工作台") && goHomeTab("消息")
                     }
+                }
+                if (!item.isSelected) {
+                    AccessibilityUtil.performClick(item)
+                    sleep(300)
                 }
                 atHome = true
-                val tempList = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
-                for (tempItem in tempList) {
-                    val tempChildCount = tempItem.parent?.parent?.parent?.childCount
-                    if (tempChildCount == 4 || tempChildCount == 5) {
-                        AccessibilityUtil.performClick(tempItem)
-                        sleep(300)
-                        find = true
-                    }
-                }
             }
         }
         if (!atHome) {
@@ -68,7 +62,7 @@ fun goHomeTab(title: String): Boolean {
         }
     }
     LogUtils.v("进入首页-${title}页")
-    return find
+    return atHome
 }
 
 /**
@@ -76,10 +70,15 @@ fun goHomeTab(title: String): Boolean {
  */
 fun isAtHome(): Boolean {
     val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
-    return list.count {
+    val item = list.firstOrNull {
         val childCount = it.parent?.parent?.parent?.childCount
-        childCount == 4 || childCount == 5
-    } > 0
+        (childCount == 4 || childCount == 5)
+    } ?: return false
+    if (!item.isSelected) {
+        AccessibilityUtil.performClick(item)
+        sleep(300)
+    }
+    return true
 }
 
 /**

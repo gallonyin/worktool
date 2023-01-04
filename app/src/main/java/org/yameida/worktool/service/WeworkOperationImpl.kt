@@ -102,7 +102,6 @@ object WeworkOperationImpl {
                     LogUtils.v("开始回复")
                     if (sendChatMessage(receivedContent, reply = true)) {
                         LogUtils.d("$title: 回复成功")
-                        WeworkLoopImpl.getChatMessageList()
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                         return true
                     } else {
@@ -116,7 +115,6 @@ object WeworkOperationImpl {
                     val text = if (originalContent.isNotEmpty()) "【$originalContent】\n$receivedContent" else receivedContent
                     if (sendChatMessage(text, receivedName)) {
                         LogUtils.d("$title: 直接发送答案成功")
-                        WeworkLoopImpl.getChatMessageList()
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                         return true
                     } else {
@@ -1608,6 +1606,7 @@ object WeworkOperationImpl {
                 LogUtils.d("发送消息: \n$content")
                 log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
+                WeworkLoopImpl.getChatMessageList()
                 return true
             } else {
                 LogUtils.e("未找到发送按钮")

@@ -26,18 +26,19 @@ object WeworkLoopImpl {
         mainLoopRunning = true
         try {
             while (mainLoopRunning) {
-                if (WeworkRoomUtil.getRoomType(false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-                    && getChatMessageList()) {
+                if (!isAtHome() && WeworkRoomUtil.getRoomType(false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN) {
+                    LogUtils.d("当前在房间: ")
+                    getChatMessageList()
+                    if (mainLoopRunning) {
+                        goHome()
+                    }
+                    continue
                 }
                 if (!mainLoopRunning) break
-                goHomeTab("消息")
+                getChatroomList()
                 if (!mainLoopRunning) break
-                if (getChatroomList()) {
-                }
-                if (!mainLoopRunning) break
-                if (getFriendRequest()) {
-                }
-                sleep(500)
+                getFriendRequest()
+                sleep(300)
             }
         } catch (e: Exception) {
             mainLoopRunning = false
@@ -104,9 +105,8 @@ object WeworkLoopImpl {
      * @param needInfer 是否需要推断@me并等待回复
      * @param timeout 在房间内等待回复的时长
      */
-    fun getChatMessageList(needInfer: Boolean = true, timeout: Long = 3000): Boolean {
+    fun getChatMessageList(needInfer: Boolean = true, timeout: Long = 5000): Boolean {
         if (Constant.autoReply == 0) return true
-        AccessibilityUtil.performScrollDown(getRoot(), 0)
         val roomType = WeworkRoomUtil.getRoomType()
         var titleList = WeworkRoomUtil.getRoomTitle()
         if (titleList.contains("对方正在输入…")) {
@@ -139,28 +139,40 @@ object WeworkLoopImpl {
                 )
                 //推测是否回复并在房间等待指令
                 if (needInfer) {
-                    val lastMessage = messageList.lastOrNull { it.sender == 0 }
-                    if (lastMessage != null) {
-                        var tempContent = ""
-                        for (itemMessage in lastMessage.itemMessageList) {
-                            if (itemMessage.text.contains("@" + Constant.myName)) {
-                                tempContent = itemMessage.text
+                    val lastMessage = messageList.lastOrNull()
+                    if (lastMessage != null && lastMessage.sender == 0) {
+                        when (Constant.replyStrategy) {
+                            1 -> {
+                                var tempContent = ""
+                                for (itemMessage in lastMessage.itemMessageList) {
+                                    if (itemMessage.text.contains("@" + Constant.myName)) {
+                                        tempContent = itemMessage.text
+                                    }
+                                }
+                                if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
+                                    || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
+                                    || tempContent.isNotBlank()
+                                ) {
+                                    LogUtils.v("推测需要回复: $tempContent")
+                                    val startTime = System.currentTimeMillis()
+                                    var currentTime = startTime
+                                    while (mainLoopRunning && currentTime - startTime < timeout) {
+                                        sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                                        currentTime = System.currentTimeMillis()
+                                    }
+                                    return getChatMessageList(needInfer = false)
+                                }
                             }
-                        }
-                        if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT
-                            || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT
-                            || tempContent.isNotBlank()
-                        ) {
-                            LogUtils.v("推测需要回复: $tempContent")
-                            val startTime = System.currentTimeMillis()
-                            var currentTime = startTime
-                            while (mainLoopRunning && currentTime - startTime < timeout) {
-                                sleep(Constant.POP_WINDOW_INTERVAL / 5)
-                                currentTime = System.currentTimeMillis()
-                            }
-                            if (mainLoopRunning) {
+                            2 -> {
+                                val startTime = System.currentTimeMillis()
+                                var currentTime = startTime
+                                while (mainLoopRunning && currentTime - startTime < timeout) {
+                                    sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                                    currentTime = System.currentTimeMillis()
+                                }
                                 return getChatMessageList(needInfer = false)
                             }
+                            else -> return true
                         }
                     }
                 }
@@ -225,19 +237,52 @@ object WeworkLoopImpl {
      */
     private fun getChatroomList(): Boolean {
         if (Constant.autoReply == 0) return true
-        if (!isAtHome()) return true
+        if (!isAtHome()) { goHome() }
 
+        if (logIndex++ % 30 == 0) {
+            LogUtils.d("读取首页聊天列表")
+            if (logIndex % 120 == 0) log("读取首页聊天列表")
+        }
+
+        var hasNewMessage: AccessibilityNodeInfo? = null
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
         for (item in list) {
             val childCount = item.parent?.parent?.parent?.childCount
             if (childCount == 4 || childCount == 5) {
                 if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("消息有红点")
-                    AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
-                    sleep(100)
-                    AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                    hasNewMessage = item
                 }
             }
+        }
+        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+        if (listview != null && listview.childCount >= 2) {
+            if (hasNewMessage != null) {
+                if (checkUnreadChatRoom(listview)) {
+                    //如果有红点 点击进入聊天页
+                    return true
+                } else {
+                    AccessibilityUtil.clickByNode(WeworkController.weworkService, hasNewMessage)
+                    sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                    AccessibilityUtil.clickByNode(WeworkController.weworkService, hasNewMessage)
+                    sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                    //双击消息再试一次
+                    if (checkUnreadChatRoom(listview)) {
+                        //如果有红点 点击进入聊天页
+                        return true
+                    }
+                }
+            } else {
+                if (checkNoTipMessage(listview) == 1) {
+                    //如果发现拉入群聊/修改群名/移出群聊 点击进入聊天页
+                    return true
+                } else {
+                    LogUtils.v("未发现新消息或无提示消息")
+                }
+            }
+        } else {
+            LogUtils.e("读取聊天列表失败")
+            error("读取聊天列表失败")
         }
         if (logIndex % 120 == 0) {
             //让企微切换页面使APP保持活跃
@@ -258,26 +303,6 @@ object WeworkLoopImpl {
                     })
                 }
             }
-        }
-        if (!isAtHome()) return true
-        if (logIndex++ % 30 == 0) {
-            LogUtils.i("读取首页聊天列表")
-            if (logIndex % 120 == 0) log("读取首页聊天列表")
-        }
-        val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
-        if (listview != null && listview.childCount >= 2) {
-            if (checkUnreadChatRoom(listview)) {
-                //如果有红点 点击进入聊天页
-                return true
-            } else if (checkNoTipMessage(listview) == 1) {
-                //如果发现拉入群聊/修改群名/移出群聊 点击进入聊天页
-                return true
-            } else {
-                LogUtils.v("未发现新消息或无提示消息")
-            }
-        } else {
-            LogUtils.e("读取聊天列表失败")
-            error("读取聊天列表失败")
         }
         return false
     }

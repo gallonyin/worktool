@@ -26,6 +26,7 @@ object Constant {
         set(value) {
             SPUtils.getInstance().put("robotId", value)
         }
+    //replyStrategy=replyAll+1   replyStrategy=0不回复 replyStrategy=1回复at replyStrategy=2回复所有
     var replyStrategy: Int
         get() = SPUtils.getInstance().getInt("replyStrategy", 1)
         set(value) {
