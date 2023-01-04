@@ -45,6 +45,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         initView()
+        initData()
     }
 
     override fun onResume() {
@@ -99,6 +100,10 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun initData() {
+        HttpUtil.getMyConfig()
     }
 
     private fun showReplyStrategyDialog() {

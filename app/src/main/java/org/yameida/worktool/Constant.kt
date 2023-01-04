@@ -36,6 +36,11 @@ object Constant {
         set(value) {
             SPUtils.getInstance().put("qaUrl", value)
         }
+    var openCallback: Int
+        get() = SPUtils.getInstance().getInt("openCallback", 0)
+        set(value) {
+            SPUtils.getInstance().put("openCallback", value)
+        }
     var host: String
         get() = SPUtils.getInstance().getString("host", DEFAULT_HOST)
         set(value) {
@@ -45,6 +50,8 @@ object Constant {
     fun getWsUrl() = "$host/webserver/wework/$robotId"
 
     fun getCheckUpdateUrl() = "${getBaseUrl()}/appUpdate/checkUpdate"
+
+    fun getMyConfig() = "${getBaseUrl()}/robot/robotInfo/get?robotId=$robotId"
 
     fun getRobotUpdateUrl() = "${getBaseUrl()}/robot/robotInfo/update"
 

@@ -46,30 +46,28 @@
         </activity>
         <activity
             android:name="org.yameida.worktool.activity.LoginActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name="org.yameida.worktool.activity.SettingsActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name="org.yameida.worktool.activity.BrowserActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name="org.yameida.worktool.activity.FloatViewGuideActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:launchMode="singleInstance"
             android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name="org.yameida.worktool.activity.AccessibilityGuideActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:launchMode="singleInstance"
             android:theme="@style/AppTheme">
         </activity>
         <service

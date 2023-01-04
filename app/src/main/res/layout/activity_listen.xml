@@ -330,7 +330,7 @@
                         android:id="@+id/et_channel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="请输入申请的链接号"
+                        android:hint="请输入申请的机器人ID"
                         android:textColor="@color/color_999999"
                         android:textSize="@dimen/setting_end_font_size" />
 

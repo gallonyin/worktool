@@ -139,6 +139,7 @@ object WeworkOperationImpl {
 
     /**
      * 在房间内转发消息
+     * @see WeworkMessageBean.RELAY_MESSAGE
      * @param titleList 房间名称
      * @param receivedName 原始消息的发送者姓名
      * @param originalContent 原始消息的内容
@@ -169,7 +170,6 @@ object WeworkOperationImpl {
                     )
                 ) {
                     LogUtils.d("开始转发")
-                    sleep(1000)
                     if (relaySelectTarget(nameList, extraText)) {
                         LogUtils.d("$title: 转发成功")
                     } else {

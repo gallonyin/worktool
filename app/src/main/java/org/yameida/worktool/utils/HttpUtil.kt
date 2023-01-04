@@ -11,9 +11,10 @@ import model.UpdateConfig
 import org.yameida.worktool.Constant
 import org.yameida.worktool.R
 import org.yameida.worktool.model.network.CheckUpdateResult
+import org.yameida.worktool.model.network.GetMyConfigResult
 import update.UpdateAppUtils
 
-object UpdateUtil {
+object HttpUtil {
 
     fun checkUpdate() {
         OkGo.get<String>(Constant.getCheckUpdateUrl())
@@ -58,6 +59,43 @@ object UpdateUtil {
                 override fun onError(response: Response<String>) {
                     ToastUtils.showLong(R.string.update_failed)
                     LogUtils.e("检查更新失败")
+                }
+            })
+    }
+
+    fun getMyConfig() {
+        if (Constant.robotId.isBlank()) {
+            ToastUtils.showLong("请先填写机器人ID")
+            return
+        }
+        OkGo.get<String>(Constant.getMyConfig())
+            .execute(object : StringCallback() {
+                override fun onSuccess(response: Response<String>) {
+                    try {
+                        val commonResult =
+                            GsonUtils.fromJson(
+                                response.body(),
+                                GetMyConfigResult::class.java
+                            )
+                        if (commonResult.code != 200) {
+                            return onError(response)
+                        }
+                        LogUtils.i(commonResult.data)
+                        commonResult.data?.apply {
+                            Constant.qaUrl = this.callbackUrl ?: ""
+                            Constant.openCallback = this.openCallback ?: 0
+                            Constant.replyStrategy = (this.replyAll ?: 0) + 1
+                            return
+                        }
+                    } catch (e: Exception) {
+                        LogUtils.e(e)
+                        onError(response)
+                    }
+                }
+
+                override fun onError(response: Response<String>) {
+                    ToastUtils.showLong("获取配置失败 请检查机器人ID")
+                    LogUtils.e("获取配置失败 请检查机器人ID")
                 }
             })
     }

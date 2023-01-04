@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.CompoundButton
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.*
 import com.umeng.analytics.MobclickAgent
@@ -43,7 +42,7 @@ class ListenActivity : AppCompatActivity() {
         initView()
         initAccessibility()
         initOverlays()
-        UpdateUtil.checkUpdate()
+        HttpUtil.checkUpdate()
         PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
