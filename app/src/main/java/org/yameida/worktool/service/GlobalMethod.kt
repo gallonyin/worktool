@@ -30,8 +30,8 @@ fun goHome() {
  * 可能因为管理员排版首页Tab而导致找不到匹配title
  */
 fun goHomeTab(title: String): Boolean {
-    var atHome = false
-    while (!atHome) {
+    var find = false
+    while (!find) {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), title, exact = true)
         for (item in list) {
             val childCount = item.parent?.parent?.parent?.childCount
@@ -48,22 +48,26 @@ fun goHomeTab(title: String): Boolean {
                     AccessibilityUtil.performClick(item)
                     sleep(300)
                 }
-                atHome = true
+                find = true
             }
         }
-        if (!atHome) {
-            backPress()
-            //如果在登录页面就提示关闭worktool主功能
-            if (AccessibilityUtil.findOnceByText(getRoot(), "手机号登录", exact = true) != null) {
-                LogUtils.e("登录前请先关闭WorkTool主功能！")
-                ToastUtils.show("登录前请先关闭WorkTool主功能！")
-                MyApplication.launchIntent()
-                sleep(5000)
+        if (!find) {
+            if (isAtHome()) {
+                return false
+            } else {
+                backPress()
+                //如果在登录页面就提示关闭worktool主功能
+                if (AccessibilityUtil.findOnceByText(getRoot(), "手机号登录", exact = true) != null) {
+                    LogUtils.e("登录前请先关闭WorkTool主功能！")
+                    ToastUtils.show("登录前请先关闭WorkTool主功能！")
+                    MyApplication.launchIntent()
+                    sleep(5000)
+                }
             }
         }
     }
     LogUtils.v("进入首页-${title}页")
-    return atHome
+    return find
 }
 
 /**
