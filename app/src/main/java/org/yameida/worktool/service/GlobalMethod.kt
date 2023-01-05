@@ -11,6 +11,7 @@ import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
 import org.yameida.worktool.utils.AccessibilityUtil
+import org.yameida.worktool.utils.FloatWindowHelper
 import org.yameida.worktool.utils.Views
 import java.lang.Exception
 
@@ -106,10 +107,13 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 if (System.currentTimeMillis() % 30 == 0L) {
                     error("当前不在企业微信: ${root.packageName}")
                     if (!root.packageName.contains("(worktool)|(settings)".toRegex())) {
-                        ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
-                        Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)?.apply {
-                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            Utils.getApp().startActivity(this)
+                        if (!FloatWindowHelper.isPause) {
+                            ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
+                            Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)
+                                ?.apply {
+                                    this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    Utils.getApp().startActivity(this)
+                                }
                         }
                     }
                 }
