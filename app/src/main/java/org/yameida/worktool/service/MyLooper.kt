@@ -96,7 +96,10 @@ object MyLooper {
                     LogUtils.v("加入指令到执行队列", if (message.fileBase64.isNullOrEmpty()) GsonUtils.toJson(message) else message.type)
                     getInstance().sendMessage(Message.obtain().apply {
                         what = message.type * message.hashCode()
-                        obj = message.apply { messageId = messageList.messageId }
+                        obj = message.apply {
+                            messageId = messageList.messageId
+                            apiSend = messageList.apiSend
+                        }
                     })
                 }
                 getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)

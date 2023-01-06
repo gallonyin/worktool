@@ -86,6 +86,8 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         if (receivedContent.isNullOrEmpty()) {
             LogUtils.d("未发现回复内容")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "回复内容为空", startTime, listOf(), titleList)
+            goHome()
             return false
         }
         for (title in titleList) {

@@ -191,7 +191,10 @@ fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason:
         ), true
     )
     if (errorCode != 0) {
-        ToastUtils.show("错误提示 错误码: $errorCode 错误信息: $errorReason")
+        if (message.apiSend == 1) {
+            ToastUtils.show("错误提示 错误码: $errorCode 错误信息: $errorReason")
+        }
+        LogUtils.v("错误提示 错误码: $errorCode 错误信息: $errorReason")
     }
 }
 

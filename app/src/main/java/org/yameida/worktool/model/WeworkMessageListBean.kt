@@ -28,6 +28,9 @@ class WeworkMessageListBean<T> {
     //消息id
     var messageId = TimeUtils.date2String(Date()).replace(" ", "#") + "#" + UUID.randomUUID()
 
+    //api类型 0=后台消息 1=API指令调用
+    var apiSend: Int? = null
+
     //消息列表
     var list: ArrayList<T> = arrayListOf()
 

@@ -54,7 +54,7 @@ object Constant {
 
     fun getMyConfig() = "${getBaseUrl()}/robot/robotInfo/get?robotId=$robotId"
 
-    fun getRobotUpdateUrl() = "${getBaseUrl()}/robot/robotInfo/update"
+    fun getRobotUpdateUrl() = "${getBaseUrl()}/robot/robotInfo/update?robotId=$robotId"
 
     fun getTestUrl() = "${getBaseUrl()}/test"
 
