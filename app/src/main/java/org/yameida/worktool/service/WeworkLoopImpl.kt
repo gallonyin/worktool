@@ -284,17 +284,33 @@ object WeworkLoopImpl {
             LogUtils.e("读取聊天列表失败")
             error("读取聊天列表失败")
         }
-        if (logIndex % 120 == 0) {
+        if (logIndex % 600 == 0) {
             //让企微切换页面使APP保持活跃
             goHomeTab("通讯录")
             goHomeTab("消息")
             //滚动到顶端查看是否有无提示消息
             AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
+            //如果有新消息则停止
+            val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
+            for (item in list) {
+                val childCount = item.parent?.parent?.parent?.childCount
+                if (childCount == 4 || childCount == 5) {
+                    if (item.parent != null && item.parent.childCount > 1) {
+                        return false
+                    }
+                }
+            }
+            if (!mainLoopRunning) {
+                return false
+            }
             val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
             if (listview != null && listview.childCount >= 2) {
                 if (checkNoTipMessage(listview) != 1) {
                     AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = object : AccessibilityUtil.OnScrollListener() {
                         override fun onScroll(): Boolean {
+                            if (!mainLoopRunning) {
+                                return true
+                            }
                             if (checkNoTipMessage(listview) != 0) {
                                 return true
                             }

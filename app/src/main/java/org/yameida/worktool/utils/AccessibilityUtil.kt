@@ -239,6 +239,10 @@ object AccessibilityUtil {
                     break
                 } else {
                     LogUtils.v("未滚动到底部 $index")
+                    if (listener != null && listener.onScroll()) {
+                        LogUtils.d("提前终止滚动")
+                        return true
+                    }
                 }
             }
             return true
