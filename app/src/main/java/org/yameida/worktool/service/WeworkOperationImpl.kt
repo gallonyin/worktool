@@ -1525,7 +1525,7 @@ object WeworkOperationImpl {
                     val useTemplateTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用该模板")
                     if (useTemplateTv != null) {
                         AccessibilityUtil.performClick(useTemplateTv)
-                        val useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用")
+                        val useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用", exact = true)
                         if (useTv != null) {
                             AccessibilityUtil.performClick(useTv)
                             return true
@@ -1862,7 +1862,7 @@ object WeworkOperationImpl {
                                     val bitmap = ImageUtils.bytes2Bitmap(file.readBytes())
                                     val mDecoder = QRCodeDecoder.Builder().build()
                                     val qrcode = mDecoder.decode(bitmap)
-                                    LogUtils.e("group: $groupName qrcode: $qrcode")
+                                    LogUtils.d("group: $groupName qrcode: $qrcode")
                                     val weworkMessageBean = WeworkMessageBean()
                                     weworkMessageBean.type = WeworkMessageBean.GET_GROUP_QRCODE
                                     weworkMessageBean.groupName = groupName
