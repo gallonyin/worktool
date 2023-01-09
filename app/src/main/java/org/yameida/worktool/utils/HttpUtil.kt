@@ -63,9 +63,11 @@ object HttpUtil {
             })
     }
 
-    fun getMyConfig() {
+    fun getMyConfig(toast: Boolean = true) {
         if (Constant.robotId.isBlank()) {
-            ToastUtils.showLong("请先填写机器人ID")
+            if (toast) {
+                ToastUtils.showLong("请先填写机器人ID")
+            }
             return
         }
         OkGo.get<String>(Constant.getMyConfig())

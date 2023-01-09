@@ -170,6 +170,10 @@ object AccessibilityUtil {
             } else {
                 textChanged = true
                 LogUtils.v("未滚动到顶部 $index")
+                if (listener != null && listener.onScroll()) {
+                    LogUtils.d("提前终止滚动")
+                    return true
+                }
             }
         }
         if (tryUseGesture) {

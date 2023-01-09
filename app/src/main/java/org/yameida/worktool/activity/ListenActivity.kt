@@ -42,7 +42,7 @@ class ListenActivity : AppCompatActivity() {
         initView()
         initAccessibility()
         initOverlays()
-        HttpUtil.checkUpdate()
+        initData()
         PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
@@ -74,6 +74,7 @@ class ListenActivity : AppCompatActivity() {
             sendBroadcast(Intent(Constant.WEWORK_NOTIFY).apply {
                 putExtra("type", "modify_channel")
             })
+            HttpUtil.getMyConfig(toast = false)
             MobclickAgent.onProfileSignIn(channel)
         }
         tv_host.text = Constant.host
@@ -152,6 +153,11 @@ class ListenActivity : AppCompatActivity() {
         if (Settings.canDrawOverlays(Utils.getApp()) && FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
             FloatWindowHelper.showWindow()
         }
+    }
+
+    private fun initData() {
+        HttpUtil.checkUpdate()
+        HttpUtil.getMyConfig(toast = false)
     }
 
     private fun showSelectHostDialog() {
