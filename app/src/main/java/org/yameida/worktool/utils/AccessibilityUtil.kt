@@ -387,6 +387,7 @@ object AccessibilityUtil {
         while (nodeInfo != null) {
             if (nodeInfo.isLongClickable) {
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK)
+                LogUtils.d("performLongClickWithSon: text: ${nodeInfo.text} desc: ${nodeInfo.contentDescription}")
                 return true
             }
             if (nodeInfo.childCount > 0) {
@@ -1129,6 +1130,37 @@ object AccessibilityUtil {
 
             override fun onCancelled(gestureDescription: GestureDescription) {
                 LogUtils.v("click ok onCancelled")
+            }
+        }, null)
+    }
+
+    /**
+     * Gesture手势实现点击(Android7+)
+     * 解决 longClickable=false 无法点击问题
+     */
+    fun longClickByNode(
+        service: AccessibilityService,
+        nodeInfo: AccessibilityNodeInfo?
+    ): Boolean {
+        if (nodeInfo == null) return false
+        nodeInfo.refresh()
+        val rect = Rect()
+        nodeInfo.getBoundsInScreen(rect)
+        val x: Int = (rect.left + rect.right) / 2
+        val y: Int = (rect.top + rect.bottom) / 2
+        val point = Point(x, y)
+        val builder = GestureDescription.Builder()
+        val path = Path()
+        path.moveTo(point.x.toFloat(), point.y.toFloat())
+        builder.addStroke(StrokeDescription(path, 0L, 500L))
+        val gesture = builder.build()
+        return service.dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                LogUtils.v("longClick ok onCompleted")
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                LogUtils.v("longClick ok onCancelled")
             }
         }, null)
     }

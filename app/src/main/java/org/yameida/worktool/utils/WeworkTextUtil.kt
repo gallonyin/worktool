@@ -190,6 +190,9 @@ object WeworkTextUtil {
 视频 2tv 2iv (视频大小、视频时长、缩略图、播放按钮)
 链接 3tv 1iv (标题、副标题、下方来源、图标)
 文件 3tv 1iv (文件名、文件大小、下方来源、图标) (需要和链接区分)
+链接 2tv 1iv (文件名、副标题、图标) (微信*用户发的链接不带下方来源 需要和接龙和链接区分)
+链接 1tv 1iv (文件名、图标) (微信*用户发的链接不带副标题和下方来源)
+文件 2tv 1iv (文件名、文件大小、图标) (微信*用户发的文件不带下方来源 需要和接龙和链接区分)
 小程序 3tv 2iv (标题、副标题、下方来源、小程序icon、图标)
 合并聊天记录 2tv 0iv (标题、摘要)
 收集表 6tv 0iv (标题、副标题、行1、行2、行3、下方来源)
@@ -209,8 +212,10 @@ object WeworkTextUtil {
         val tvList = findAllOnceByClazz(node, Views.TextView)
         val tvCount = tvList.size
         val ivCount = findAllOnceByClazz(node, Views.ImageView).size
+        LogUtils.v("tvCount: $tvCount ivCount: $ivCount")
         return when {
             tvCount == 1 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_PLAIN
+            tvCount == 1 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_LINK
             tvCount == 0 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_IMAGE
             tvCount == 2 && ivCount == 2 -> {
                 val parent = tvList[0].parent
@@ -227,11 +232,18 @@ object WeworkTextUtil {
                     WeworkMessageBean.TEXT_TYPE_LINK
                 }
             }
-            tvCount == 3 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_FILE
             tvCount == 3 && ivCount == 2 -> WeworkMessageBean.TEXT_TYPE_MICROPROGRAM
             tvCount == 2 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_CHAT_RECORD
             tvCount == 6 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_COLLECTION
-            tvCount == 2 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_SOLITAIRE
+            tvCount == 2 && ivCount == 1 -> {
+                if (isSolitaire(tvList[1].text?.toString())) {
+                    WeworkMessageBean.TEXT_TYPE_SOLITAIRE
+                } else if (isFileSize(tvList[1].text?.toString())) {
+                    WeworkMessageBean.TEXT_TYPE_FILE
+                } else {
+                    WeworkMessageBean.TEXT_TYPE_LINK
+                }
+            }
             tvCount == 4 && ivCount == 2 -> WeworkMessageBean.TEXT_TYPE_VOICE
             tvCount == 5 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_CARD
             tvCount == 1 && ivCount == 2 -> WeworkMessageBean.TEXT_TYPE_LOCATION
@@ -252,6 +264,13 @@ object WeworkTextUtil {
      */
     fun isFileSize(size: String?): Boolean {
         return size?.matches("[0-9\\.]+[BKMG]".toRegex()) ?: false
+    }
+
+    /**
+     * 是否为接龙
+     */
+    fun isSolitaire(text: String?): Boolean {
+        return text?.contains("参与接龙") ?: false
     }
 
     /**

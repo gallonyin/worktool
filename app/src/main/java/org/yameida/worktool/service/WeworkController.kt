@@ -76,7 +76,7 @@ object WeworkController {
      */
     @RequestMapping
     fun replyMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("replyMessage(): ${message.receivedName} ${message.originalContent} ${message.receivedContent}")
+        LogUtils.d("replyMessage(): ${message.receivedName} ${message.originalContent} ${message.textType} ${message.receivedContent}")
         return WeworkOperationImpl.replyMessage(
             message,
             message.titleList,
