@@ -90,6 +90,18 @@ object WeworkRoomUtil {
         }
         goHome()
         val list = findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+        if (list != null && list.childCount >= 2) {
+            for (i in 0 until list.childCount) {
+                val item = list.getChild(i)
+                val tvList = findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
+                if (tvList.isNotEmpty() && title == tvList[0].toString()) {
+                    AccessibilityUtil.performClick(item)
+                    LogUtils.d("快捷进入房间: $title")
+                    sleep(Constant.CHANGE_PAGE_INTERVAL)
+                    return true
+                }
+            }
+        }
         if (list != null) {
             val frontNode = findFrontNode(list)
             val textViewList = findAllOnceByClazz(frontNode, Views.TextView)
