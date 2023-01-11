@@ -253,6 +253,30 @@ object WeworkTextUtil {
     }
 
     /**
+     * 企微消息类型 TEXT_TYPE
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun getTextTypeFromItem(node: AccessibilityNodeInfo?, isGroup: Boolean = true): Int {
+        if (node == null) return WeworkMessageBean.TEXT_TYPE_UNKNOWN
+        //消息主体
+        val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, limitDepth = 1)
+        if (relativeLayoutItem != null && relativeLayoutItem.childCount >= 2) {
+            if (Views.ImageView.equals(relativeLayoutItem.getChild(0).className)) {
+                LogUtils.v("头像在左边 本条消息发送者为其他联系人")
+                var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
+                val relativeLayoutContent =
+                    AccessibilityUtil.findOnceByClazz(relativeLayoutItem, Views.RelativeLayout, limitDepth = 2)
+                if (relativeLayoutContent != null) {
+                    textType = getTextType(relativeLayoutContent)
+                    LogUtils.v("textType: $textType")
+                    return textType
+                }
+            }
+        }
+        return WeworkMessageBean.TEXT_TYPE_UNKNOWN
+    }
+
+    /**
      * 是否为消息上方时间
      */
     fun isDate(date: String): Boolean {
@@ -317,7 +341,12 @@ object WeworkTextUtil {
                 val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT)
                 if (backNode != null) {
                     val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
-                    if (textNode != null) {
+                    if (textNode != null && replyContent.isNotEmpty()) {
+                        LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
+                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                    } else if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE
+                                    || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
+                            && (replyTextType == getTextTypeFromItem(item))) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                         return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
                     }
@@ -328,7 +357,12 @@ object WeworkTextUtil {
                     val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP)
                     if (backNode != null) {
                         val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
-                        if (textNode != null) {
+                        if (textNode != null && replyContent.isNotEmpty()) {
+                            LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                        } else if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE
+                                    || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
+                            && (replyTextType == getTextTypeFromItem(item))) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                             return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
                         }
