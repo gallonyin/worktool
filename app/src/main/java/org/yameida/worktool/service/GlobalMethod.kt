@@ -108,6 +108,7 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 return root
             } else {
                 LogUtils.e("当前不在企业微信: ${root.packageName}")
+                WeworkController.weworkService.currentPackage = root.packageName?.toString() ?: ""
                 if (System.currentTimeMillis() % 30 == 0L) {
                     error("当前不在企业微信: ${root.packageName}")
                     if (!root.packageName.contains("(worktool)|(settings)".toRegex())) {

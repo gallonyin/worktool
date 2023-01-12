@@ -573,8 +573,27 @@ object WeworkOperationImpl {
                     newFile.writeBytes(body.bytes())
                     LogUtils.i("文件存储本地成功 $filePath")
                     ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
-                    val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                     AccessibilityUtil.performClick(shareToWorkButton)
+                    sleep(Constant.POP_WINDOW_INTERVAL)
+                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                    LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
+                    val startTime = System.currentTimeMillis()
+                    var currentTime = startTime
+                    while (currentTime - startTime < 5000) {
+                        if (shareToWorkButton != null
+                            && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
+                            LogUtils.e("尝试手势点击！！！！！")
+                            AccessibilityUtil.printNodeClazzTree(shareToWorkButton)
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
+                            sleep(Constant.CHANGE_PAGE_INTERVAL)
+                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                        } else {
+                            break
+                        }
+                        currentTime = System.currentTimeMillis()
+                    }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
@@ -621,8 +640,27 @@ object WeworkOperationImpl {
                 newFile.writeBytes(EncodeUtils.base64Decode(fileBase64))
                 LogUtils.i("文件存储本地成功 $filePath")
                 ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
-                val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                sleep(Constant.POP_WINDOW_INTERVAL)
                 AccessibilityUtil.performClick(shareToWorkButton)
+                sleep(Constant.POP_WINDOW_INTERVAL)
+                shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
+                val startTime = System.currentTimeMillis()
+                var currentTime = startTime
+                while (currentTime - startTime < 5000) {
+                    if (shareToWorkButton != null
+                        && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
+                        LogUtils.e("尝试手势点击！！！！！")
+                        AccessibilityUtil.printNodeClazzTree(shareToWorkButton)
+                        AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                    } else {
+                        break
+                    }
+                    currentTime = System.currentTimeMillis()
+                }
                 if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                     val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                     AccessibilityUtil.performClick(stayButton)
