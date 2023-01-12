@@ -112,7 +112,10 @@ object WeworkRoomUtil {
                 val needTrim = title.contains(Constant.regTrimTitle)
                 val trimTitle = title.replace(Constant.regTrimTitle, "")
                 AccessibilityUtil.findTextInput(getRoot(), trimTitle)
-                sleep(Constant.CHANGE_PAGE_INTERVAL)
+                if (!AccessibilityExtraUtil.loadingPage("com.tencent.wework.contact.controller.GlobalSearchActivity")) {
+                    LogUtils.e("未找到搜索页")
+                    return false
+                }
                 //消息页搜索结果列表
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)

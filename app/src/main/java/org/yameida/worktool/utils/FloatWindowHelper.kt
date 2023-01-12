@@ -106,7 +106,7 @@ object FloatWindowHelper {
                                             .append("\n")
                                             .append(WeworkController.weworkService.currentClass)
                                         newFile.writeBytes(printNodeClazzTree.toString().toByteArray())
-                                        LogUtils.i("打印节点文件存储本地成功 $filePath")
+                                        LogUtils.i("打印节点文件存储本地成功 $filePath", "当前页面: ${WeworkController.weworkService.currentClass}")
                                     }
                                     ShareUtil.share("*", newFile)
                                 }
