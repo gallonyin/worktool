@@ -446,8 +446,11 @@ object WeworkLoopImpl {
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
             } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
                 LogUtils.v("头像在右边 本条消息发送者为自己")
+                var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
                 val subLayout = relativeLayoutItem.getChild(0)
                 if (subLayout.childCount > 0) {
+                    textType = WeworkTextUtil.getTextType(subLayout)
+                    LogUtils.v("textType: $textType")
                     val tvList = AccessibilityUtil.findAllOnceByClazz(
                         subLayout.getChild(subLayout.childCount - 1),
                         Views.TextView
@@ -461,7 +464,13 @@ object WeworkLoopImpl {
                         }
                     }
                 }
-                message = WeworkMessageBean.SubMessageBean(1, 0, itemMessageList, nameList)
+                //todo 发视频和文件也可能存在上传中状态
+                if (textType == WeworkMessageBean.TEXT_TYPE_LINK && itemMessageList.size == 1
+                    && itemMessageList[0].text.matches("[0-9]+%".toRegex())) {
+                    textType = WeworkMessageBean.TEXT_TYPE_IMAGE
+                    itemMessageList.clear()
+                }
+                message = WeworkMessageBean.SubMessageBean(1, textType, itemMessageList, nameList)
             } else {
                 // 没有头像的消息（撤销消息、其他可能的系统消息）
                 val tvList = AccessibilityUtil.findAllOnceByClazz(node, Views.TextView)
