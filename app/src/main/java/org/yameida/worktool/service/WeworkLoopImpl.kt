@@ -116,17 +116,39 @@ object WeworkLoopImpl {
             val title = titleList.joinToString()
             LogUtils.v("聊天: $title")
             log("聊天: $title")
-            //聊天消息列表 1ListView 0RecycleView xViewGroup
-            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
-            if (list != null) {
-                LogUtils.v("消息条数: " + list.childCount)
-                val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
-                for (i in 0 until list.childCount) {
-                    val item = list.getChild(i)
-                    if (item != null && item.childCount > 0) {
-                        messageList.add(parseChatMessageItem(item, roomType))
+            val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
+            val messageList2 = arrayListOf<WeworkMessageBean.SubMessageBean>()
+            do {
+                messageList.clear()
+                messageList2.clear()
+                //聊天消息列表 1ListView 0RecycleView xViewGroup
+                val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list != null) {
+                    LogUtils.v("消息条数: " + list.childCount)
+                    for (i in 0 until list.childCount) {
+                        val item = list.getChild(i)
+                        if (item != null && item.childCount > 0) {
+                            messageList.add(parseChatMessageItem(item, roomType))
+                        }
                     }
                 }
+                sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                LogUtils.v("双重校验聊天列表")
+                val list2 = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list2 != null) {
+                    LogUtils.v("list2消息条数: " + list2.childCount)
+                    for (i in 0 until list2.childCount) {
+                        val item = list2.getChild(i)
+                        if (item != null && item.childCount > 0) {
+                            messageList2.add(parseChatMessageItem(item, roomType))
+                        }
+                    }
+                }
+                if (messageList != messageList2) {
+                    LogUtils.e("双重校验聊天列表失败")
+                }
+            } while (messageList != messageList2)
+            if (messageList.isNotEmpty()) {
                 WeworkController.weworkService.webSocketManager.send(
                     WeworkMessageBean(
                         null, null,

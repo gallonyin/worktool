@@ -1608,6 +1608,7 @@ object WeworkOperationImpl {
                 LogUtils.d("发送消息: \n$content")
                 log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
+                sleep(Constant.POP_WINDOW_INTERVAL)
                 WeworkLoopImpl.getChatMessageList()
                 return true
             } else {
