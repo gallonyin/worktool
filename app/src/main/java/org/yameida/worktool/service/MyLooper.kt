@@ -169,6 +169,9 @@ object MyLooper {
             WeworkMessageBean.CLOCK_IN -> {
                 WeworkController.clockIn(message)
             }
+            WeworkMessageBean.SWITCH_CORP -> {
+                WeworkController.switchCorp(message)
+            }
             WeworkMessageBean.SHOW_GROUP_INFO -> {
                 WeworkController.showGroupInfo(message)
             }

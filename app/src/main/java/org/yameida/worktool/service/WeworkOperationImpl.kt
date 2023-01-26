@@ -1002,6 +1002,41 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 切换企业
+     * @see WeworkMessageBean.SWITCH_CORP
+     * @param objectName 企业名称
+     */
+    fun switchCorp(message: WeworkMessageBean, objectName: String): Boolean {
+        val startTime = System.currentTimeMillis()
+        goHomeTab("消息")
+        val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
+            .firstOrNull { it.text == null }
+        AccessibilityUtil.performClick(firstTv, retry = false)
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
+        val listviewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+            .filter { it.childCount >= 2 }
+        val listview = listviewList.firstOrNull()
+        if (listview != null) {
+            val tvCorp = AccessibilityUtil.findOnceByText(listview, objectName, exact = true)
+            if (tvCorp != null) {
+                LogUtils.d("找到目标企业: $objectName")
+                AccessibilityUtil.performClick(tvCorp)
+                goHome()
+                return true
+            } else {
+                LogUtils.e("未找到目标企业: $objectName")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到目标企业: $objectName", startTime)
+                goHome()
+                return false
+            }
+        } else {
+            LogUtils.e("未找到企业列表: $objectName")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到企业列表: $objectName", startTime)
+            return false
+        }
+    }
+
+    /**
      * 展示群信息
      * @see WeworkMessageBean.SHOW_GROUP_INFO
      * @param titleList 待查询群名

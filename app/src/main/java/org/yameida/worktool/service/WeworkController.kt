@@ -231,6 +231,17 @@ object WeworkController {
     }
 
     /**
+     * 切换企业
+     * @see WeworkMessageBean.SWITCH_CORP
+     * @param message#objectName 企业名称
+     */
+    @RequestMapping
+    fun switchCorp(message: WeworkMessageBean): Boolean {
+        LogUtils.d("switchCorp(): ${message.objectName}")
+        return WeworkOperationImpl.switchCorp(message, message.objectName)
+    }
+
+    /**
      * 推送微盘图片
      * @see WeworkMessageBean.PUSH_MICRO_DISK_IMAGE
      * @param message#titleList 待发送姓名列表
