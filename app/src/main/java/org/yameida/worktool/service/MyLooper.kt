@@ -169,6 +169,9 @@ object MyLooper {
             WeworkMessageBean.CLOCK_IN -> {
                 WeworkController.clockIn(message)
             }
+            WeworkMessageBean.SWITCH_CORP -> {
+                WeworkController.switchCorp(message)
+            }
             WeworkMessageBean.SHOW_GROUP_INFO -> {
                 WeworkController.showGroupInfo(message)
             }
@@ -183,6 +186,9 @@ object MyLooper {
             }
             WeworkMessageBean.GET_RECENT_LIST -> {
                 WeworkController.getRecentList(message)
+            }
+            WeworkMessageBean.GET_CORP_LIST -> {
+                WeworkController.getCorpList(message)
             }
             WeworkMessageBean.ROBOT_CONTROLLER_TEST -> {
                 WeworkController.test(message)

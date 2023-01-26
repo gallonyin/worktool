@@ -87,7 +87,7 @@ object WeworkGetImpl {
                     sumInfo = info.toString()
                 }
                 WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
-                return true
+                return getCorpList(message)
             } else {
                 LogUtils.d("未找到我的昵称")
                 log("未找到我的昵称")
@@ -135,7 +135,7 @@ object WeworkGetImpl {
         weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
         weworkMessageBean.myInfo = myInfo
         WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
-        return true
+        return getCorpList(message)
     }
 
     /**
@@ -237,5 +237,40 @@ object WeworkGetImpl {
             WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
         }
         return true
+    }
+
+    /**
+     * 获取企业列表
+     */
+    fun getCorpList(message: WeworkMessageBean): Boolean {
+        goHomeTab("消息")
+        val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
+            .firstOrNull { it.text == null }
+        AccessibilityUtil.performClick(firstTv, retry = false)
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
+        val listviewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+            .filter { it.childCount >= 2 }
+        val list = listviewList.firstOrNull()
+        if (list != null) {
+            val corpList = arrayListOf<String>()
+            for (i in 0 until list.childCount) {
+                val item = list.getChild(i)
+                val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView)
+                val textList = tvList.filter { it.text != null }.map { it.text.toString() }
+                if (textList.isNotEmpty()) {
+                    corpList.add(textList[0])
+                }
+            }
+            LogUtils.d("我的企业", GsonUtils.toJson(corpList))
+            val weworkMessageBean = WeworkMessageBean()
+            weworkMessageBean.type = WeworkMessageBean.GET_CORP_LIST
+            weworkMessageBean.titleList = corpList
+            WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
+            goHome()
+            return true
+        } else {
+            LogUtils.e("未找到企业列表")
+            return false
+        }
     }
 }

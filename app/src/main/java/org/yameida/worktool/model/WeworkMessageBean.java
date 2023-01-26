@@ -36,6 +36,7 @@ public class WeworkMessageBean {
      * 从外部群添加好友 ADD_FRIEND_BY_GROUP
      * 添加待办 ADD_NEED_DEAL
      * 打卡 CLOCK_IN
+     * 切换企业 SWITCH_CORP
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -47,6 +48,7 @@ public class WeworkMessageBean {
      * 获取好友信息 GET_FRIEND_INFO
      * 获取我的信息 GET_MY_INFO
      * 获取最近聊天列表 GET_RECENT_LIST
+     * 获取企业列表 GET_CORP_LIST
      */
     public static final int HEART_BEAT = 11;
     public static final int TYPE_RECEIVE_MESSAGE_LIST = 101;
@@ -74,6 +76,7 @@ public class WeworkMessageBean {
     public static final int ADD_FRIEND_BY_GROUP = 220;
     public static final int ADD_NEED_DEAL = 221;
     public static final int CLOCK_IN = 222;
+    public static final int SWITCH_CORP = 223;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -84,6 +87,7 @@ public class WeworkMessageBean {
     public static final int GET_MY_INFO = 503;
     public static final int GET_GROUP_QRCODE = 504;
     public static final int GET_RECENT_LIST = 505;
+    public static final int GET_CORP_LIST = 506;
 
     /**
      * roomType
