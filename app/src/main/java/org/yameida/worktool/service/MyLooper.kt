@@ -187,6 +187,9 @@ object MyLooper {
             WeworkMessageBean.GET_RECENT_LIST -> {
                 WeworkController.getRecentList(message)
             }
+            WeworkMessageBean.GET_CORP_LIST -> {
+                WeworkController.getCorpList(message)
+            }
             WeworkMessageBean.ROBOT_CONTROLLER_TEST -> {
                 WeworkController.test(message)
             }

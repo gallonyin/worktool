@@ -412,4 +412,14 @@ object WeworkController {
         return WeworkGetImpl.getRecentList(message)
     }
 
+    /**
+     * 获取企业列表
+     * @see WeworkMessageBean.GET_CORP_LIST
+     */
+    @RequestMapping
+    fun getCorpList(message: WeworkMessageBean): Boolean {
+        LogUtils.d("getCorpList():")
+        return WeworkGetImpl.getCorpList(message)
+    }
+
 }
