@@ -9,8 +9,8 @@ android {
         applicationId "org.yameida.worktool"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 253
-        versionName "2.5.3"
+        versionCode 2540
+        versionName "2.5.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
