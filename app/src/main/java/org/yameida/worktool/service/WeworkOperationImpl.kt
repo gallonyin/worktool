@@ -1595,10 +1595,18 @@ object WeworkOperationImpl {
                 val item = AccessibilityUtil.findOneByDesc(getRoot(), groupTemplate)
                 if (item != null) {
                     AccessibilityUtil.performClick(item)
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                     val useTemplateTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用该模板")
                     if (useTemplateTv != null) {
                         AccessibilityUtil.performClick(useTemplateTv)
-                        val useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用", exact = true)
+                        var useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用", exact = true, timeout = 2000)
+                        if (useTv == null) {
+                            val useTemplateTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用该模板")
+                            if (useTemplateTv != null) {
+                                AccessibilityUtil.performClick(useTemplateTv)
+                            }
+                            useTv = AccessibilityUtil.findOneByDesc(getRoot(), "使用", exact = true, timeout = 2000)
+                        }
                         if (useTv != null) {
                             AccessibilityUtil.performClick(useTv)
                             return true
