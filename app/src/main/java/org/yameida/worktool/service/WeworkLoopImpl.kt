@@ -57,10 +57,10 @@ object WeworkLoopImpl {
                 if (item.parent != null && item.parent.childCount > 1) {
                     LogUtils.d("通讯录有红点")
                     AccessibilityUtil.performClick(item)
-                    val hasRecommendFriend = AccessibilityUtil.findOneByText(getRoot(), "可能的", timeout = Constant.POP_WINDOW_INTERVAL)
+                    val hasRecommendFriend = AccessibilityUtil.findOneByText(getRoot(), "可能的同事", exact = true, timeout = Constant.POP_WINDOW_INTERVAL)
                     if (hasRecommendFriend != null) {
                         LogUtils.d("有可能认识的人")
-                        AccessibilityUtil.performClick(hasRecommendFriend)
+                        AccessibilityUtil.performClick(AccessibilityUtil.findBackNode(hasRecommendFriend))
                         goHome()
                         return false
                     }
@@ -116,17 +116,39 @@ object WeworkLoopImpl {
             val title = titleList.joinToString()
             LogUtils.v("聊天: $title")
             log("聊天: $title")
-            //聊天消息列表 1ListView 0RecycleView xViewGroup
-            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
-            if (list != null) {
-                LogUtils.v("消息条数: " + list.childCount)
-                val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
-                for (i in 0 until list.childCount) {
-                    val item = list.getChild(i)
-                    if (item != null && item.childCount > 0) {
-                        messageList.add(parseChatMessageItem(item, roomType))
+            val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
+            val messageList2 = arrayListOf<WeworkMessageBean.SubMessageBean>()
+            do {
+                messageList.clear()
+                messageList2.clear()
+                //聊天消息列表 1ListView 0RecycleView xViewGroup
+                val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list != null) {
+                    LogUtils.v("消息条数: " + list.childCount)
+                    for (i in 0 until list.childCount) {
+                        val item = list.getChild(i)
+                        if (item != null && item.childCount > 0) {
+                            messageList.add(parseChatMessageItem(item, roomType))
+                        }
                     }
                 }
+                sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                LogUtils.v("双重校验聊天列表")
+                val list2 = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list2 != null) {
+                    LogUtils.v("list2消息条数: " + list2.childCount)
+                    for (i in 0 until list2.childCount) {
+                        val item = list2.getChild(i)
+                        if (item != null && item.childCount > 0) {
+                            messageList2.add(parseChatMessageItem(item, roomType))
+                        }
+                    }
+                }
+                if (messageList != messageList2) {
+                    LogUtils.e("双重校验聊天列表失败")
+                }
+            } while (messageList != messageList2)
+            if (messageList.isNotEmpty()) {
                 WeworkController.weworkService.webSocketManager.send(
                     WeworkMessageBean(
                         null, null,
@@ -446,8 +468,11 @@ object WeworkLoopImpl {
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
             } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
                 LogUtils.v("头像在右边 本条消息发送者为自己")
+                var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
                 val subLayout = relativeLayoutItem.getChild(0)
                 if (subLayout.childCount > 0) {
+                    textType = WeworkTextUtil.getTextType(subLayout)
+                    LogUtils.v("textType: $textType")
                     val tvList = AccessibilityUtil.findAllOnceByClazz(
                         subLayout.getChild(subLayout.childCount - 1),
                         Views.TextView
@@ -461,7 +486,13 @@ object WeworkLoopImpl {
                         }
                     }
                 }
-                message = WeworkMessageBean.SubMessageBean(1, 0, itemMessageList, nameList)
+                //todo 发视频和文件也可能存在上传中状态
+                if (textType == WeworkMessageBean.TEXT_TYPE_LINK && itemMessageList.size == 1
+                    && itemMessageList[0].text.matches("[0-9]+%".toRegex())) {
+                    textType = WeworkMessageBean.TEXT_TYPE_IMAGE
+                    itemMessageList.clear()
+                }
+                message = WeworkMessageBean.SubMessageBean(1, textType, itemMessageList, nameList)
             } else {
                 // 没有头像的消息（撤销消息、其他可能的系统消息）
                 val tvList = AccessibilityUtil.findAllOnceByClazz(node, Views.TextView)
