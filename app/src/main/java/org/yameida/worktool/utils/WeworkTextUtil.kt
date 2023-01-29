@@ -340,13 +340,22 @@ object WeworkTextUtil {
             if (nameList.isEmpty()) {
                 val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT)
                 if (backNode != null) {
-                    val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
-                    if (textNode != null && replyContent.isNotEmpty()) {
+                    if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
+                        && (replyTextType == getTextTypeFromItem(item))) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                         return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
-                    } else if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE
-                                    || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
-                            && (replyTextType == getTextTypeFromItem(item))) {
+                    }
+                    if ((replyTextType == WeworkMessageBean.TEXT_TYPE_FILE || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
+                        && replyContent.contains("###")) {
+                        val replyContentList = replyContent.split("###")
+                        if (AccessibilityUtil.findOnceByText(backNode, replyContentList[0]) != null
+                            && AccessibilityUtil.findOnceByText(backNode, replyContentList[1]) != null) {
+                            LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                        }
+                    }
+                    val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
+                    if (textNode != null && replyContent.isNotEmpty()) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                         return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
                     }
@@ -356,13 +365,22 @@ object WeworkTextUtil {
                 if (name == replyNick) {
                     val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP)
                     if (backNode != null) {
-                        val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
-                        if (textNode != null && replyContent.isNotEmpty()) {
+                        if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
+                            && (replyTextType == getTextTypeFromItem(item))) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                             return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
-                        } else if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE
-                                    || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
-                            && (replyTextType == getTextTypeFromItem(item))) {
+                        }
+                        if ((replyTextType == WeworkMessageBean.TEXT_TYPE_FILE || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
+                            && replyContent.contains("###")) {
+                            val replyContentList = replyContent.split("###")
+                            if (AccessibilityUtil.findOnceByText(backNode, replyContentList[0]) != null
+                                && AccessibilityUtil.findOnceByText(backNode, replyContentList[1]) != null) {
+                                LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
+                                return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                            }
+                        }
+                        val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
+                        if (textNode != null && replyContent.isNotEmpty()) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                             return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
                         }
