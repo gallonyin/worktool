@@ -159,6 +159,7 @@ object WeworkLoopImpl {
                         null
                     )
                 )
+                SPUtils.getInstance("lastSyncMessage").put(title, messageList.last().itemMessageList.lastOrNull()?.text)
                 //推测是否回复并在房间等待指令
                 if (needInfer) {
                     val lastMessage = messageList.lastOrNull()
@@ -280,8 +281,9 @@ object WeworkLoopImpl {
         val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
         if (listview != null && listview.childCount >= 2) {
             if (hasNewMessage != null) {
+                //发现新消息
                 if (checkUnreadChatRoom(listview)) {
-                    //如果有红点 点击进入聊天页
+                    //如果房间有红点 点击进入聊天页
                     return true
                 } else {
                     AccessibilityUtil.clickByNode(WeworkController.weworkService, hasNewMessage)
@@ -290,13 +292,17 @@ object WeworkLoopImpl {
                     sleep(Constant.POP_WINDOW_INTERVAL / 5)
                     //双击消息再试一次
                     if (checkUnreadChatRoom(listview)) {
-                        //如果有红点 点击进入聊天页
+                        //如果房间有红点 点击进入聊天页
                         return true
                     }
                 }
             } else {
+                //未发现新消息
                 if (checkNoTipMessage(listview) == 1) {
                     //如果发现拉入群聊/修改群名/移出群聊 点击进入聊天页
+                    return true
+                } else if (checkNoSyncMessage(listview) == 1) {
+                    //消息不一致
                     return true
                 } else {
                     LogUtils.v("未发现新消息或无提示消息")
@@ -334,6 +340,9 @@ object WeworkLoopImpl {
                                 return true
                             }
                             if (checkNoTipMessage(listview) != 0) {
+                                return true
+                            }
+                            if (checkNoSyncMessage(listview) != 0) {
                                 return true
                             }
                             return false
@@ -388,14 +397,14 @@ object WeworkLoopImpl {
         val listBriefList = arrayListOf<List<CharSequence>>()
         for (i in 0 until list.childCount) {
             val item = list.getChild(i)
-            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
+            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }
             listBriefList.add(tvList)
             //tvList title/time/content
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
                 if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
                     if (tvList[2].contains("(移出了群聊)|(邀请你加入了)|(修改群名为)|(此群为外部群)|(加入了外部群)".toRegex())) {
-                        val interval = System.currentTimeMillis() / 1000 - SPUtils.getInstance("noTipMessage").getLong(tvList[0].toString(), 0)
+                        val interval = System.currentTimeMillis() / 1000 - SPUtils.getInstance("noTipMessage").getLong(tvList[0], 0)
                         if (interval > 3600) {
                             LogUtils.i("发现无提示消息: $tvList")
                             log("发现无提示消息: $tvList")
@@ -404,11 +413,53 @@ object WeworkLoopImpl {
                             } else {
                                 AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
                             }
-                            SPUtils.getInstance("noTipMessage").put(tvList[0].toString(), System.currentTimeMillis() / 1000)
+                            SPUtils.getInstance("noTipMessage").put(tvList[0], System.currentTimeMillis() / 1000)
                             return 1
                         } else {
                             LogUtils.v("发现无提示消息: $tvList 消息在 $interval 秒前已被查看")
                         }
+                    }
+                } else {
+                    return -1
+                }
+            }
+        }
+        return 0
+    }
+
+    /**
+     * 检查首页-聊天列表是否有不一致消息
+     * @return -1当前列表不存在一周内消息 0未发现不一致消息 1发现不一致消息
+     */
+    private fun checkNoSyncMessage(list: AccessibilityNodeInfo): Int {
+        list.refresh()
+        val listBriefList = arrayListOf<List<CharSequence>>()
+        for (i in 0 until list.childCount) {
+            val item = list.getChild(i)
+            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }
+            listBriefList.add(tvList)
+            //tvList title/time/content
+            if (tvList.size == 3) {
+                //只查看最近一周内的消息
+                val title = tvList[0]
+                if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
+                    val lastSyncMessage = SPUtils.getInstance("lastSyncMessage").getString(title, null)
+                        ?: continue
+                    if (tvList[2].contains(lastSyncMessage.replace("\n", " "))) {
+                        continue
+                    }
+                    if (SPUtils.getInstance("noSyncMessage").getString(title) != lastSyncMessage) {
+                        LogUtils.e("发现不一致消息: $tvList")
+                        error("发现不一致消息: $tvList")
+                        SPUtils.getInstance("noSyncMessage").put(title, lastSyncMessage)
+                        if (AccessibilityUtil.performClick(item)) {
+                            //进入聊天页 下一步 getChatMessageList
+                        } else {
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                        }
+                        return 1
+                    } else {
+                        LogUtils.v("消息多次不一致: $tvList")
                     }
                 } else {
                     return -1
