@@ -1080,7 +1080,9 @@ object WeworkOperationImpl {
             if (tvCorp != null) {
                 LogUtils.d("找到目标企业: $objectName")
                 AccessibilityUtil.performClick(tvCorp)
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime)
                 goHome()
+                WeworkGetImpl.getMyInfo(message)
                 return true
             } else {
                 LogUtils.e("未找到目标企业: $objectName")
