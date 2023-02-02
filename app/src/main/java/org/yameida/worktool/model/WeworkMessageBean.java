@@ -174,6 +174,8 @@ public class WeworkMessageBean {
     public String extraText;
     //接收消息类型
     public Integer textType;
+    //最大尝试次数
+    public Integer maxRetryCount;
 
     //群名
     public String groupName;

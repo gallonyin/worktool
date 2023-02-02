@@ -549,8 +549,10 @@ object WeworkOperationImpl {
         fileUrl: String?,
         fileBase64: String?,
         fileType: String,
-        extraText: String? = null
+        extraText: String? = null,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 1
         val startTime = System.currentTimeMillis()
         if (!PermissionUtils.isGrantedDrawOverlays()) {
             LogUtils.e("未打开悬浮窗权限")
@@ -594,13 +596,16 @@ object WeworkOperationImpl {
                         }
                         currentTime = System.currentTimeMillis()
                     }
-                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
+                    if (Random().nextBoolean() && relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                         return true
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
+                        if (retryCount > 0) {
+                            return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+                        }
                         uploadCommandResult(
                             message,
                             ExecCallbackBean.ERROR_RELAY,
@@ -611,6 +616,9 @@ object WeworkOperationImpl {
                     }
                 } else {
                     LogUtils.e("文件存储本地失败 $filePath")
+                    if (retryCount > 0) {
+                        return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+                    }
                     uploadCommandResult(
                         message,
                         ExecCallbackBean.ERROR_FILE_STORAGE,
@@ -621,6 +629,9 @@ object WeworkOperationImpl {
                 }
             } else {
                 LogUtils.e("文件下载失败")
+                if (retryCount > 0) {
+                    return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+                }
                 uploadCommandResult(
                     message,
                     ExecCallbackBean.ERROR_FILE_DOWNLOAD,
@@ -668,6 +679,9 @@ object WeworkOperationImpl {
                     return true
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
+                    if (retryCount > 0) {
+                        return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+                    }
                     uploadCommandResult(
                         message,
                         ExecCallbackBean.ERROR_RELAY,
@@ -678,6 +692,9 @@ object WeworkOperationImpl {
                 }
             } else {
                 LogUtils.e("文件存储本地失败 $filePath")
+                if (retryCount > 0) {
+                    return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+                }
                 uploadCommandResult(
                     message,
                     ExecCallbackBean.ERROR_FILE_STORAGE,
@@ -687,6 +704,10 @@ object WeworkOperationImpl {
                 return false
             }
         } else {
+            LogUtils.e("未找到文件资源参数")
+            if (retryCount > 0) {
+                return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
+            }
             uploadCommandResult(
                 message,
                 ExecCallbackBean.ERROR_ILLEGAL_DATA,
