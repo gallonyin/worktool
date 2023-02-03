@@ -9,7 +9,7 @@ android {
         applicationId "org.yameida.worktool"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 2550
+        versionCode 2551
         versionName "2.5.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
