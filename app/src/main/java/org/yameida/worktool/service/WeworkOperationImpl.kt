@@ -596,7 +596,7 @@ object WeworkOperationImpl {
                         }
                         currentTime = System.currentTimeMillis()
                     }
-                    if (Random().nextBoolean() && relaySelectTarget(titleList, extraText, timeout = 10000)) {
+                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
