@@ -2,15 +2,19 @@ package org.yameida.worktool.service
 
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
-import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.SPUtils
+import com.blankj.utilcode.util.*
 import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
 import org.yameida.worktool.model.WeworkMessageBean
+import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
+import java.io.File
 import java.lang.Exception
 import java.lang.StringBuilder
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * 获取数据类型 201 202 主循环
@@ -128,7 +132,7 @@ object WeworkLoopImpl {
                     for (i in 0 until list.childCount) {
                         val item = list.getChild(i)
                         if (item != null && item.childCount > 0) {
-                            messageList.add(parseChatMessageItem(item, roomType))
+                            messageList.add(parseChatMessageItem(item, titleList, roomType))
                         }
                     }
                 }
@@ -140,7 +144,7 @@ object WeworkLoopImpl {
                     for (i in 0 until list2.childCount) {
                         val item = list2.getChild(i)
                         if (item != null && item.childCount > 0) {
-                            messageList2.add(parseChatMessageItem(item, roomType))
+                            messageList2.add(parseChatMessageItem(item, titleList, roomType))
                         }
                     }
                 }
@@ -474,6 +478,7 @@ object WeworkLoopImpl {
      */
     private fun parseChatMessageItem(
         node: AccessibilityNodeInfo,
+        titleList: ArrayList<String>,
         roomType: Int
     ): WeworkMessageBean.SubMessageBean {
         val message: WeworkMessageBean.SubMessageBean
@@ -517,6 +522,52 @@ object WeworkLoopImpl {
                     }
                 }
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
+                //图片类型特殊处理
+                if (textType == 2) {
+                    val lastPicCreateTime = MultiFileObserver.lastPicCreateTime
+                    val lastPicPath = MultiFileObserver.lastPicPath
+                    LogUtils.d("发现图片类型应该点击")
+                    AccessibilityUtil.performClickWithSon(relativeLayoutContent)
+                    AccessibilityExtraUtil.loadingPage("com.tencent.wework.msg.controller.ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                    LogUtils.d("发现图片类型 查看图片检查有无新图片产生")
+                    if (MultiFileObserver.lastPicCreateTime > lastPicCreateTime) {
+                        LogUtils.d("正在下载图片...")
+                        var downloading = true
+                        val startTime = System.currentTimeMillis()
+                        var currentTime = startTime
+                        while (currentTime - startTime < Constant.LONG_INTERVAL) {
+                            if (!lastPicPath.equals(MultiFileObserver.lastPicPath)) {
+                                LogUtils.d("下载图片完成")
+                                downloading = false
+                                try {
+                                    val df = SimpleDateFormat("MMdd_HHmmss")
+                                    val targetPath = "${
+                                        Utils.getApp().getExternalFilesDir("copy")
+                                    }/${df.format(Date())}/${File(MultiFileObserver.lastPicPath).name}.png"
+                                    if (FileUtils.copy(MultiFileObserver.lastPicPath, targetPath)) {
+                                        LogUtils.d("复制图片完成: $targetPath")
+                                    } else {
+                                        LogUtils.e("复制图片失败 请检查权限: $targetPath")
+                                    }
+                                } catch (e: Exception) {
+                                    LogUtils.e("接收图片出错", e)
+                                }
+                                break
+                            }
+                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                            currentTime = System.currentTimeMillis()
+                        }
+                        if (downloading) {
+                            LogUtils.e("下载图片失败")
+                        }
+                    } else {
+                        LogUtils.d("该图片已下载 忽略")
+                    }
+                    while (WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
+                        AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                    }
+                }
             } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
                 LogUtils.v("头像在右边 本条消息发送者为自己")
                 var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN

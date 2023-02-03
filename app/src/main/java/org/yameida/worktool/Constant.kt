@@ -7,6 +7,7 @@ object Constant {
     val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10", "4.0.12", "4.0.16", "4.0.18", "4.0.19", "4.0.20", "4.1.0")
     const val PACKAGE_NAMES = "com.tencent.wework"
     const val WEWORK_NOTIFY = "wework_notify"
+    const val LONG_INTERVAL = 5000L
     const val CHANGE_PAGE_INTERVAL = 1000L
     const val POP_WINDOW_INTERVAL = 500L
     private const val DEFAULT_HOST = "wss://worktool.asrtts.cn"

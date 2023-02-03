@@ -35,32 +35,37 @@ public class PermissionPageManagement {
      * @param activity
      */
     public static void goToSetting(Activity activity){
-        switch (Build.MANUFACTURER){
-            case MANUFACTURER_HUAWEI:
-                Huawei(activity);
-                break;
-            case MANUFACTURER_MEIZU:
-                Meizu(activity);
-                break;
-            case MANUFACTURER_XIAOMI:
-                Xiaomi(activity);
-                break;
-            case MANUFACTURER_SONY:
-                Sony(activity);
-                break;
-            case MANUFACTURER_OPPO:
-                OPPO(activity);
-                break;
-            case MANUFACTURER_VIVO:
-                VIVO(activity);
-                break;
-            case MANUFACTURER_LG:
-                LG(activity);
-                break;
-            default:
-                ApplicationInfo(activity);
-                Log.e("goToSetting", "目前暂不支持此系统");
-                break;
+        try {
+            switch (Build.MANUFACTURER) {
+                case MANUFACTURER_HUAWEI:
+                    Huawei(activity);
+                    break;
+                case MANUFACTURER_MEIZU:
+                    Meizu(activity);
+                    break;
+                case MANUFACTURER_XIAOMI:
+                    Xiaomi(activity);
+                    break;
+                case MANUFACTURER_SONY:
+                    Sony(activity);
+                    break;
+                case MANUFACTURER_OPPO:
+                    OPPO(activity);
+                    break;
+                case MANUFACTURER_VIVO:
+                    VIVO(activity);
+                    break;
+                case MANUFACTURER_LG:
+                    LG(activity);
+                    break;
+                default:
+                    ApplicationInfo(activity);
+                    Log.e("goToSetting", "目前暂不支持此系统");
+                    break;
+            }
+        } catch (Exception e) {
+            Log.e("goToSetting", "Error 目前暂不支持此系统");
+            ApplicationInfo(activity);
         }
     }
 

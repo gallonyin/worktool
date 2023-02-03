@@ -135,6 +135,7 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
  * 后退
  */
 fun backPress() {
+    val clazz = WeworkController.weworkService.currentClass
     val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
     if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView, retry = false)) {
         LogUtils.v("找到回退按钮")
@@ -164,10 +165,12 @@ fun backPress() {
                     } else {
                         LogUtils.d("未找到对话框 点击bar中心")
                         AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
-                        sleep(Constant.POP_WINDOW_INTERVAL)
-                        val firstEmptyTextView = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView).firstOrNull { it.text.isNullOrEmpty() }
-                        if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
-                            AccessibilityUtil.performClick(firstEmptyTextView)
+                        sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
+                        if (WeworkController.weworkService.currentClass == clazz) {
+                            val firstEmptyTextView = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView).firstOrNull { it.text.isNullOrEmpty() }
+                            if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
+                                AccessibilityUtil.performClick(firstEmptyTextView)
+                            }
                         }
                     }
                 }
