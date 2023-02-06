@@ -51,6 +51,8 @@ object MyLooper {
     fun init() {
         LogUtils.i("init myLooper...")
         SPUtils.getInstance("noTipMessage").clear()
+        SPUtils.getInstance("lastSyncMessage").clear()
+        SPUtils.getInstance("noSyncMessage").clear()
         SPUtils.getInstance("limit").clear()
     }
 

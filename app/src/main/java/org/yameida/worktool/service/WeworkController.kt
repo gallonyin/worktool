@@ -334,7 +334,8 @@ object WeworkController {
             message.fileUrl,
             message.fileBase64,
             message.fileType,
-            message.extraText
+            message.extraText,
+            message.maxRetryCount
         )
     }
 

@@ -13,9 +13,13 @@ import org.yameida.worktool.R
 import org.yameida.worktool.model.network.CheckUpdateResult
 import org.yameida.worktool.model.network.GetMyConfigResult
 import update.UpdateAppUtils
+import java.io.File
 
 object HttpUtil {
 
+    /**
+     * 检查更新
+     */
     fun checkUpdate() {
         OkGo.get<String>(Constant.getCheckUpdateUrl())
             .execute(object : StringCallback() {
@@ -63,6 +67,9 @@ object HttpUtil {
             })
     }
 
+    /**
+     * 获取机器人配置
+     */
     fun getMyConfig(toast: Boolean = true) {
         if (Constant.robotId.isBlank()) {
             if (toast) {
@@ -98,6 +105,26 @@ object HttpUtil {
                 override fun onError(response: Response<String>) {
                     ToastUtils.showLong("获取配置失败 请检查机器人ID")
                     LogUtils.e("获取配置失败 请检查机器人ID")
+                }
+            })
+    }
+
+    /**
+     * 推送图片
+     */
+    fun pushImage(url: String, groupName: String, receivedName: String?, imagePath: String) {
+        OkGo.post<String>(url)
+            .params("groupName", groupName)
+            .params("receivedName", receivedName ?: "")
+            .params("image", File(imagePath))
+            .execute(object : StringCallback() {
+                override fun onSuccess(response: Response<String>) {
+                    LogUtils.d("推送图片成功: $groupName $receivedName $imagePath")
+                }
+
+                override fun onError(response: Response<String>) {
+                    ToastUtils.showLong("推送图片失败")
+                    LogUtils.e("推送图片失败")
                 }
             })
     }
