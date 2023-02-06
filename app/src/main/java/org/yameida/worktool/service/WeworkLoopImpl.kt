@@ -30,7 +30,7 @@ object WeworkLoopImpl {
         mainLoopRunning = true
         try {
             while (mainLoopRunning) {
-                if (!isAtHome() && WeworkRoomUtil.getRoomType(false) != WeworkMessageBean.ROOM_TYPE_UNKNOWN) {
+                if (!isAtHome()) {
                     LogUtils.d("当前在房间: ")
                     getChatMessageList()
                     if (mainLoopRunning) {
@@ -116,7 +116,7 @@ object WeworkLoopImpl {
         if (titleList.contains("对方正在输入…")) {
             titleList = WeworkRoomUtil.getFriendName()
         }
-        if (titleList.size > 0) {
+        if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN && titleList.size > 0) {
             val title = titleList.joinToString()
             LogUtils.v("聊天: $title")
             log("聊天: $title")
@@ -208,6 +208,20 @@ object WeworkLoopImpl {
                 LogUtils.e("未找到聊天消息列表")
                 error("未找到聊天消息列表")
             }
+        } else if (Constant.autoPublishComment && WeworkController.weworkService.currentClass == "com.tencent.wework.moments.controller.MomentsIndexListActivity") {
+            LogUtils.d("自动发表朋友圈")
+            val tvGoPublish = AccessibilityUtil.findOneByText(getRoot(), "去发表", exact = true)
+            if (tvGoPublish != null) {
+                AccessibilityUtil.performClick(tvGoPublish)
+                AccessibilityExtraUtil.loadingPage("MomentsEnterpriseNotificationListActivity")
+                val tvPublishList = AccessibilityUtil.findAllByText(getRoot(), "发表", exact = true)
+                LogUtils.d("发现${tvPublishList.size}条待发送")
+                for (tvPublish in tvPublishList) {
+                    AccessibilityUtil.performClick(tvPublish)
+                }
+            }
+        } else {
+            LogUtils.v("退出非聊天房间 ${WeworkController.weworkService.currentClass}")
         }
         return false
     }
@@ -454,7 +468,7 @@ object WeworkLoopImpl {
                     }
                     if (SPUtils.getInstance("noSyncMessage").getString(title) != lastSyncMessage) {
                         LogUtils.e("发现不一致消息: $tvList")
-                        error("发现不一致消息: $tvList")
+                        error("发现不一致消息: $tvList $lastSyncMessage")
                         SPUtils.getInstance("noSyncMessage").put(title, lastSyncMessage)
                         if (AccessibilityUtil.performClick(item)) {
                             //进入聊天页 下一步 getChatMessageList
@@ -523,7 +537,7 @@ object WeworkLoopImpl {
                 }
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
-                if (textType == 2) {
+                if (Constant.pushImage && textType == 2) {
                     val lastPicCreateTime = MultiFileObserver.lastPicCreateTime
                     val lastPicPath = MultiFileObserver.lastPicPath
                     LogUtils.d("发现图片类型应该点击")

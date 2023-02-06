@@ -22,6 +22,8 @@ object Constant {
     var autoReply = SPUtils.getInstance().getInt("autoReply", 1)
     var groupStrict = false
     var friendRemarkStrict = false
+    var pushImage = false
+    var autoPublishComment = false
     var robotId: String
         get() = SPUtils.getInstance().getString("robotId", SPUtils.getInstance().getString("LISTEN_CHANNEL_ID", ""))
         set(value) {
