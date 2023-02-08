@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.FileObserver
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import com.blankj.utilcode.util.*
@@ -13,6 +14,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
+import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.utils.*
 import java.lang.Exception
 import kotlin.concurrent.thread
@@ -28,6 +30,10 @@ class WeworkService : AccessibilityService() {
     var currentPackage = ""
     var currentClass = ""
 
+    companion object {
+        private var mFileObserver: FileObserver? = null
+    }
+
     override fun onServiceConnected() {
         LogUtils.i("初始化成功")
         //隐藏软键盘模式
@@ -37,6 +43,8 @@ class WeworkService : AccessibilityService() {
         initWebSocket()
         //初始化消息处理器
         MyLooper.init()
+        //初始化图片接收
+        initObserver()
         //开发者可以在这里添加测试代码 启动时调用一次
         thread { Demo.test(AppUtils.isAppDebug()) }
 
@@ -57,6 +65,22 @@ class WeworkService : AccessibilityService() {
         val listener = EchoWebSocketListener()
         LogUtils.d("initWebSocket: $url")
         webSocketManager = WebSocketManager(url, listener)
+    }
+
+    private fun initObserver() {
+        try {
+            LogUtils.d("initObserver... mFileObserver is null ? ${mFileObserver == null}")
+            if (mFileObserver == null) {
+                mFileObserver =
+                    MultiFileObserver("/storage/emulated/0/Android/data/com.tencent.wework/files/imagecache/imagemsg2");
+                mFileObserver?.startWatching()
+            } else {
+                mFileObserver?.stopWatching()
+                mFileObserver?.startWatching()
+            }
+        } catch (e: Exception) {
+            LogUtils.e(e)
+        }
     }
 
     /**

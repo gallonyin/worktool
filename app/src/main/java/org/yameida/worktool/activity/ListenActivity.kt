@@ -10,19 +10,15 @@ import com.umeng.analytics.MobclickAgent
 import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
 import android.content.*
-import android.os.FileObserver
 import android.text.InputType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog
-import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.utils.*
 import org.yameida.worktool.utils.envcheck.CheckHook
 import org.yameida.worktool.utils.envcheck.CheckRoot
 
 
 class ListenActivity : AppCompatActivity() {
-
-    private var mFileObserver: FileObserver? = null
 
     companion object {
         /**
@@ -46,7 +42,6 @@ class ListenActivity : AppCompatActivity() {
         initView()
         initAccessibility()
         initOverlays()
-        initObserver()
         initData()
         PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
@@ -157,14 +152,6 @@ class ListenActivity : AppCompatActivity() {
         })
         if (Settings.canDrawOverlays(Utils.getApp()) && FlowPermissionHelper.canBackgroundStart(Utils.getApp())) {
             FloatWindowHelper.showWindow()
-        }
-    }
-
-    private fun initObserver() {
-        if (mFileObserver == null) {
-            mFileObserver =
-                MultiFileObserver("/storage/emulated/0/Android/data/com.tencent.wework/files/imagecache/imagemsg2");
-            mFileObserver?.startWatching()
         }
     }
 
