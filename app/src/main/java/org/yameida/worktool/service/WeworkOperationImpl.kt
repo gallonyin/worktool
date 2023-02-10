@@ -1932,6 +1932,7 @@ object WeworkOperationImpl {
      * 获取群二维码并上传后台
      */
     fun getGroupQrcode(groupName: String, groupRemark: String?): Boolean {
+        if (!Constant.groupQrCode) return true
         if (AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL) != null ||
             (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager())) {
             val tvList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.TextView)
