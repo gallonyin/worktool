@@ -70,6 +70,12 @@
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name=".activity.GetScreenShotActivity"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.TranslucentNoTitleFullscreen" />
         <service
             android:name="org.yameida.worktool.service.WeworkService"
             android:enabled="true"
@@ -84,6 +90,9 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+        <service
+            android:foregroundServiceType="mediaProjection"
+            android:name=".service.PlayNotifyService" />
 
         <provider
             android:name=".utils.GenericFileProvider"

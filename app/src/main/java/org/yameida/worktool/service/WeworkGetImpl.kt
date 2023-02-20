@@ -256,7 +256,7 @@ object WeworkGetImpl {
             for (i in 0 until list.childCount) {
                 val item = list.getChild(i)
                 val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView)
-                val textList = tvList.filter { it.text != null }.map { it.text.toString() }
+                val textList = tvList.mapNotNull { it.text?.toString() }
                 if (textList.isNotEmpty()) {
                     corpList.add(textList[0])
                 }

@@ -12,6 +12,7 @@ import com.hjq.toast.ToastUtils
 import com.tendcloud.tenddata.TalkingDataSDK
 import com.umeng.commonsdk.UMConfigure
 import org.yameida.worktool.config.GlobalException
+import org.yameida.worktool.notification.PlayNotifyManager
 import org.yameida.worktool.utils.IWWAPIUtil
 import update.UpdateAppUtils
 
@@ -52,6 +53,8 @@ class MyApplication : Application() {
         IWWAPIUtil.init(this)
         //初始化自动更新
         UpdateAppUtils.init(this)
+        //初始化前台服务
+        PlayNotifyManager.show()
         //设置全局异常捕获重启
         Thread.setDefaultUncaughtExceptionHandler(GlobalException.getInstance())
     }

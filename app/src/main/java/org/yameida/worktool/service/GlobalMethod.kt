@@ -1,5 +1,7 @@
 package org.yameida.worktool.service
 
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.view.accessibility.AccessibilityNodeInfo
@@ -14,6 +16,19 @@ import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.FloatWindowHelper
 import org.yameida.worktool.utils.Views
 import java.lang.Exception
+
+var requestCode = 1000000
+fun fastStartActivity(context: Context, clazz: Class<*>, flags: Int = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP, i: Intent? = null) {
+    val intent = i ?: Intent(context, clazz)
+    intent.flags = flags
+    val pendingIntent = PendingIntent.getActivity(context, requestCode++, intent, 0)
+    try {
+        pendingIntent.send()
+    } catch (e: PendingIntent.CanceledException) {
+        e.printStackTrace()
+        context.startActivity(intent)
+    }
+}
 
 /**
  * 进入首页-消息页

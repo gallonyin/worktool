@@ -10,10 +10,14 @@ import com.umeng.analytics.MobclickAgent
 import kotlinx.android.synthetic.main.activity_listen.*
 import org.yameida.worktool.*
 import android.content.*
+import android.os.IBinder
 import android.text.InputType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog
+import org.yameida.worktool.service.PlayNotifyService
+import org.yameida.worktool.service.fastStartActivity
 import org.yameida.worktool.utils.*
+import org.yameida.worktool.utils.capture.MediaProjectionHolder
 import org.yameida.worktool.utils.envcheck.CheckHook
 import org.yameida.worktool.utils.envcheck.CheckRoot
 
@@ -43,6 +47,7 @@ class ListenActivity : AppCompatActivity() {
         initAccessibility()
         initOverlays()
         initData()
+        initNotification()
         PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
@@ -158,6 +163,24 @@ class ListenActivity : AppCompatActivity() {
     private fun initData() {
         HttpUtil.checkUpdate()
         HttpUtil.getMyConfig(toast = false)
+    }
+
+    private fun initNotification() {
+        if (!Constant.enableMediaProject) {
+            return
+        }
+        application.bindService(Intent(application, PlayNotifyService::class.java), object : ServiceConnection {
+            override fun onServiceDisconnected(name: ComponentName) {
+                LogUtils.d("onServiceDisconnected")
+            }
+            override fun onServiceConnected(name: ComponentName, iBinder: IBinder) {
+                LogUtils.d("onServiceConnected")
+            }
+        }, Context.BIND_AUTO_CREATE)
+        //开启屏幕录制权限
+        if (MediaProjectionHolder.mMediaProjection == null) {
+            fastStartActivity(this, GetScreenShotActivity::class.java)
+        }
     }
 
     private fun showSelectHostDialog() {

@@ -25,6 +25,7 @@ object Constant {
     var pushImage = false
     var autoPublishComment = false
     var groupQrCode = false
+    var enableMediaProject = false
     var robotId: String
         get() = SPUtils.getInstance().getString("robotId", SPUtils.getInstance().getString("LISTEN_CHANNEL_ID", ""))
         set(value) {
