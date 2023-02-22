@@ -28,7 +28,7 @@ object AccessibilityExtraUtil {
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            if (service.currentClass == clazz) {
+            if (service.currentClass == clazz || service.currentClass.split(".").last() == clazz) {
                 Log.v(tag, "loadingPage: $clazz")
                 return true
             }

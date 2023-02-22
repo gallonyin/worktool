@@ -112,7 +112,7 @@ object WeworkRoomUtil {
                 val needTrim = title.contains(Constant.regTrimTitle)
                 val trimTitle = title.replace(Constant.regTrimTitle, "")
                 AccessibilityUtil.findTextInput(getRoot(), trimTitle)
-                if (!AccessibilityExtraUtil.loadingPage("com.tencent.wework.contact.controller.GlobalSearchActivity")) {
+                if (!AccessibilityExtraUtil.loadingPage("GlobalSearchActivity")) {
                     LogUtils.e("未找到搜索页")
                     return false
                 }

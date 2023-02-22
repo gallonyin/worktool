@@ -542,7 +542,7 @@ object WeworkLoopImpl {
                     val lastPicPath = MultiFileObserver.lastPicPath
                     LogUtils.d("发现图片类型应该点击")
                     AccessibilityUtil.performClickWithSon(relativeLayoutContent)
-                    AccessibilityExtraUtil.loadingPage("com.tencent.wework.msg.controller.ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                    AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
                     LogUtils.d("发现图片类型 查看图片检查有无新图片产生")
                     if (MultiFileObserver.lastPicCreateTime > lastPicCreateTime) {
                         LogUtils.d("正在下载图片...")
