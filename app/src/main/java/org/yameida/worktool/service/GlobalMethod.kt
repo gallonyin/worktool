@@ -186,6 +186,11 @@ fun backPress() {
                             if (firstEmptyTextView != null && firstEmptyTextView.isClickable) {
                                 AccessibilityUtil.performClick(firstEmptyTextView)
                             }
+                            sleep(Constant.CHANGE_PAGE_INTERVAL)
+                            if (WeworkController.weworkService.currentClass == clazz
+                                && WeworkController.weworkService.currentPackage == Constant.PACKAGE_NAMES) {
+                                AccessibilityUtil.globalGoBack(WeworkController.weworkService)
+                            }
                         }
                     }
                 }
