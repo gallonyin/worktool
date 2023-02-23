@@ -37,6 +37,7 @@ public class WeworkMessageBean {
      * 添加待办 ADD_NEED_DEAL
      * 打卡 CLOCK_IN
      * 切换企业 SWITCH_CORP
+     * 推送链接 PUSH_LINK
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -77,6 +78,7 @@ public class WeworkMessageBean {
     public static final int ADD_NEED_DEAL = 221;
     public static final int CLOCK_IN = 222;
     public static final int SWITCH_CORP = 223;
+    public static final int PUSH_LINK = 224;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;

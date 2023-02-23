@@ -18,6 +18,9 @@ object Constant {
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
     val transformation = "AES/CBC/PKCS7Padding"
+    val weworkCorpId = ""
+    val weworkAgentId = ""
+    val weworkSchema = ""
     var encryptType = SPUtils.getInstance().getInt("encryptType", 1)
     var autoReply = SPUtils.getInstance().getInt("autoReply", 1)
     var groupStrict = false
@@ -26,6 +29,7 @@ object Constant {
     var autoPublishComment = false
     var groupQrCode = false
     var enableMediaProject = false
+    var enableSdkShare = false
     var robotId: String
         get() = SPUtils.getInstance().getString("robotId", SPUtils.getInstance().getString("LISTEN_CHANNEL_ID", ""))
         set(value) {

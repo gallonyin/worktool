@@ -9,6 +9,8 @@ import com.blankj.utilcode.util.Utils
 import com.efs.sdk.base.core.util.PackageUtil
 import com.google.gson.Gson
 import com.hjq.toast.ToastUtils
+import com.tencent.wework.api.IWWAPI
+import com.tencent.wework.api.WWAPIFactory
 import com.tendcloud.tenddata.TalkingDataSDK
 import com.umeng.commonsdk.UMConfigure
 import org.yameida.worktool.config.GlobalException
@@ -20,6 +22,7 @@ class MyApplication : Application() {
 
     companion object {
 
+        var iwwapi: IWWAPI? = null
         /**
          * 回到WorkTool首页 需要先授权显示悬浮窗
          */
@@ -57,6 +60,11 @@ class MyApplication : Application() {
         PlayNotifyManager.show()
         //设置全局异常捕获重启
         Thread.setDefaultUncaughtExceptionHandler(GlobalException.getInstance())
+        //注册企微分享
+        if (Constant.enableSdkShare) {
+            iwwapi = WWAPIFactory.createWWAPI(this)
+            iwwapi?.registerApp(Constant.weworkSchema)
+        }
     }
 
 }

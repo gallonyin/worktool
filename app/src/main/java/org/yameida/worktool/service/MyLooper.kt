@@ -159,6 +159,9 @@ object MyLooper {
             WeworkMessageBean.PUSH_FILE -> {
                 WeworkController.pushFile(message)
             }
+            WeworkMessageBean.PUSH_LINK -> {
+                WeworkController.pushLink(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }

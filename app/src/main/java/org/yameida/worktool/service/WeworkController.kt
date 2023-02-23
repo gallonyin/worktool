@@ -340,6 +340,30 @@ object WeworkController {
     }
 
     /**
+     * 推送链接
+     * @see WeworkMessageBean.PUSH_LINK
+     * @param message#titleList 待发送姓名列表
+     * @param message#objectName 文章标题
+     * @param message#receivedContent 文章副标题
+     * @param message#originalContent 文章链接地址
+     * @param message#fileUrl 图片地址
+     * @param message#extraText 附加留言 可选
+     */
+    @RequestMapping
+    fun pushLink(message: WeworkMessageBean): Boolean {
+        LogUtils.d("pushLink(): ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
+        return WeworkOperationImpl.pushLink(
+            message,
+            message.titleList,
+            message.objectName,
+            message.receivedContent,
+            message.originalContent,
+            message.fileUrl,
+            message.extraText
+        )
+    }
+
+    /**
      * 按手机号添加好友
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param message#friend 待添加用户

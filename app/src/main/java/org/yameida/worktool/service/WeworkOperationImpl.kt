@@ -719,6 +719,43 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 推送链接
+     * @see WeworkMessageBean.PUSH_LINK
+     * @param titleList 待发送姓名列表
+     * @param objectName 文章标题
+     * @param receivedContent 文章副标题
+     * @param originalContent 文章链接地址
+     * @param fileUrl 图片地址
+     * @param extraText 附加留言 可选
+     */
+    fun pushLink(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        objectName: String,
+        receivedContent: String,
+        originalContent: String,
+        fileUrl: String,
+        extraText: String? = null,
+        maxRetryCount: Int? = null
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
+            if (relaySelectTarget(titleList, extraText)) {
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                return true
+            } else {
+                LogUtils.e("转发失败")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime)
+                return false
+            }
+        } else {
+            LogUtils.e("非法操作")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, "非法操作", startTime)
+            return false
+        }
+    }
+
+    /**
      * 手机号添加好友或修改好友信息
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param friend 待添加用户

@@ -27,7 +27,7 @@ object IWWAPIUtil {
         iwwapi?.registerApp(schema)
     }
 
-    fun sendLink(thumbUrl: String?, webpageUrl: String?, title: String?, description: String?) {
+    fun sendLink(thumbUrl: String?, webpageUrl: String?, title: String?, description: String?): Boolean {
         val link = WWMediaLink()
         link.thumbUrl = thumbUrl
         link.webpageUrl = webpageUrl
@@ -37,7 +37,7 @@ object IWWAPIUtil {
         link.appName = AppUtils.getAppName()
         link.appId = appid
         link.agentId = agentid
-        iwwapi?.sendMessage(link)
+        return iwwapi?.sendMessage(link) ?: false
     }
 
     fun sendMicroProgram() {
