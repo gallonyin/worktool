@@ -6,6 +6,7 @@ import androidx.core.content.FileProvider
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.Utils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.service.WeworkController
 import java.io.File
 
 /**
@@ -49,6 +50,11 @@ object ShareUtil {
      * 文件分享 需要先授权显示悬浮窗
      */
     fun share(type: String, file: File): Boolean {
+        val root = WeworkController.weworkService.rootInActiveWindow
+        if (root.packageName != Constant.PACKAGE_NAMES) {
+            LogUtils.e("文件分享失败 当前应用不在前台")
+            return false
+        }
         val app = Utils.getApp()
         if (!Settings.canDrawOverlays(app)) {
             LogUtils.e("文件分享失败 没有悬浮窗权限~")
