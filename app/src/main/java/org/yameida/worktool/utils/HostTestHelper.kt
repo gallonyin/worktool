@@ -15,7 +15,6 @@ import org.yameida.worktool.Constant
 object HostTestHelper {
 
     fun test() {
-        OkHttpUtil
         OkGo.get<String>(Constant.getTestUrl())
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {
