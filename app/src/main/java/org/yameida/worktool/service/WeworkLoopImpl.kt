@@ -132,7 +132,7 @@ object WeworkLoopImpl {
                     for (i in 0 until list.childCount) {
                         val item = list.getChild(i)
                         if (item != null && item.childCount > 0) {
-                            messageList.add(parseChatMessageItem(item, titleList, roomType))
+                            messageList.add(parseChatMessageItem(item, titleList, roomType, false))
                         }
                     }
                 }
@@ -144,7 +144,7 @@ object WeworkLoopImpl {
                     for (i in 0 until list2.childCount) {
                         val item = list2.getChild(i)
                         if (item != null && item.childCount > 0) {
-                            messageList2.add(parseChatMessageItem(item, titleList, roomType))
+                            messageList2.add(parseChatMessageItem(item, titleList, roomType, true))
                         }
                     }
                 }
@@ -163,7 +163,13 @@ object WeworkLoopImpl {
                         null
                     )
                 )
-                SPUtils.getInstance("lastSyncMessage").put(title, messageList.last().itemMessageList.lastOrNull()?.text)
+                val lastMessage = messageList.last()
+                val lastSyncMessage = if (lastMessage.textType == 2) {
+                    "[图片]"
+                } else {
+                    lastMessage.itemMessageList.lastOrNull()?.text
+                }
+                SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
                 //推测是否回复并在房间等待指令
                 if (needInfer) {
                     val lastMessage = messageList.lastOrNull()
@@ -467,7 +473,7 @@ object WeworkLoopImpl {
                         continue
                     }
                     if (SPUtils.getInstance("noSyncMessage").getString(title) != lastSyncMessage) {
-                        LogUtils.e("发现不一致消息: $tvList")
+                        LogUtils.e("发现不一致消息: $tvList $lastSyncMessage")
                         error("发现不一致消息: $tvList $lastSyncMessage")
                         SPUtils.getInstance("noSyncMessage").put(title, lastSyncMessage)
                         if (AccessibilityUtil.performClick(item)) {
@@ -493,7 +499,8 @@ object WeworkLoopImpl {
     private fun parseChatMessageItem(
         node: AccessibilityNodeInfo,
         titleList: ArrayList<String>,
-        roomType: Int
+        roomType: Int,
+        doubleCheck: Boolean
     ): WeworkMessageBean.SubMessageBean {
         val message: WeworkMessageBean.SubMessageBean
         val nameList = arrayListOf<String>()
@@ -537,7 +544,7 @@ object WeworkLoopImpl {
                 }
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
-                if (Constant.pushImage && textType == 2) {
+                if (doubleCheck && Constant.pushImage && textType == 2) {
                     val lastPicCreateTime = MultiFileObserver.lastPicCreateTime
                     val lastPicPath = MultiFileObserver.lastPicPath
                     LogUtils.d("发现图片类型应该点击")
