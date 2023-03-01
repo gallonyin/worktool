@@ -587,7 +587,6 @@ object WeworkOperationImpl {
                         if (shareToWorkButton != null
                             && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
                             LogUtils.e("尝试手势点击！！！！！")
-                            AccessibilityUtil.printNodeClazzTree(shareToWorkButton)
                             AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
                             sleep(Constant.CHANGE_PAGE_INTERVAL)
                             shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
@@ -663,7 +662,6 @@ object WeworkOperationImpl {
                     if (shareToWorkButton != null
                         && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
                         LogUtils.e("尝试手势点击！！！！！")
-                        AccessibilityUtil.printNodeClazzTree(shareToWorkButton)
                         AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
                         shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
