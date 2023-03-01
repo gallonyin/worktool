@@ -1748,7 +1748,7 @@ object WeworkOperationImpl {
                 log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                WeworkLoopImpl.getChatMessageList()
+                WeworkLoopImpl.getChatMessageList(needInfer = false)
                 return true
             } else {
                 LogUtils.e("未找到发送按钮")

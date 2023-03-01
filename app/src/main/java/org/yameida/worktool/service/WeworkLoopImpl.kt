@@ -109,7 +109,7 @@ object WeworkLoopImpl {
      * @param needInfer 是否需要推断@me并等待回复
      * @param timeout 在房间内等待回复的时长
      */
-    fun getChatMessageList(needInfer: Boolean = true, timeout: Long = 5000): Boolean {
+    fun getChatMessageList(needInfer: Boolean = false, timeout: Long = 5000): Boolean {
         if (Constant.autoReply == 0) return true
         val roomType = WeworkRoomUtil.getRoomType()
         var titleList = WeworkRoomUtil.getRoomTitle()
