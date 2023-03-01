@@ -74,12 +74,15 @@ class WeworkService : AccessibilityService() {
                 mFileObserver =
                     MultiFileObserver("/storage/emulated/0/Android/data/com.tencent.wework/files/imagecache/imagemsg2");
                 mFileObserver?.startWatching()
+                log("startWatching...")
             } else {
                 mFileObserver?.stopWatching()
                 mFileObserver?.startWatching()
+                log("restartWatching...")
             }
         } catch (e: Exception) {
             LogUtils.e(e)
+            error("initObserver startWatching error!: ${e.message}")
         }
     }
 

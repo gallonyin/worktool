@@ -545,33 +545,37 @@ object WeworkLoopImpl {
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
                 if (doubleCheck && Constant.pushImage && textType == 2) {
-                    val lastPicCreateTime = MultiFileObserver.lastPicCreateTime
-                    val lastPicPath = MultiFileObserver.lastPicPath
-                    LogUtils.d("发现图片类型应该点击")
+                    MultiFileObserver.createSet.clear()
+                    MultiFileObserver.finishSet.clear()
+                    LogUtils.v("点击图片类型")
                     AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                     AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
-                    LogUtils.d("发现图片类型 查看图片检查有无新图片产生")
-                    if (MultiFileObserver.lastPicCreateTime > lastPicCreateTime) {
+                    LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
+                    if (MultiFileObserver.createSet.isNotEmpty()) {
                         LogUtils.d("正在下载图片...")
                         var downloading = true
                         val startTime = System.currentTimeMillis()
                         var currentTime = startTime
                         while (currentTime - startTime < Constant.LONG_INTERVAL) {
-                            if (!lastPicPath.equals(MultiFileObserver.lastPicPath)) {
-                                LogUtils.d("下载图片完成")
+                            if (MultiFileObserver.createSet.size == MultiFileObserver.finishSet.size) {
+                                LogUtils.d("下载图片完成: ${MultiFileObserver.createSet.size}")
                                 downloading = false
                                 try {
-                                    val df = SimpleDateFormat("MMdd_HHmmss")
-                                    val targetPath = "${
-                                        Utils.getApp().getExternalFilesDir("copy")
-                                    }/${df.format(Date())}/${File(MultiFileObserver.lastPicPath).name}.png"
-                                    if (FileUtils.copy(MultiFileObserver.lastPicPath, targetPath)) {
-                                        LogUtils.d("复制图片完成: $targetPath")
-                                    } else {
-                                        LogUtils.e("复制图片失败 请检查权限: $targetPath")
+                                    for (path in MultiFileObserver.finishSet) {
+                                        val df = SimpleDateFormat("MMdd_HHmmss")
+                                        val targetPath = "${
+                                            Utils.getApp().getExternalFilesDir("copy")
+                                        }/${df.format(Date())}/${File(path).name}.png"
+                                        if (FileUtils.copy(path, targetPath)) {
+                                            LogUtils.d("复制图片完成: $targetPath " + ImageDepthSizeUtil.checkRawImage(targetPath))
+                                            log("复制图片完成: $targetPath")
+                                        } else {
+                                            LogUtils.e("复制图片失败 请检查权限: $targetPath")
+                                        }
                                     }
                                 } catch (e: Exception) {
                                     LogUtils.e("接收图片出错", e)
+                                    error("接收图片出错: ${e.message}")
                                 }
                                 break
                             }

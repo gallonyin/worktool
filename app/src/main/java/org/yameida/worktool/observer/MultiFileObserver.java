@@ -3,6 +3,7 @@ package org.yameida.worktool.observer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -12,8 +13,8 @@ import android.util.Log;
 public class MultiFileObserver extends FileObserver {
 
     public HashMap<String, Long> map = new HashMap<>();
-    public static String lastPicPath = "";
-    public static Long lastPicCreateTime = 0L;
+    public static HashSet<String> createSet = new HashSet<>();
+    public static HashSet<String> finishSet = new HashSet<>();
 
     /** Only modification events */
     public static int CHANGES_ONLY = CREATE | MODIFY | DELETE | CLOSE_WRITE
@@ -77,28 +78,35 @@ public class MultiFileObserver extends FileObserver {
         mObservers = null;
     }
 
-
     @Override
     public void onEvent(int event, String path) {
         switch (event) {
             case FileObserver.ACCESS:
+            case FileObserver.CLOSE_WRITE:
             case FileObserver.CLOSE_NOWRITE:
-                if (path.endsWith(".0") && !map.containsKey(path)) {
-                    Log.i("RecursiveFileObserver", "发现新图片: " + path);
+                if (path.endsWith(".0") && !map.containsKey(path) && createSet.contains(path)) {
                     map.put(path, System.currentTimeMillis());
-                    lastPicPath = path;
+                    Log.i("RecursiveFileObserver", "发现新图片: " + path);
+                    finishSet.add(path);
+//                    try {
+//                        ImageInfo imageInfo = new ImageInfo();
+//                        imageInfo.setDetermineImageNumber(true);
+//                        ImageInfo.run(path, new FileInputStream(path), imageInfo, true);
+//                    } catch (Exception e) { e.printStackTrace(); }
                 }
                 break;
             case FileObserver.CREATE:
                 Log.i("RecursiveFileObserver", "CREATE: " + path);
-                lastPicCreateTime = System.currentTimeMillis();
+                if (path.endsWith(".0")) {
+                    createSet.add(path);
+                }
                 break;
             case FileObserver.ATTRIB:
 //                Log.i("RecursiveFileObserver", "ATTRIB: " + path);
                 break;
-            case FileObserver.CLOSE_WRITE:
+//            case FileObserver.CLOSE_WRITE:
 //                Log.i("RecursiveFileObserver", "CLOSE_WRITE: " + path);
-                break;
+//                break;
             case FileObserver.DELETE:
 //                Log.i("RecursiveFileObserver", "DELETE: " + path);
                 break;
