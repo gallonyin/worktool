@@ -60,11 +60,6 @@ class MyApplication : Application() {
         PlayNotifyManager.show()
         //设置全局异常捕获重启
         Thread.setDefaultUncaughtExceptionHandler(GlobalException.getInstance())
-        //注册企微分享
-        if (Constant.enableSdkShare) {
-            iwwapi = WWAPIFactory.createWWAPI(this)
-            iwwapi?.registerApp(Constant.weworkSchema)
-        }
     }
 
 }
