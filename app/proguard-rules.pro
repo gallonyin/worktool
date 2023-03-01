@@ -50,3 +50,8 @@
 -dontwarn com.tendcloud.tenddata.**
 -keep class com.tendcloud.** {*;}
 -keep public class com.tendcloud.** {  public protected *;}
+
+#iwwapi
+-keep class com.tencent.wework.api.** {
+   *;
+}
