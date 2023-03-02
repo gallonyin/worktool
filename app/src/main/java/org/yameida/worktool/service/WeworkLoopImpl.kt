@@ -141,10 +141,15 @@ object WeworkLoopImpl {
                 val list2 = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 if (list2 != null) {
                     LogUtils.v("list2消息条数: " + list2.childCount)
+                    var imageCheck = true
                     for (i in 0 until list2.childCount) {
                         val item = list2.getChild(i)
                         if (item != null && item.childCount > 0) {
-                            messageList2.add(parseChatMessageItem(item, titleList, roomType, true))
+                            val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
+                            if (chatMessageItem.sender == 0 && chatMessageItem.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
+                                imageCheck = false
+                            }
+                            messageList2.add(chatMessageItem)
                         }
                     }
                 }
@@ -164,7 +169,7 @@ object WeworkLoopImpl {
                     )
                 )
                 val lastMessage = messageList.last()
-                val lastSyncMessage = if (lastMessage.textType == 2) {
+                val lastSyncMessage = if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                     "[图片]"
                 } else {
                     lastMessage.itemMessageList.lastOrNull()?.text
@@ -500,7 +505,7 @@ object WeworkLoopImpl {
         node: AccessibilityNodeInfo,
         titleList: ArrayList<String>,
         roomType: Int,
-        doubleCheck: Boolean
+        imageCheck: Boolean
     ): WeworkMessageBean.SubMessageBean {
         val message: WeworkMessageBean.SubMessageBean
         val nameList = arrayListOf<String>()
@@ -544,13 +549,14 @@ object WeworkLoopImpl {
                 }
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
-                if (doubleCheck && Constant.pushImage && textType == 2) {
+                if (imageCheck && Constant.pushImage && textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                     MultiFileObserver.createSet.clear()
                     MultiFileObserver.finishSet.clear()
                     LogUtils.v("点击图片类型")
                     AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                     AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
                     LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                     if (MultiFileObserver.createSet.isNotEmpty()) {
                         LogUtils.d("正在下载图片...")
                         var downloading = true
