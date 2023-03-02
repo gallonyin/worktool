@@ -594,7 +594,8 @@ object WeworkLoopImpl {
                     } else {
                         LogUtils.d("该图片已下载 忽略")
                     }
-                    while (WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
+                    var retry = 3
+                    while (retry-- > 0 && WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
                         AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
                         sleep(Constant.POP_WINDOW_INTERVAL)
                     }
