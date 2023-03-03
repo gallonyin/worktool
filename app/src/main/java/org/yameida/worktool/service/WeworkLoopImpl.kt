@@ -163,6 +163,25 @@ object WeworkLoopImpl {
                 }
             } while (messageList != messageList2)
             if (messageList.isNotEmpty()) {
+                val lastMessage = messageList.last()
+                val lastSyncMessage = if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
+                    "[图片]"
+                } else {
+                    lastMessage.itemMessageList.lastOrNull()?.text
+                }
+                SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
+                if (Constant.pushImage && MultiFileObserver.saveSet.isNotEmpty()) {
+                    val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
+                    MultiFileObserver.saveSet.reversed().forEachIndexed { index, targetPath ->
+                        if (imageMessageList.size > index) {
+                            val message = imageMessageList[index]
+                        }
+                    }
+                    MultiFileObserver.saveSet.clear()
+                }
+                if (Constant.pushImage) {
+                    messageList.removeIf { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }
+                }
                 WeworkController.weworkService.webSocketManager.send(
                     WeworkMessageBean(
                         null, null,
@@ -173,13 +192,6 @@ object WeworkLoopImpl {
                         null
                     )
                 )
-                val lastMessage = messageList.last()
-                val lastSyncMessage = if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
-                    "[图片]"
-                } else {
-                    lastMessage.itemMessageList.lastOrNull()?.text
-                }
-                SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
                 //推测是否回复并在房间等待指令
                 if (needInfer) {
                     val lastMessage = messageList.lastOrNull()
@@ -557,6 +569,7 @@ object WeworkLoopImpl {
                 if (imageCheck && Constant.pushImage && textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                     MultiFileObserver.createSet.clear()
                     MultiFileObserver.finishSet.clear()
+                    MultiFileObserver.saveSet.clear()
                     LogUtils.v("点击图片类型")
                     AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                     AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
@@ -580,6 +593,7 @@ object WeworkLoopImpl {
                                         if (FileUtils.copy(path, targetPath)) {
                                             LogUtils.d("复制图片完成: $targetPath " + ImageDepthSizeUtil.checkRawImage(targetPath))
                                             log("复制图片完成: $targetPath")
+                                            MultiFileObserver.saveSet.add(targetPath)
                                         } else {
                                             LogUtils.e("复制图片失败 请检查权限: $targetPath")
                                         }

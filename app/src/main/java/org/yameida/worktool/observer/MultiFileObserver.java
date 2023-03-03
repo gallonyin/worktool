@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -13,8 +14,9 @@ import android.util.Log;
 public class MultiFileObserver extends FileObserver {
 
     public HashMap<String, Long> map = new HashMap<>();
-    public static HashSet<String> createSet = new HashSet<>();
-    public static HashSet<String> finishSet = new HashSet<>();
+    public static HashSet<String> createSet = new LinkedHashSet<>();
+    public static HashSet<String> finishSet = new LinkedHashSet<>();
+    public static HashSet<String> saveSet = new LinkedHashSet<>();
 
     /** Only modification events */
     public static int CHANGES_ONLY = CREATE | MODIFY | DELETE | CLOSE_WRITE
