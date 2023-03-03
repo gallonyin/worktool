@@ -556,7 +556,7 @@ object WeworkLoopImpl {
                     AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                     AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
                     LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
-                    sleep(Constant.POP_WINDOW_INTERVAL)
+                    sleep(Constant.CHANGE_PAGE_INTERVAL)
                     if (MultiFileObserver.createSet.isNotEmpty()) {
                         LogUtils.d("正在下载图片...")
                         var downloading = true
