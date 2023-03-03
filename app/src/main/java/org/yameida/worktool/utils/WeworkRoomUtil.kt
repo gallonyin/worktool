@@ -226,6 +226,20 @@ object WeworkRoomUtil {
     }
 
     /**
+     * 获取当前群名并返回房间
+     * 解决title为对方正在输入中问题
+     * @return name 单聊对方姓名
+     */
+    fun getGroupName(): ArrayList<String> {
+        val titleList = arrayListOf<String>()
+        if (intoGroupManager()) {
+            val groupInfo = WeworkGetImpl.getGroupInfoDetail()
+            titleList.add(groupInfo.groupName)
+        }
+        return titleList
+    }
+
+    /**
      * 群名是否存在
      */
     fun isGroupExists(groupName: String): Boolean {

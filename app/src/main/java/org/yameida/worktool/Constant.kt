@@ -30,6 +30,7 @@ object Constant {
     var groupQrCode = false
     var enableMediaProject = false
     var enableSdkShare = false
+    var fullGroupName = false
     var robotId: String
         get() = SPUtils.getInstance().getString("robotId", SPUtils.getInstance().getString("LISTEN_CHANNEL_ID", ""))
         set(value) {

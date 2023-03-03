@@ -113,8 +113,13 @@ object WeworkLoopImpl {
         if (Constant.autoReply == 0) return true
         val roomType = WeworkRoomUtil.getRoomType()
         var titleList = WeworkRoomUtil.getRoomTitle()
-        if (titleList.contains("对方正在输入…")) {
-            titleList = WeworkRoomUtil.getFriendName()
+        if (titleList.count { it.endsWith("…") } > 0) {
+            if (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT) {
+                titleList = WeworkRoomUtil.getFriendName()
+            } else if (Constant.fullGroupName
+                && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
+                titleList = WeworkRoomUtil.getGroupName()
+            }
         }
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN && titleList.size > 0) {
             val title = titleList.joinToString()
