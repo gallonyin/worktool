@@ -1766,9 +1766,9 @@ object WeworkOperationImpl {
      */
     private fun getFriendInfo(title: String): Boolean {
         goHomeTab("通讯录")
-        val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+        val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView)
         if (list != null) {
-            val frontNode = AccessibilityUtil.findFrontNode(list)
+            val frontNode = AccessibilityUtil.findFrontNode(list, minChildCount = 2)
             val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
             if (textViewList.size >= 2) {
                 val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
@@ -1811,7 +1811,11 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未搜索到结果: $title")
                 }
+            } else {
+                LogUtils.e("ActionBar获取失败: $title")
             }
+        } else {
+            LogUtils.e("通讯录列表获取失败: $title")
         }
         return false
     }
