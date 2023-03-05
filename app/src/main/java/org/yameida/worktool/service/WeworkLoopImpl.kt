@@ -164,12 +164,14 @@ object WeworkLoopImpl {
             } while (messageList != messageList2)
             if (messageList.isNotEmpty()) {
                 val lastMessage = messageList.last()
-                val lastSyncMessage = if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
+                val prefix = (lastMessage.nameList.firstOrNull()?.replace("\\(.*\\)$".toRegex(), "") + ": ").replace("null:", "")
+                val lastSyncMessage = prefix + if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                     "[图片]"
                 } else {
                     lastMessage.itemMessageList.lastOrNull()?.text
                 }
                 SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
+                LogUtils.v("lastSyncMessage: $lastSyncMessage")
                 if (Constant.pushImage && MultiFileObserver.saveSet.isNotEmpty()) {
                     val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
                     MultiFileObserver.saveSet.reversed().forEachIndexed { index, targetPath ->
