@@ -209,6 +209,13 @@ object WeworkTextUtil {
      */
     fun getTextType(node: AccessibilityNodeInfo?, isGroup: Boolean = true): Int {
         if (node == null) return WeworkMessageBean.TEXT_TYPE_UNKNOWN
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime <= Constant.LONG_INTERVAL) {
+            node.refresh()
+            AccessibilityUtil.findOnceByClazz(node, Views.ProgressBar) ?: break
+            LogUtils.e("发现加载项 等待加载完成...")
+            sleep(Constant.POP_WINDOW_INTERVAL / 5)
+        }
         val tvList = findAllOnceByClazz(node, Views.TextView)
         val tvCount = tvList.size
         val ivCount = findAllOnceByClazz(node, Views.ImageView).size
@@ -246,7 +253,12 @@ object WeworkTextUtil {
             }
             tvCount == 4 && ivCount == 2 -> WeworkMessageBean.TEXT_TYPE_VOICE
             tvCount == 5 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_CARD
-            tvCount == 1 && ivCount == 2 -> WeworkMessageBean.TEXT_TYPE_LOCATION
+            tvCount == 1 && ivCount == 2 -> {
+                if ((tvList[0].text?.toString() ?: "").matches("[0-9]+:[0-9]+".toRegex()))
+                    WeworkMessageBean.TEXT_TYPE_VIDEO
+                else
+                    WeworkMessageBean.TEXT_TYPE_LOCATION
+            }
             tvCount == 3 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_REPLY
             else -> WeworkMessageBean.TEXT_TYPE_UNKNOWN
         }

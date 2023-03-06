@@ -642,7 +642,6 @@ object WeworkLoopImpl {
                         }
                     }
                 }
-                //todo 发视频和文件也可能存在上传中状态
                 if (textType == WeworkMessageBean.TEXT_TYPE_LINK && itemMessageList.size == 1
                     && itemMessageList[0].text.matches("[0-9]+%".toRegex())) {
                     textType = WeworkMessageBean.TEXT_TYPE_IMAGE
