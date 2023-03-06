@@ -172,16 +172,17 @@ object WeworkLoopImpl {
                 }
                 SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
                 LogUtils.v("lastSyncMessage: $lastSyncMessage")
-                if (Constant.pushImage && MultiFileObserver.saveSet.isNotEmpty()) {
-                    val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
-                    MultiFileObserver.saveSet.reversed().forEachIndexed { index, targetPath ->
-                        if (imageMessageList.size > index) {
-                            val message = imageMessageList[index]
-                        }
-                    }
-                    MultiFileObserver.saveSet.clear()
-                }
                 if (Constant.pushImage) {
+                    log("createSet: ${MultiFileObserver.createSet.joinToString()}\nsaveSet: ${MultiFileObserver.saveSet.joinToString()}")
+                    if (MultiFileObserver.saveSet.isNotEmpty()) {
+                        val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
+                        MultiFileObserver.saveSet.reversed().forEachIndexed { index, targetPath ->
+                            if (imageMessageList.size > index) {
+                                val message = imageMessageList[index]
+                            }
+                        }
+                        MultiFileObserver.saveSet.clear()
+                    }
                     messageList.removeIf { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }
                 }
                 WeworkController.weworkService.webSocketManager.send(
