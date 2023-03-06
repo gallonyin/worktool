@@ -179,7 +179,9 @@ class ListenActivity : AppCompatActivity() {
         }, Context.BIND_AUTO_CREATE)
         //开启屏幕录制权限
         if (MediaProjectionHolder.mMediaProjection == null) {
-            fastStartActivity(this, GetScreenShotActivity::class.java)
+            bt_save.postDelayed({
+                fastStartActivity(this, GetScreenShotActivity::class.java)
+            }, 1000)
         }
     }
 

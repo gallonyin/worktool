@@ -26,6 +26,7 @@ import android.util.DisplayMetrics
 import android.view.WindowManager
 import org.yameida.worktool.utils.startServiceSafe
 import org.yameida.worktool.service.PlayNotifyService
+import org.yameida.worktool.service.fastStartActivity
 import java.lang.Exception
 
 
@@ -40,23 +41,27 @@ class GetScreenShotActivity : AppCompatActivity() {
     companion object {
         val HIDE_FLOAT_WINDOW = "hideFloatWindow"
 
-        fun startCapture() {
+        fun startCapture(): Bitmap? {
+            if (MediaProjectionHolder.mMediaProjection == null) {
+                LogUtils.e("截图失败 mediaProjection未初始化")
+                fastStartActivity(Utils.getApp(), GetScreenShotActivity::class.java)
+                return null
+            }
             val imageReader = ImageReader.newInstance(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight(), PixelFormat.RGBA_8888, 1)
             val virtualDisplay = MediaProjectionHolder.mMediaProjection?.createVirtualDisplay("ScreenShout",
                     ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight(), ScreenUtils.getScreenDensityDpi(),
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    imageReader?.surface, null, null)
+                    imageReader.surface, null, null)
 
-            val imageName = System.currentTimeMillis().toString() + ".png"
             var image: Image? = null
             var tryCount = 0
             while (tryCount < 10 && image == null) {
                 SystemClock.sleep(250)
-                image = imageReader?.acquireNextImage()
+                image = imageReader.acquireNextImage()
             }
             if (image == null) {
                 LogUtils.i("GetScreenShotActivity", "image is null.")
-                return
+                return null
             }
             val width = image.width
             val height = image.height
@@ -71,11 +76,7 @@ class GetScreenShotActivity : AppCompatActivity() {
             image.close()
             imageReader.close()
             virtualDisplay?.release()
-
-            if (bitmap != null) {
-                AndroidUtils.bitmapToFile(bitmap, imageName)
-            }
-            ToastUtils.showShort("截图已保存到sdcard/recorder/screenShot~~~")
+            return bitmap
         }
     }
 
@@ -113,29 +114,9 @@ class GetScreenShotActivity : AppCompatActivity() {
         LogUtils.i("onActivityResult")
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            LogUtils.e("hahaha1")
             LogUtils.e("mediaProjectionManager: $mediaProjectionManager")
             LogUtils.e("resultCode: $resultCode")
             LogUtils.e("data: $data")
-//            MediaProjectionHolder.setMediaProjection(mediaProjectionManager!!.getMediaProjection(resultCode, data))
-//            LogUtils.e("hahaha2")
-//            if (hideFloatWindow) {
-//                if (FloatWindowManager.isShow) {
-//                    FloatWindowManager.hide()
-//                    handler.postDelayed({
-//                        SystemClock.sleep(100)
-//                        startCapture()
-//                        FloatWindowManager.show()
-//                    }, 200)
-//                } else {
-//                    SystemClock.sleep(200)
-//                    startCapture()
-//                }
-//            } else {
-//                startCapture()
-//            }
-//            startCapture()
-
             try {
                 val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
                 val metrics = DisplayMetrics()
@@ -149,8 +130,6 @@ class GetScreenShotActivity : AppCompatActivity() {
             service.putExtra("code", resultCode)
             service.putExtra("data", data)
             startServiceSafe(service)
-
-            LogUtils.e("hahaha3")
         }
         finish()
     }
