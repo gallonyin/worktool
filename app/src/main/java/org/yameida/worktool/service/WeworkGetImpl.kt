@@ -43,7 +43,53 @@ object WeworkGetImpl {
      * @see WeworkMessageBean.GET_ALL_FRIEND_INFO
      */
     fun getAllFriendInfo(message: WeworkMessageBean): Boolean {
-        return true
+        val startTime = System.currentTimeMillis()
+        goHomeTab("通讯录")
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
+        AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
+        val customerFlag = AccessibilityUtil.findAllByText(getRoot(), "我的客户", exact = true).lastOrNull()
+        if (customerFlag != null) {
+            AccessibilityUtil.performClick(customerFlag)
+            AccessibilityExtraUtil.loadingPage("BaseContentActivity")
+            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView)
+            if (list == null) {
+                LogUtils.e("未找到我的客户列表")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到我的客户列表", startTime)
+                return false
+            }
+            val set = linkedSetOf<String>()
+            val onScrollListener = object : AccessibilityUtil.OnScrollListener() {
+                override fun onScroll(): Boolean {
+                    if (!AccessibilityExtraUtil.loadingPage("BaseContentActivity")) {
+                        return true
+                    }
+                    list.refresh()
+                    for (i in 0 until list.childCount) {
+                        val item = list.getChild(i)
+                        if (item.className != Views.RelativeLayout) {
+                            continue
+                        }
+                        val name = AccessibilityUtil.findOneByClazz(item, Views.TextView)?.text?.toString()
+                            ?: continue
+                        if (!name.matches("(标签)|(其他外部联系人)|((共?.*个)?客户)".toRegex())) {
+                            set.add(name)
+                        }
+                    }
+                    return false
+                }
+            }
+            //滚动前先获取一次
+            onScrollListener.onScroll()
+            AccessibilityUtil.scrollToBottom(WeworkController.weworkService, list, listener = onScrollListener, maxRetry = 100)
+            LogUtils.d("客户数量: ${set.size} 客户列表: ${set.joinToString()}")
+            message.nameList = set.toList()
+            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+            return true
+        } else {
+            LogUtils.e("未找到我的客户入口")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到我的客户入口", startTime)
+            return false
+        }
     }
 
     /**
@@ -57,7 +103,7 @@ object WeworkGetImpl {
         AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
         if (AccessibilityUtil.findTextAndClick(getRoot(), "群聊", exact = true)) {
             AccessibilityExtraUtil.loadingPage("GroupSavedListActivity")
-            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView)
             if (list == null) {
                 LogUtils.e("未找到群聊列表")
                 uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群聊列表", startTime)
@@ -72,8 +118,8 @@ object WeworkGetImpl {
                     list.refresh()
                     AccessibilityUtil.findAllOnceByClazz(list, Views.TextView).map {
                         val groupName = it.text?.toString()
-                        if (groupName != null && !groupName.matches("(.*个)?群聊".toRegex()) && set.add(groupName)) {
-                            //无需处理
+                        if (groupName != null && !groupName.matches("(.*个)?群聊".toRegex())) {
+                            set.add(groupName)
                         }
                         false
                     }
