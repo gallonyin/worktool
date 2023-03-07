@@ -1040,7 +1040,7 @@ object AccessibilityUtil {
     fun findBackNode(node: AccessibilityNodeInfo?, minChildCount: Int = 0): AccessibilityNodeInfo? {
         var findBackNode = findBackNode(node) ?: return null
         while (findBackNode.childCount < minChildCount) {
-            findBackNode = findFrontNode(findBackNode) ?: return null
+            findBackNode = findBackNode(findBackNode) ?: return null
         }
         return findBackNode
     }

@@ -19,17 +19,10 @@ object WeworkGetImpl {
      * @param selectList 群名列表 为空时去群管理页查询并返回群聊页
      */
     fun getGroupInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
-        if (selectList.isNullOrEmpty()) {
-            WeworkRoomUtil.intoGroupManager()
-            val groupInfo = getGroupInfoDetail()
-            WeworkController.weworkService.webSocketManager.send(groupInfo)
-            backPress()
-        } else {
-            for (groupName in selectList) {
-                if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
-                    val groupInfo = getGroupInfoDetail()
-                    WeworkController.weworkService.webSocketManager.send(groupInfo)
-                }
+        for (groupName in selectList) {
+            if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+                val groupInfo = getGroupInfoDetail()
+                WeworkController.weworkService.webSocketManager.send(groupInfo)
             }
         }
         return true
@@ -141,7 +134,7 @@ object WeworkGetImpl {
     /**
      * 获取群名、群主、群成员数、群公告、群备注
      */
-    fun getGroupInfoDetail(): WeworkMessageBean {
+    fun getGroupInfoDetail(saveAddress: Boolean = true, saveMembers: Boolean = false): WeworkMessageBean {
         val weworkMessageBean = WeworkMessageBean()
         weworkMessageBean.type = WeworkMessageBean.GET_GROUP_INFO
         val tvManagerFlag = AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = 2000)
@@ -193,6 +186,43 @@ object WeworkGetImpl {
         if (tvRemark != null && tvRemark.text != null) {
             LogUtils.d("群备注: " + tvRemark.text)
             weworkMessageBean.groupRemark = tvRemark.text.toString()
+        }
+        if (saveMembers) {
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "查看全部群成员", exact = true, timeout = 0)) {
+                val userList = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (userList != null) {
+                    val set = linkedSetOf<String>()
+                    val onScrollListener = object : AccessibilityUtil.OnScrollListener() {
+                        override fun onScroll(): Boolean {
+                            userList.refresh()
+                            for (i in 0 until userList.childCount) {
+                                val item = userList.getChild(i)
+                                val name = AccessibilityUtil.findOnceByClazz(item, Views.TextView)?.text?.toString()
+                                    ?: continue
+                                set.add(name)
+                            }
+                            return false
+                        }
+                    }
+                    //滚动前先获取一次
+                    onScrollListener.onScroll()
+                    AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = onScrollListener, maxRetry = 100)
+                    LogUtils.d("群成员: ${set.joinToString()}")
+                    weworkMessageBean.nameList = set.toList()
+                } else {
+                    LogUtils.e("未找到群成员列表")
+                }
+                backPress()
+            }
+        }
+        if (saveAddress) {
+            val tvAddressFlag = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "保存到通讯录")
+            val tvAddress = AccessibilityUtil.findBackNode(tvAddressFlag, minChildCount = 1)
+            val addressDesc = AccessibilityUtil.findOnceByDesc(tvAddress, "false", "true", exact = true)
+            if (addressDesc?.contentDescription == "false") {
+                LogUtils.d("未保存到通讯录 进行保存...")
+                AccessibilityUtil.performClick(addressDesc)
+            }
         }
         backPress()
         return weworkMessageBean
