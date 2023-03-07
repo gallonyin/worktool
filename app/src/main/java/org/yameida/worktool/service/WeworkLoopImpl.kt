@@ -567,6 +567,31 @@ object WeworkLoopImpl {
                         }
                     }
                 }
+                if (textType == WeworkMessageBean.TEXT_TYPE_LINK) {
+                    val tempList = itemMessageList.filter { it.feature != 0 }
+                    if (tempList.size == 2 && tempList[0].text.contains("邀请你加入群聊")
+                        && SPUtils.getInstance("groupInvite").getInt(tempList[1].text, 0) == 0) {
+                        LogUtils.d("邀请你加入群聊: ${itemMessageList[1].text}")
+                        AccessibilityUtil.performClickWithSon(relativeLayoutContent)
+                        if (AccessibilityExtraUtil.loadingPage("JsWebActivity")) {
+                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", exact = true)
+                            val text = tvButton?.text?.toString()
+                            if (text == "我知道了") {
+                                backPress()
+                                SPUtils.getInstance("groupInvite").put(itemMessageList[1].text, 1)
+                                error("加入群聊失败: ${itemMessageList[1].text}")
+                            } else if (text == "加入群聊") {
+                                AccessibilityUtil.performClick(tvButton)
+                                SPUtils.getInstance("groupInvite").put(itemMessageList[1].text, 1)
+                                LogUtils.d("加入群聊: ${itemMessageList[1].text}")
+                                log("加入群聊: ${itemMessageList[1].text}")
+                            } else {
+                                LogUtils.e("加入群聊异常: ${itemMessageList[1].text}")
+                                error("加入群聊异常: ${itemMessageList[1].text}")
+                            }
+                        }
+                    }
+                }
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
                 if (imageCheck && Constant.pushImage && textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {

@@ -54,6 +54,7 @@ object MyLooper {
         SPUtils.getInstance("lastSyncMessage").clear()
         SPUtils.getInstance("noSyncMessage").clear()
         SPUtils.getInstance("limit").clear()
+        SPUtils.getInstance("groupInvite").clear()
     }
 
     fun getInstance(): Handler {
