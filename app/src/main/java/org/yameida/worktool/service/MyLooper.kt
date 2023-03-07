@@ -192,6 +192,12 @@ object MyLooper {
             WeworkMessageBean.GET_RECENT_LIST -> {
                 WeworkController.getRecentList(message)
             }
+            WeworkMessageBean.GET_ALL_FRIEND_INFO -> {
+                WeworkController.getAllFriendInfo(message)
+            }
+            WeworkMessageBean.GET_ALL_GROUP_INFO -> {
+                WeworkController.getAllGroupInfo(message)
+            }
             WeworkMessageBean.GET_CORP_LIST -> {
                 WeworkController.getCorpList(message)
             }

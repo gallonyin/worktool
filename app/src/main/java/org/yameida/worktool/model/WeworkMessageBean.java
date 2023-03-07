@@ -50,6 +50,8 @@ public class WeworkMessageBean {
      * 获取我的信息 GET_MY_INFO
      * 获取最近聊天列表 GET_RECENT_LIST
      * 获取企业列表 GET_CORP_LIST
+     * 获取全部好友信息 GET_ALL_FRIEND_INFO
+     * 获取全部群信息 GET_ALL_GROUP_INFO
      */
     public static final int HEART_BEAT = 11;
     public static final int TYPE_RECEIVE_MESSAGE_LIST = 101;
@@ -90,6 +92,8 @@ public class WeworkMessageBean {
     public static final int GET_GROUP_QRCODE = 504;
     public static final int GET_RECENT_LIST = 505;
     public static final int GET_CORP_LIST = 506;
+    public static final int GET_ALL_FRIEND_INFO = 507;
+    public static final int GET_ALL_GROUP_INFO = 508;
 
     /**
      * roomType

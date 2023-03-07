@@ -418,6 +418,26 @@ object WeworkController {
     }
 
     /**
+     * 获取全部好友信息
+     * @see WeworkMessageBean.GET_ALL_FRIEND_INFO
+     */
+    @RequestMapping
+    fun getAllFriendInfo(message: WeworkMessageBean): Boolean {
+        LogUtils.d("getAllFriendInfo():")
+        return WeworkGetImpl.getAllFriendInfo(message)
+    }
+
+    /**
+     * 获取全部群信息
+     * @see WeworkMessageBean.GET_ALL_GROUP_INFO
+     */
+    @RequestMapping
+    fun getAllGroupInfo(message: WeworkMessageBean): Boolean {
+        LogUtils.d("getAllGroupInfo():")
+        return WeworkGetImpl.getAllGroupInfo(message)
+    }
+
+    /**
      * 获取我的信息
      * @see WeworkMessageBean.GET_MY_INFO
      */

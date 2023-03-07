@@ -3,7 +3,9 @@ package org.yameida.worktool.service
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
+import org.yameida.worktool.utils.AccessibilityExtraUtil
 import org.yameida.worktool.utils.AccessibilityUtil
 import org.yameida.worktool.utils.Views
 import org.yameida.worktool.utils.WeworkRoomUtil
@@ -34,6 +36,67 @@ object WeworkGetImpl {
      */
     fun getFriendInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
         return true
+    }
+
+    /**
+     * 获取全部好友信息
+     * @see WeworkMessageBean.GET_ALL_FRIEND_INFO
+     */
+    fun getAllFriendInfo(message: WeworkMessageBean): Boolean {
+        return true
+    }
+
+    /**
+     * 获取全部群信息
+     * @see WeworkMessageBean.GET_ALL_GROUP_INFO
+     */
+    fun getAllGroupInfo(message: WeworkMessageBean): Boolean {
+        val startTime = System.currentTimeMillis()
+        goHomeTab("通讯录")
+        sleep(Constant.CHANGE_PAGE_INTERVAL)
+        AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
+        if (AccessibilityUtil.findTextAndClick(getRoot(), "群聊", exact = true)) {
+            AccessibilityExtraUtil.loadingPage("GroupSavedListActivity")
+            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+            if (list == null) {
+                LogUtils.e("未找到群聊列表")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群聊列表", startTime)
+                return false
+            }
+            val set = linkedSetOf<String>()
+            val onScrollListener = object : AccessibilityUtil.OnScrollListener() {
+                override fun onScroll(): Boolean {
+                    if (!AccessibilityExtraUtil.loadingPage("GroupSavedListActivity")) {
+                        return true
+                    }
+                    list.refresh()
+                    AccessibilityUtil.findAllOnceByClazz(list, Views.TextView).map {
+                        val groupName = it.text?.toString()
+                        if (groupName != null && !groupName.matches("(.*个)?群聊".toRegex()) && set.add(groupName)) {
+                            //无需处理
+                        }
+                        false
+                    }
+                    return false
+                }
+            }
+            //滚动前先获取一次
+            onScrollListener.onScroll()
+            AccessibilityUtil.scrollToBottom(WeworkController.weworkService, list, listener = onScrollListener, maxRetry = 100)
+            LogUtils.d("群数量: ${set.size} 群列表: ${set.joinToString()}")
+            for (groupName in set) {
+                if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+                    val groupInfo = getGroupInfoDetail(saveAddress = false, saveMembers = true)
+                    WeworkController.weworkService.webSocketManager.send(groupInfo)
+                }
+            }
+            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+            return true
+        } else {
+            LogUtils.e("未找到群聊入口")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群聊入口", startTime)
+            return false
+        }
     }
 
     /**
