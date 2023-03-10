@@ -372,27 +372,53 @@ object WeworkOperationImpl {
                 val imageViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.ImageView)
                 if (imageViewList.size >= 2) {
                     AccessibilityUtil.performClick(imageViewList[1])
-                    val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "以原文件分享")
+                    val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "以原文件分享", "用其他应用打开")
                     AccessibilityUtil.performClick(shareFileButton)
-                    val shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    sleep(Constant.POP_WINDOW_INTERVAL)
                     AccessibilityUtil.performClick(shareToWorkButton)
+                    sleep(Constant.POP_WINDOW_INTERVAL)
+                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                    LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
+                    val time = System.currentTimeMillis()
+                    var currentTime = time
+                    while (currentTime - time < 5000) {
+                        if (shareToWorkButton != null
+                            && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
+                            LogUtils.e("尝试手势点击！！！！！")
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
+                            sleep(Constant.CHANGE_PAGE_INTERVAL)
+                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                        } else {
+                            break
+                        }
+                        currentTime = System.currentTimeMillis()
+                    }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime)
+                        return false
                     }
                 } else {
                     LogUtils.e("微盘未搜索到相关图片: $objectName")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关图片: $objectName", startTime)
+                    return false
                 }
             } else {
                 LogUtils.e("未找到微盘内搜索")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime)
+                return false
             }
         } else {
             LogUtils.e("未找到微盘")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime)
+            return false
         }
-        return false
     }
 
     /**
@@ -424,20 +450,28 @@ object WeworkOperationImpl {
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                     AccessibilityUtil.performClick(shareFileButton)
                     if (relaySelectTarget(titleList, extraText)) {
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime)
+                        return false
                     }
                 } else {
                     LogUtils.e("微盘未搜索到相关文件: $objectName")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关文件: $objectName", startTime)
+                    return false
                 }
             } else {
                 LogUtils.e("未找到微盘内搜索")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime)
+                return false
             }
         } else {
             LogUtils.e("未找到微盘")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime)
+            return false
         }
-        return false
     }
 
     /**
@@ -581,9 +615,9 @@ object WeworkOperationImpl {
                     sleep(Constant.POP_WINDOW_INTERVAL)
                     shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
                     LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
-                    val startTime = System.currentTimeMillis()
-                    var currentTime = startTime
-                    while (currentTime - startTime < 5000) {
+                    val time = System.currentTimeMillis()
+                    var currentTime = time
+                    while (currentTime - time < 5000) {
                         if (shareToWorkButton != null
                             && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
                             LogUtils.e("尝试手势点击！！！！！")
@@ -656,9 +690,9 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
                 LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
-                val startTime = System.currentTimeMillis()
-                var currentTime = startTime
-                while (currentTime - startTime < 5000) {
+                val time = System.currentTimeMillis()
+                var currentTime = time
+                while (currentTime - time < 5000) {
                     if (shareToWorkButton != null
                         && WeworkController.weworkService.currentPackage != Constant.PACKAGE_NAMES) {
                         LogUtils.e("尝试手势点击！！！！！")
