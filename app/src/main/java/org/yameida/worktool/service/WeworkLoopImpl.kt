@@ -571,23 +571,23 @@ object WeworkLoopImpl {
                     val tempList = itemMessageList.filter { it.feature != 0 }
                     if (tempList.size == 2 && tempList[0].text.contains("邀请你加入群聊")
                         && SPUtils.getInstance("groupInvite").getInt(tempList[1].text, 0) == 0) {
-                        LogUtils.d("邀请你加入群聊: ${itemMessageList[1].text}")
+                        LogUtils.d("邀请你加入群聊: ${tempList[1].text}")
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                         if (AccessibilityExtraUtil.loadingPage("JsWebActivity")) {
-                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", exact = true)
+                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", "你已接受过此邀请，无法再次加入", exact = true)
                             val text = tvButton?.text?.toString()
-                            if (text == "我知道了") {
+                            if (text == "我知道了" || text == "你已接受过此邀请，无法再次加入") {
                                 backPress()
-                                SPUtils.getInstance("groupInvite").put(itemMessageList[1].text, 1)
-                                error("加入群聊失败: ${itemMessageList[1].text}")
+                                SPUtils.getInstance("groupInvite").put(tempList[1].text, 1)
+                                error("加入群聊失败: ${tempList[1].text}")
                             } else if (text == "加入群聊") {
                                 AccessibilityUtil.performClick(tvButton)
-                                SPUtils.getInstance("groupInvite").put(itemMessageList[1].text, 1)
-                                LogUtils.d("加入群聊: ${itemMessageList[1].text}")
-                                log("加入群聊: ${itemMessageList[1].text}")
+                                SPUtils.getInstance("groupInvite").put(tempList[1].text, 1)
+                                LogUtils.d("加入群聊: ${tempList[1].text}")
+                                log("加入群聊: ${tempList[1].text}")
                             } else {
-                                LogUtils.e("加入群聊异常: ${itemMessageList[1].text}")
-                                error("加入群聊异常: ${itemMessageList[1].text}")
+                                LogUtils.e("加入群聊异常: ${tempList[1].text}")
+                                error("加入群聊异常: ${tempList[1].text}")
                             }
                         }
                     }
