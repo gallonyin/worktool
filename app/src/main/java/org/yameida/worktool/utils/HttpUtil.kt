@@ -112,6 +112,13 @@ object HttpUtil {
      * 推送图片
      */
     fun pushImage(url: String, titleList: List<String>, receivedName: String?, imagePath: String, roomType: Int) {
+        return pushImage(url, titleList, receivedName, File(imagePath).readBytes(), roomType)
+    }
+
+    /**
+     * 推送图片
+     */
+    fun pushImage(url: String, titleList: List<String>, receivedName: String?, byteArray: ByteArray, roomType: Int) {
         val json = JSONObject()
         if (receivedName != null) {
             json.put("receivedName", receivedName)
@@ -126,7 +133,7 @@ object HttpUtil {
             json.put("groupName", null)
             json.put("groupRemark", null)
         }
-        json.put("image", EncodeUtils.base64Encode2String(File(imagePath).readBytes()))
+        json.put("image", EncodeUtils.base64Encode2String(byteArray))
         json.put("robotId", Constant.robotId)
         json.put("roomType", roomType)
         json.put("atMe", false)
@@ -135,14 +142,14 @@ object HttpUtil {
             .upJson(json)
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {
-                    LogUtils.d("推送图片成功: ${titleList.joinToString()} $receivedName $imagePath")
-                    log("推送图片成功: ${titleList.joinToString()} $receivedName $imagePath")
+                    LogUtils.d("推送图片成功: ${titleList.joinToString()} $receivedName")
+                    log("推送图片成功: ${titleList.joinToString()} $receivedName")
                 }
 
                 override fun onError(response: Response<String>) {
                     ToastUtils.showLong("推送图片失败")
                     LogUtils.e("推送图片失败")
-                    error("推送图片失败: $${titleList.joinToString()} $receivedName $imagePath")
+                    error("推送图片失败: $${titleList.joinToString()} $receivedName")
                 }
             })
     }
