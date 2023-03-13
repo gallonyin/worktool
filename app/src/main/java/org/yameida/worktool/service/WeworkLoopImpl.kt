@@ -1,10 +1,12 @@
 package org.yameida.worktool.service
 
+import android.os.Message
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.*
 import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
+import org.yameida.worktool.activity.GetScreenShotActivity
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
@@ -15,6 +17,7 @@ import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
 
 /**
  * 获取数据类型 201 202 主循环
@@ -46,7 +49,13 @@ object WeworkLoopImpl {
             }
         } catch (e: Exception) {
             mainLoopRunning = false
-            error("ERROR mainLoop: " + e.message)
+            LogUtils.e("ERROR mainLoop: " + e.message, e)
+            error("ERROR mainLoop: $e")
+            sleep(Constant.LONG_INTERVAL)
+            MyLooper.getInstance().sendMessage(Message.obtain().apply {
+                what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
+                obj = WeworkMessageBean().apply { type = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE }
+            })
         }
     }
 
@@ -127,15 +136,18 @@ object WeworkLoopImpl {
             log("聊天: $title")
             val messageList = arrayListOf<WeworkMessageBean.SubMessageBean>()
             val messageList2 = arrayListOf<WeworkMessageBean.SubMessageBean>()
+            val imageSet = LinkedHashSet<ByteArray>()
             do {
                 messageList.clear()
                 messageList2.clear()
+                imageSet.clear()
                 //聊天消息列表 1ListView 0RecycleView xViewGroup
                 val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 if (list != null) {
-                    LogUtils.v("消息条数: " + list.childCount)
+                    val childCount = list.childCount
+                    LogUtils.v("消息条数: $childCount")
                     for (i in 0 until list.childCount) {
-                        val item = list.getChild(i)
+                        val item = list.getChild(childCount - 1 - i)
                         if (item != null && item.childCount > 0) {
                             messageList.add(parseChatMessageItem(item, titleList, roomType, false))
                         }
@@ -145,16 +157,36 @@ object WeworkLoopImpl {
                 LogUtils.v("双重校验聊天列表")
                 val list2 = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 if (list2 != null) {
-                    LogUtils.v("list2消息条数: " + list2.childCount)
+                    val childCount = list2.childCount
+                    LogUtils.v("list2消息条数: $childCount")
                     var imageCheck = true
-                    for (i in 0 until list2.childCount) {
-                        val item = list2.getChild(i)
-                        if (item != null && item.childCount > 0) {
-                            val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
-                            if (chatMessageItem.sender == 0 && chatMessageItem.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
-                                imageCheck = false
+                    if (Constant.enableMediaProject) {
+                        for (i in 0 until childCount) {
+                            val item = list2.getChild(childCount - 1 - i)
+                            if (item != null && item.childCount > 0) {
+                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
+                                if (chatMessageItem.imageRepeat == true) {
+                                    chatMessageItem.imageRepeat = null
+                                    imageCheck = false
+                                }
+                                if (chatMessageItem.image != null) {
+                                    imageSet.add(chatMessageItem.image)
+                                    chatMessageItem.image = null
+                                    chatMessageItem.imageSize = null
+                                }
+                                messageList2.add(chatMessageItem)
                             }
-                            messageList2.add(chatMessageItem)
+                        }
+                    } else {
+                        for (i in 0 until list2.childCount) {
+                            val item = list2.getChild(childCount - 1 - i)
+                            if (item != null && item.childCount > 0) {
+                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
+                                if (chatMessageItem.sender == 0 && chatMessageItem.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
+                                    imageCheck = false
+                                }
+                                messageList2.add(chatMessageItem)
+                            }
                         }
                     }
                 }
@@ -163,6 +195,7 @@ object WeworkLoopImpl {
                 }
             } while (messageList != messageList2)
             if (messageList.isNotEmpty()) {
+                messageList.reverse()
                 val lastMessage = messageList.last()
                 val prefix = (lastMessage.nameList.firstOrNull()?.replace("\\(.*\\)$".toRegex(), "") + ": ").replace("null:", "")
                 val lastSyncMessage = prefix + if (lastMessage.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
@@ -172,7 +205,24 @@ object WeworkLoopImpl {
                 }
                 SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
                 LogUtils.v("lastSyncMessage: $lastSyncMessage")
-                if (Constant.pushImage) {
+                if (Constant.enableMediaProject && Constant.pushImage) {
+                    log("image: ${imageSet.size}")
+                    if (imageSet.isNotEmpty()) {
+                        val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
+                        LogUtils.v("lastImage: ${imageSet.first().size}")
+                        SPUtils.getInstance("lastImage").put(titleList.joinToString(), imageSet.first().size)
+                        imageSet.reversed().forEachIndexed { index, bytes ->
+                            if (imageMessageList.size > index) {
+                                val message = imageMessageList[index]
+                            }
+                        }
+                    }
+                    for (subMessageBean in messageList) {
+                        subMessageBean.image = null
+                        subMessageBean.imageSize = null
+                        subMessageBean.imageRepeat = null
+                    }
+                } else if (!Constant.enableMediaProject && Constant.pushImage) {
                     log("createSet: ${MultiFileObserver.createSet.joinToString()}\nsaveSet: ${MultiFileObserver.saveSet.joinToString()}")
                     if (MultiFileObserver.saveSet.isNotEmpty()) {
                         val imageMessageList = messageList.filter { it.textType == WeworkMessageBean.TEXT_TYPE_IMAGE }.reversed()
@@ -595,56 +645,95 @@ object WeworkLoopImpl {
                 message = WeworkMessageBean.SubMessageBean(0, textType, itemMessageList, nameList)
                 //图片类型特殊处理
                 if (imageCheck && Constant.pushImage && textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
-                    MultiFileObserver.createSet.clear()
-                    MultiFileObserver.finishSet.clear()
-                    MultiFileObserver.saveSet.clear()
-                    LogUtils.v("点击图片类型")
-                    AccessibilityUtil.performClickWithSon(relativeLayoutContent)
-                    AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
-                    LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
-                    sleep(Constant.CHANGE_PAGE_INTERVAL)
-                    if (MultiFileObserver.createSet.isNotEmpty()) {
-                        LogUtils.d("正在下载图片...")
-                        var downloading = true
-                        val startTime = System.currentTimeMillis()
-                        var currentTime = startTime
-                        while (currentTime - startTime < Constant.LONG_INTERVAL) {
-                            if (MultiFileObserver.createSet.size == MultiFileObserver.finishSet.size) {
-                                LogUtils.d("下载图片完成: ${MultiFileObserver.createSet.size}")
-                                downloading = false
-                                try {
-                                    for (path in MultiFileObserver.finishSet) {
-                                        val df = SimpleDateFormat("MMdd_HHmmss")
-                                        val targetPath = "${
-                                            Utils.getApp().getExternalFilesDir("copy")
-                                        }/${df.format(Date())}/${File(path).name}.png"
-                                        if (FileUtils.copy(path, targetPath)) {
-                                            LogUtils.d("复制图片完成: $targetPath " + ImageDepthSizeUtil.checkRawImage(targetPath))
-                                            log("复制图片完成: $targetPath")
-                                            MultiFileObserver.saveSet.add(targetPath)
-                                        } else {
-                                            LogUtils.e("复制图片失败 请检查权限: $targetPath")
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    LogUtils.e("接收图片出错", e)
-                                    error("接收图片出错: ${e.message}")
-                                }
-                                break
+                    if (Constant.enableMediaProject) {
+                        AccessibilityUtil.performClickWithSon(relativeLayoutContent)
+                        AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                        //图片双重校验
+                        var image = 0
+                        var image2 = 0
+                        var byte: ByteArray? = null
+                        do {
+                            val bitmap = GetScreenShotActivity.startCapture()
+                            byte = ImageUtils.bitmap2Bytes(bitmap)
+                            LogUtils.v("bitmap byte: ${byte.size}")
+                            image = byte.size
+                            sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                            val bitmap2 = GetScreenShotActivity.startCapture()
+                            val byte2 = ImageUtils.bitmap2Bytes(bitmap2)
+                            LogUtils.v("bitmap2 byte: ${byte2.size}")
+                            image2 = byte2.size
+                            if (image != image2) {
+                                LogUtils.e("图片双重校验失败")
                             }
-                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
-                            currentTime = System.currentTimeMillis()
+                        } while (image != image2)
+                        if (byte != null) {
+                            if (titleList.isNotEmpty()) {
+                                val lastImage = SPUtils.getInstance("lastImage").getInt(titleList.joinToString())
+                                if (lastImage == byte.size) {
+                                    message.imageRepeat = true
+                                } else {
+                                    message.imageSize = byte.size
+                                    message.image = byte
+                                }
+                            }
                         }
-                        if (downloading) {
-                            LogUtils.e("下载图片失败")
+                        var retry = 3
+                        while (retry-- > 0 && WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
+                            AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
+                            sleep(Constant.POP_WINDOW_INTERVAL)
                         }
                     } else {
-                        LogUtils.d("该图片已下载 忽略")
-                    }
-                    var retry = 3
-                    while (retry-- > 0 && WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
-                        AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
-                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        MultiFileObserver.createSet.clear()
+                        MultiFileObserver.finishSet.clear()
+                        MultiFileObserver.saveSet.clear()
+                        LogUtils.v("点击图片类型")
+                        AccessibilityUtil.performClickWithSon(relativeLayoutContent)
+                        AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                        LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        if (MultiFileObserver.createSet.isNotEmpty()) {
+                            LogUtils.d("正在下载图片...")
+                            var downloading = true
+                            val startTime = System.currentTimeMillis()
+                            var currentTime = startTime
+                            while (currentTime - startTime < Constant.LONG_INTERVAL) {
+                                if (MultiFileObserver.createSet.size == MultiFileObserver.finishSet.size) {
+                                    LogUtils.d("下载图片完成: ${MultiFileObserver.createSet.size}")
+                                    downloading = false
+                                    try {
+                                        for (path in MultiFileObserver.finishSet) {
+                                            val df = SimpleDateFormat("MMdd_HHmmss")
+                                            val targetPath = "${
+                                                Utils.getApp().getExternalFilesDir("copy")
+                                            }/${df.format(Date())}/${File(path).name}.png"
+                                            if (FileUtils.copy(path, targetPath)) {
+                                                LogUtils.d("复制图片完成: $targetPath " + ImageDepthSizeUtil.checkRawImage(targetPath))
+                                                log("复制图片完成: $targetPath")
+                                                MultiFileObserver.saveSet.add(targetPath)
+                                            } else {
+                                                LogUtils.e("复制图片失败 请检查权限: $targetPath")
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        LogUtils.e("接收图片出错", e)
+                                        error("接收图片出错: ${e.message}")
+                                    }
+                                    break
+                                }
+                                sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                                currentTime = System.currentTimeMillis()
+                            }
+                            if (downloading) {
+                                LogUtils.e("下载图片失败")
+                            }
+                        } else {
+                            LogUtils.d("该图片已下载 忽略")
+                        }
+                        var retry = 3
+                        while (retry-- > 0 && WeworkController.weworkService.currentClass == "com.tencent.wework.msg.controller.ShowImageController") {
+                            AccessibilityUtil.performXYClick(WeworkController.weworkService, ScreenUtils.getScreenWidth() / 2F, BarUtils.getStatusBarHeight() * 2F)
+                            sleep(Constant.POP_WINDOW_INTERVAL)
+                        }
                     }
                 }
             } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {

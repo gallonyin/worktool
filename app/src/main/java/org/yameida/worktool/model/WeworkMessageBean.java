@@ -243,6 +243,9 @@ public class WeworkMessageBean {
         public Integer textType;
         public List<ItemMessageBean> itemMessageList;
         public List<String> nameList;
+        public Boolean imageRepeat;
+        public Integer imageSize;
+        public byte[] image;
 
         public SubMessageBean(Integer sender, Integer textType, List<ItemMessageBean> itemMessageList, List<String> nameList) {
             this.sender = sender;

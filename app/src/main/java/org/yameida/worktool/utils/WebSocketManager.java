@@ -6,6 +6,7 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.hjq.toast.ToastUtils;
 
+import org.yameida.worktool.Constant;
 import org.yameida.worktool.model.WeworkMessageBean;
 import org.yameida.worktool.model.WeworkMessageListBean;
 import org.yameida.worktool.service.WeworkController;
@@ -157,8 +158,10 @@ public class WebSocketManager {
                 //重连后刷新连接时间
                 lastConnectedTime = System.currentTimeMillis();
             }
-            if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 3000 && !FloatWindowHelper.INSTANCE.isPause()) {
-                ToastUtils.show("机器人运行中 请勿人工操作手机~");
+            if (!Constant.INSTANCE.getEnableMediaProject()) {
+                if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 3000 && !FloatWindowHelper.INSTANCE.isPause()) {
+                    ToastUtils.show("机器人运行中 请勿人工操作手机~");
+                }
             }
         };
 

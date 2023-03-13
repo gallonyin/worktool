@@ -55,6 +55,7 @@ object MyLooper {
         SPUtils.getInstance("noSyncMessage").clear()
         SPUtils.getInstance("limit").clear()
         SPUtils.getInstance("groupInvite").clear()
+        SPUtils.getInstance("lastImage").clear()
     }
 
     fun getInstance(): Handler {

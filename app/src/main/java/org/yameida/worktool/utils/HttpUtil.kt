@@ -122,7 +122,7 @@ object HttpUtil {
                 json.put("groupRemark", null)
             }
         } else {
-            json.put("receivedName", titleList.lastOrNull() { !it.contains("＠") } ?: "")
+            json.put("receivedName", titleList.lastOrNull { !it.contains("＠") } ?: "")
             json.put("groupName", null)
             json.put("groupRemark", null)
         }

@@ -1264,4 +1264,59 @@ object AccessibilityUtil {
         sleep(SCROLL_INTERVAL)
         return dispatchGesture
     }
+
+    /**
+     * 等待文案消失
+     */
+    fun waitForTextMissing(
+        node: AccessibilityNodeInfo?,
+        vararg textList: String,
+        exact: Boolean = false,
+        timeout: Long = 5000,
+        root: Boolean = true,
+        desc: Boolean = false
+    ): Boolean {
+        var node = node ?: return true
+        val startTime = System.currentTimeMillis()
+        var currentTime = startTime
+        while (currentTime - startTime <= timeout) {
+            findOnceByText(node, *textList, exact = exact, desc = desc) ?: return true
+            sleep(SHORT_INTERVAL)
+            if (root) {
+                node = getRoot(true)
+            } else {
+                node.refresh()
+            }
+            currentTime = System.currentTimeMillis()
+        }
+        Log.e(tag, "waitForTextMissing ${if (desc) "desc" else "text"}: found: ${textList.joinToString()}")
+        return false
+    }
+
+    /**
+     * 等待控件消失
+     */
+    fun waitForClazzMissing(
+        node: AccessibilityNodeInfo?,
+        vararg clazzList: String,
+        timeout: Long = 5000,
+        root: Boolean = true
+    ): Boolean {
+        var node = node ?: return true
+        val startTime = System.currentTimeMillis()
+        var currentTime = startTime
+        while (currentTime - startTime <= timeout) {
+            findOnceByClazz(node, *clazzList) ?: return true
+            sleep(SHORT_INTERVAL)
+            if (root) {
+                node = getRoot(true)
+            } else {
+                node.refresh()
+            }
+            currentTime = System.currentTimeMillis()
+        }
+        LogUtils.e("waitForClazzMissing found: ${clazzList.joinToString()}")
+        return false
+    }
+
 }
