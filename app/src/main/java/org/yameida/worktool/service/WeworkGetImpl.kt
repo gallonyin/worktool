@@ -2,13 +2,11 @@ package org.yameida.worktool.service
 
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.SPUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
-import org.yameida.worktool.utils.AccessibilityExtraUtil
-import org.yameida.worktool.utils.AccessibilityUtil
-import org.yameida.worktool.utils.Views
-import org.yameida.worktool.utils.WeworkRoomUtil
+import org.yameida.worktool.utils.*
 import java.lang.StringBuilder
 
 /**
@@ -177,6 +175,14 @@ object WeworkGetImpl {
                             LogUtils.v("corp", corp)
                             LogUtils.v("info", info.toString())
                         }
+                        if (tvList.size > 1) {
+                            if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)) {
+                                AccessibilityUtil.performClick(tvList[1])
+                                getRealName(nickname)
+                            } else {
+                                LogUtils.d("已实名认证")
+                            }
+                        }
                     }
                 }
                 Constant.myName = nickname
@@ -231,6 +237,11 @@ object WeworkGetImpl {
                     myInfo.job = textViewList[1].text?.toString() ?: ""
                 }
             }
+        }
+        if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)) {
+            getRealName(myInfo.name)
+        } else {
+            LogUtils.d("已实名认证")
         }
         LogUtils.d("我的信息", GsonUtils.toJson(myInfo))
         val weworkMessageBean = WeworkMessageBean()
@@ -410,6 +421,29 @@ object WeworkGetImpl {
         } else {
             LogUtils.e("未找到企业列表")
             return false
+        }
+    }
+
+    /**
+     * 获取实名状态
+     */
+    private fun getRealName(nickname: String) {
+        if (AccessibilityExtraUtil.loadingPage("SettingMineInfoActivity")) {
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "姓名", exact = true)) {
+                val realNameFlag = AccessibilityUtil.findOneByText(getRoot(), "实名认证", exact = true)
+                if (realNameFlag != null) {
+                    val notRealName = AccessibilityUtil.findOnceByText(getRoot(), "未认证")
+                    val realName = AccessibilityUtil.findOnceByClazz(AccessibilityUtil.findBackNode(realNameFlag, 1), Views.TextView)
+                    if (notRealName != null) {
+                        LogUtils.d("未实名认证: $nickname")
+                        error("未实名认证: $nickname")
+                    } else if (realName != null) {
+                        LogUtils.d("实名认证: ${realName.text}")
+                        log("实名认证: ${realName.text}")
+                        SPUtils.getInstance("myInfo").put("realName", true)
+                    }
+                }
+            }
         }
     }
 }

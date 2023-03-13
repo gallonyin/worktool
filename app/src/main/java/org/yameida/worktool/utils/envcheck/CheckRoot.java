@@ -18,19 +18,24 @@ public class CheckRoot {
 
     public static boolean isDeviceRooted() {
         if (checkDeviceDebuggable()) {
+            Log.i(LOG_TAG, "isDeviceRooted: checkDeviceDebuggable()");
             return true;
         }
         if (checkSuperuserApk()) {
+            Log.i(LOG_TAG, "isDeviceRooted: checkSuperuserApk()");
             return true;
         }
         if (checkRootPathSU()) {
+            Log.i(LOG_TAG, "isDeviceRooted: checkRootPathSU()");
             return true;
         }
         if (checkRootWhichSU()) {
+            Log.i(LOG_TAG, "isDeviceRooted: checkRootWhichSU()");
             return true;
         }
 
         if (checkAccessRootData()) {
+            Log.i(LOG_TAG, "isDeviceRooted: checkAccessRootData()");
             return true;
         }
         return false;

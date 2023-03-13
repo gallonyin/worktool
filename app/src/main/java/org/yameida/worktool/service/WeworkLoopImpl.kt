@@ -4,13 +4,16 @@ import android.os.Message
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
 import com.blankj.utilcode.util.*
+import com.hjq.toast.ToastUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.Demo
+import org.yameida.worktool.MyApplication
 import org.yameida.worktool.activity.GetScreenShotActivity
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
+import org.yameida.worktool.utils.envcheck.CheckRoot
 import java.io.File
 import java.lang.Exception
 import java.lang.StringBuilder
@@ -45,6 +48,9 @@ object WeworkLoopImpl {
                 getChatroomList()
                 if (!mainLoopRunning) break
                 getFriendRequest()
+                if (!mainLoopRunning) break
+                checkRealName()
+                if (!mainLoopRunning) break
                 sleep(300)
             }
         } catch (e: Exception) {
@@ -60,9 +66,24 @@ object WeworkLoopImpl {
     }
 
     /**
+     * 检查账号是否已实名
+     */
+    private fun checkRealName(): Boolean {
+        if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)
+            && CheckRoot.isDeviceRooted()) {
+            LogUtils.e("账号实名前请先关闭WorkTool主功能！")
+            ToastUtils.show("账号实名前请先关闭WorkTool主功能！")
+            MyApplication.launchIntent()
+            sleep(5000)
+            return false
+        }
+        return true
+    }
+
+    /**
      * 读取通讯录好友请求
      */
-    fun getFriendRequest(): Boolean {
+    private fun getFriendRequest(): Boolean {
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "通讯录", exact = true)
         for (item in list) {
             val childCount = item.parent?.parent?.parent?.childCount
