@@ -369,7 +369,7 @@ object WeworkGetImpl {
                         //tvList title/time/content
                         if (tvList.size == 3) {
                             //只查看最近一周内的消息
-                            if (tvList[1].isNotBlank() && !tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
+                            if (tvList[1].isNotBlank() && !tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
                                 return true
                             }
                         }

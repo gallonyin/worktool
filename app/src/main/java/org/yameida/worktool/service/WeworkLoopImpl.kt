@@ -436,19 +436,23 @@ object WeworkLoopImpl {
             //让企微切换页面使APP保持活跃
             goHomeTab("通讯录")
             goHomeTab("消息")
-            //滚动到顶端查看是否有无提示消息
-            AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot())
-            //如果有新消息则停止
-            val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
-            for (item in list) {
-                val childCount = item.parent?.parent?.parent?.childCount
-                if (childCount == 4 || childCount == 5) {
-                    if (item.parent != null && item.parent.childCount > 1) {
-                        return false
-                    }
-                }
+            LogUtils.d("检查最近列表")
+            log("检查最近列表")
+            if (hasNewMessage()) {
+                return false
             }
-            if (!mainLoopRunning) {
+            var stop = false
+            //滚动到顶端查看是否有无提示消息
+            AccessibilityUtil.scrollToTop(WeworkController.weworkService, getRoot(), listener = object : AccessibilityUtil.OnScrollListener() {
+                override fun onScroll(): Boolean {
+                    if (hasNewMessage()) {
+                        stop = true
+                        return true
+                    }
+                    return false
+                }
+            })
+            if (stop) {
                 return false
             }
             val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
@@ -456,7 +460,7 @@ object WeworkLoopImpl {
                 if (checkNoTipMessage(listview) != 1) {
                     AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = object : AccessibilityUtil.OnScrollListener() {
                         override fun onScroll(): Boolean {
-                            if (!mainLoopRunning) {
+                            if (hasNewMessage()) {
                                 return true
                             }
                             if (checkNoTipMessage(listview) != 0) {
@@ -522,7 +526,7 @@ object WeworkLoopImpl {
             //tvList title/time/content
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
-                if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
+                if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
                     if (tvList[2].contains("(移出了群聊)|(邀请你加入了)|(修改群名为)|(此群为外部群)|(加入了外部群)".toRegex())) {
                         val interval = System.currentTimeMillis() / 1000 - SPUtils.getInstance("noTipMessage").getLong(tvList[0], 0)
                         if (interval > 3600) {
@@ -540,6 +544,7 @@ object WeworkLoopImpl {
                         }
                     }
                 } else {
+                    LogUtils.v("未发现无提示消息: ${tvList[1]}")
                     return -1
                 }
             }
@@ -562,7 +567,7 @@ object WeworkLoopImpl {
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
                 val title = tvList[0]
-                if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)".toRegex())) {
+                if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
                     val lastSyncMessage = SPUtils.getInstance("lastSyncMessage").getString(title, null)
                         ?: continue
                     if (tvList[2].contains(lastSyncMessage.replace("\n", " "))) {
@@ -582,6 +587,7 @@ object WeworkLoopImpl {
                         LogUtils.v("消息多次不一致: $tvList")
                     }
                 } else {
+                    LogUtils.v("未发现不一致消息: ${tvList[1]}")
                     return -1
                 }
             }
@@ -811,6 +817,40 @@ object WeworkLoopImpl {
             message = WeworkMessageBean.SubMessageBean(2, 0, itemMessageList, nameList)
         }
         return message
+    }
+
+    /**
+     * 有新消息时停止 or 不在消息页时停止 or 停止读循环时停止
+     * @return true 停止 false 继续
+     */
+    private fun hasNewMessage(): Boolean {
+        //如果有新消息则停止
+        val list = AccessibilityUtil.findAllOnceByText(getRoot(), "消息", exact = true)
+        var isSelect = false
+        for (item in list) {
+            val childCount = item.parent?.parent?.parent?.childCount
+            if (childCount == 4 || childCount == 5) {
+                if (item.parent != null && item.parent.childCount > 1) {
+                    LogUtils.d("有新消息时停止")
+                    return true
+                }
+                if (!item.isSelected) {
+                    LogUtils.d("不在消息页时停止")
+                    return true
+                } else {
+                    isSelect = true
+                }
+                if (!mainLoopRunning) {
+                    LogUtils.d("停止读循环时停止")
+                    return true
+                }
+            }
+        }
+        if (!isSelect) {
+            LogUtils.d("不在消息页时停止")
+            return true
+        }
+        return false
     }
 
 }
