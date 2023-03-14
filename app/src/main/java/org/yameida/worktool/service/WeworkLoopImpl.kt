@@ -66,13 +66,21 @@ object WeworkLoopImpl {
     }
 
     /**
-     * 检查账号是否已实名
+     * 检查账号是否已实名 & 新号使用模拟环境
+     * @return 通过检查 true 否则 false
      */
     private fun checkRealName(): Boolean {
         if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)
             && CheckRoot.isDeviceRooted()) {
             LogUtils.e("账号实名前请先关闭WorkTool主功能！")
             ToastUtils.show("账号实名前请先关闭WorkTool主功能！")
+            MyApplication.launchIntent()
+            sleep(5000)
+            return false
+        }
+        if (SPUtils.getInstance().getBoolean("risk", false)) {
+            LogUtils.e("新号请勿使用模拟器/云手机！")
+            ToastUtils.show("新号请勿使用模拟器/云手机！")
             MyApplication.launchIntent()
             sleep(5000)
             return false

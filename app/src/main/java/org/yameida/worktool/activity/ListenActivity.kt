@@ -131,7 +131,12 @@ class ListenActivity : AppCompatActivity() {
                     sw_accessibility.isChecked = false
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!PermissionHelper.isAccessibilitySettingOn()) {
-                    startActivity(Intent(this, AccessibilityGuideActivity::class.java))
+                    if (SPUtils.getInstance().getBoolean("risk", false)) {
+                        sw_accessibility.isChecked = false
+                        ToastUtils.showLong("新号请勿使用模拟器/云手机！")
+                    } else {
+                        startActivity(Intent(this, AccessibilityGuideActivity::class.java))
+                    }
                 }
             } else {
                 if (PermissionHelper.isAccessibilitySettingOn()) {

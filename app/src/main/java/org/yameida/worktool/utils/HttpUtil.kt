@@ -11,6 +11,7 @@ import org.yameida.worktool.R
 import org.yameida.worktool.model.network.CheckUpdateResult
 import org.yameida.worktool.model.network.GetMyConfigResult
 import org.yameida.worktool.service.log
+import org.yameida.worktool.utils.envcheck.CheckRoot
 import update.UpdateAppUtils
 import java.io.File
 
@@ -88,12 +89,20 @@ object HttpUtil {
                         if (commonResult.code != 200) {
                             return onError(response)
                         }
-                        LogUtils.i(commonResult.data)
+                        LogUtils.i("获取配置", commonResult.data)
+                        SPUtils.getInstance().put("risk", false)
+                        if (CheckRoot.isDeviceRooted()) {
+                            val date = TimeUtils.string2Date(commonResult.data.createTime, "yyyy-MM-dd'T'HH:mm:ss")
+                            if (System.currentTimeMillis() - date.time < 7 * 68400 * 1000) {
+                                LogUtils.e("新号使用模拟环境！")
+                                ToastUtils.showLong("新号请勿使用模拟器/云手机！")
+                                SPUtils.getInstance().put("risk", true)
+                            }
+                        }
                         commonResult.data?.apply {
                             Constant.qaUrl = this.callbackUrl ?: ""
                             Constant.openCallback = this.openCallback ?: 0
                             Constant.replyStrategy = (this.replyAll ?: 0) + 1
-                            return
                         }
                     } catch (e: Exception) {
                         LogUtils.e(e)

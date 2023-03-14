@@ -14,5 +14,8 @@ data class MyConfigBean(
     var robotKeyCheck: Int? = null,
 
     //通讯加密 0不加密 1加密
-    var encryptType: Int? = null
+    var encryptType: Int? = null,
+
+    //创建时间
+    var createTime: String? = null
 )
