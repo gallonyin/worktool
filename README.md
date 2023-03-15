@@ -40,7 +40,7 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 
 这里有所有详细的API文档和调用示例！！！
 
-https://www.apifox.cn/web/project/1035094
+https://worktool.apifox.cn/doc-850007
 
 ## 混淆
 
@@ -54,8 +54,9 @@ Apache License, Version 2.0
 
 - 官网: http://wt.asrtts.cn/
 - Email: gallonyin@163.com
-- QQ群：764377820（链接号申请/问题反馈）
+- QQ群: 764377820, 767701323（链接号申请/问题反馈）
 - 如果遇到问题欢迎在群里提问，个人能力也有限，希望一起学习一起进步。
+- WorkTool志愿者开发群: 716217439
 
 # 版本更新
 
