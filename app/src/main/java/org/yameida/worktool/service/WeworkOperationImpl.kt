@@ -90,6 +90,8 @@ object WeworkOperationImpl {
             goHome()
             return false
         }
+        val successList = arrayListOf<String>()
+        val failList = arrayListOf<String>()
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
                 if (WeworkTextUtil.longClickMessageItem(
@@ -104,11 +106,13 @@ object WeworkOperationImpl {
                     LogUtils.v("开始回复")
                     if (sendChatMessage(receivedContent, reply = true)) {
                         LogUtils.d("$title: 回复成功")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        successList.add(title)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, successList, failList)
                         return true
                     } else {
                         LogUtils.d("$title: 回复发送失败")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "回复发送失败", startTime)
+                        failList.add(title)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "回复发送失败", startTime, successList, failList)
                         return false
                     }
                 } else {
@@ -117,23 +121,26 @@ object WeworkOperationImpl {
                     val text = if (originalContent.isNotEmpty()) "【$originalContent】\n$receivedContent" else receivedContent
                     if (sendChatMessage(text, receivedName)) {
                         LogUtils.d("$title: 直接发送答案成功")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        successList.add(title)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, successList, failList)
                         return true
                     } else {
                         LogUtils.d("$title: 直接发送答案失败")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "直接发送答案失败", startTime)
+                        failList.add(title)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_SEND_MESSAGE, "直接发送答案失败", startTime, successList, failList)
                         return false
                     }
                 }
             } else {
                 error("$title: 回复失败 $receivedContent")
                 LogUtils.d("进入房间失败 $title")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $title", startTime)
+                failList.add(title)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $title", startTime, successList, failList)
                 return false
             }
         }
         LogUtils.d("房间名为空")
-        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "房间名为空", startTime)
+        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "房间名为空", startTime, listOf(), titleList)
         return false
     }
 
@@ -207,42 +214,42 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
             if (!beforeCreateGroupCheck()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName))
                 return false
             }
             if (!createGroup()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName))
                 return false
             }
             if (createGroupLimit()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName))
                 return false
             } else {
                 LogUtils.v("未发现建群达到上限")
             }
         }
         if (!groupRename(groupName)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupAddMember(selectList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupChangeAnnouncement(groupAnnouncement)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "创建群成功 群改名成功 群拉人成功 群公告失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "创建群成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupChangeRemark(groupRemark)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupTemplate(groupTemplate)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
             return false
         }
         getGroupQrcode(groupName, groupRemark)
-        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
         return true
     }
 
@@ -272,35 +279,35 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (!WeworkRoomUtil.intoRoom(groupName)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupRename(newGroupName)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "进入房间成功 群改名失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "进入房间成功 群改名失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupAddMember(selectList, showMessageHistory == true)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupRemoveMember(removeList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败: ${removeList?.joinToString()}", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败: ${removeList?.joinToString()}", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupChangeAnnouncement(newGroupAnnouncement)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "进入房间成功 群改名成功 群拉人成功 群公告失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "进入房间成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupChangeRemark(groupRemark)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName))
             return false
         }
         if (!groupTemplate(groupTemplate)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
             return false
         }
         getGroupQrcode(groupName, groupRemark)
-        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
         return true
     }
 
@@ -326,22 +333,22 @@ object WeworkOperationImpl {
                     val confirmTv = AccessibilityUtil.findOneByText(getRoot(), "解散", "确定", exact = true, timeout = 2000)
                     if (confirmTv != null) {
                         AccessibilityUtil.performClick(confirmTv)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
                         return true
                     } else {
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散按钮 $groupName", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散按钮 $groupName", startTime, listOf(), listOf(groupName))
                         return false
                     }
                 } else {
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散群聊按钮 $groupName", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到解散群聊按钮 $groupName", startTime, listOf(), listOf(groupName))
                     return false
                 }
             } else {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群管理按钮 $groupName", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群管理按钮 $groupName", startTime, listOf(), listOf(groupName))
                 return false
             }
         } else {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(groupName))
             return false
         }
     }
@@ -397,26 +404,26 @@ object WeworkOperationImpl {
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
                         return false
                     }
                 } else {
                     LogUtils.e("微盘未搜索到相关图片: $objectName")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关图片: $objectName", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关图片: $objectName", startTime, listOf(), titleList)
                     return false
                 }
             } else {
                 LogUtils.e("未找到微盘内搜索")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("未找到微盘")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime, listOf(), titleList)
             return false
         }
     }
@@ -450,26 +457,26 @@ object WeworkOperationImpl {
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                     AccessibilityUtil.performClick(shareFileButton)
                     if (relaySelectTarget(titleList, extraText)) {
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
                         return false
                     }
                 } else {
                     LogUtils.e("微盘未搜索到相关文件: $objectName")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关文件: $objectName", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关文件: $objectName", startTime, listOf(), titleList)
                     return false
                 }
             } else {
                 LogUtils.e("未找到微盘内搜索")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("未找到微盘")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime, listOf(), titleList)
             return false
         }
     }
@@ -526,14 +533,14 @@ object WeworkOperationImpl {
         val allButton = AccessibilityUtil.findOneByText(getRoot(), "全部")
         if (allButton == null) {
             LogUtils.e("未找到全部按钮")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到全部按钮", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到全部按钮", startTime, listOf(), titleList)
             return false
         }
         AccessibilityUtil.performClick(allButton)
         val myFileButton = AccessibilityUtil.findOneByText(getRoot(), "共享空间")
         if (myFileButton == null) {
             LogUtils.e("未找到共享空间按钮")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到共享空间按钮", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到共享空间按钮", startTime, listOf(), titleList)
             return false
         }
         AccessibilityUtil.performClick(myFileButton)
@@ -547,21 +554,21 @@ object WeworkOperationImpl {
                 val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                 AccessibilityUtil.performClick(shareFileButton)
                 if (relaySelectTarget(titleList, extraText)) {
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                     return true
                 } else {
                     LogUtils.e("微盘文件转发失败: $objectName")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
                     return false
                 }
             } else {
                 LogUtils.e("文档未搜索到相关文件: $objectName")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "文档未搜索到相关文件: $objectName", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "文档未搜索到相关文件: $objectName", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("未找到文档搜索按钮")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到文档搜索按钮", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到文档搜索按钮", startTime, listOf(), titleList)
             return false
         }
     }
@@ -590,7 +597,7 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         if (!PermissionUtils.isGrantedDrawOverlays()) {
             LogUtils.e("未打开悬浮窗权限")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_PERMISSION, "未打开悬浮窗权限", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_PERMISSION, "未打开悬浮窗权限", startTime, listOf(), titleList)
             return false
         }
         if (fileUrl != null) {
@@ -632,19 +639,14 @@ object WeworkOperationImpl {
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                         return true
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
                         if (retryCount > 0) {
                             return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                         }
-                        uploadCommandResult(
-                            message,
-                            ExecCallbackBean.ERROR_RELAY,
-                            "文件转发失败: $objectName",
-                            startTime
-                        )
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "文件转发失败: $objectName", startTime, listOf(), titleList)
                         return false
                     }
                 } else {
@@ -652,12 +654,7 @@ object WeworkOperationImpl {
                     if (retryCount > 0) {
                         return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                     }
-                    uploadCommandResult(
-                        message,
-                        ExecCallbackBean.ERROR_FILE_STORAGE,
-                        "文件存储本地失败 $filePath",
-                        startTime
-                    )
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_STORAGE, "文件存储本地失败 $filePath", startTime, listOf(), titleList)
                     return false
                 }
             } else {
@@ -665,12 +662,7 @@ object WeworkOperationImpl {
                 if (retryCount > 0) {
                     return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                 }
-                uploadCommandResult(
-                    message,
-                    ExecCallbackBean.ERROR_FILE_DOWNLOAD,
-                    "文件下载失败 $fileUrl",
-                    startTime
-                )
+                uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_DOWNLOAD, "文件下载失败 $fileUrl", startTime, listOf(), titleList)
                 return false
             }
         } else if (fileBase64 != null) {
@@ -707,19 +699,14 @@ object WeworkOperationImpl {
                 if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
                     val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                     AccessibilityUtil.performClick(stayButton)
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                     return true
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
                     if (retryCount > 0) {
                         return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                     }
-                    uploadCommandResult(
-                        message,
-                        ExecCallbackBean.ERROR_RELAY,
-                        "文件转发失败: $objectName",
-                        startTime
-                    )
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "文件转发失败: $objectName", startTime, listOf(), titleList)
                     return false
                 }
             } else {
@@ -727,12 +714,7 @@ object WeworkOperationImpl {
                 if (retryCount > 0) {
                     return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                 }
-                uploadCommandResult(
-                    message,
-                    ExecCallbackBean.ERROR_FILE_STORAGE,
-                    "文件存储本地失败 $filePath",
-                    startTime
-                )
+                uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_STORAGE, "文件存储本地失败 $filePath", startTime, listOf(), titleList)
                 return false
             }
         } else {
@@ -740,12 +722,7 @@ object WeworkOperationImpl {
             if (retryCount > 0) {
                 return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
             }
-            uploadCommandResult(
-                message,
-                ExecCallbackBean.ERROR_ILLEGAL_DATA,
-                "未找到文件资源参数",
-                startTime
-            )
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "未找到文件资源参数", startTime, listOf(), titleList)
             return false
         }
     }
@@ -773,16 +750,16 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
             if (relaySelectTarget(titleList, extraText)) {
-                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                 return true
             } else {
                 LogUtils.e("转发失败")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("非法操作")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, "非法操作", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, "非法操作", startTime, listOf(), titleList)
             return false
         }
     }
@@ -802,16 +779,16 @@ object WeworkOperationImpl {
             if (getFriendInfo(friend.name)) {
                 if (modifyFriendInfo(friend, addFriend = false)) {
                     LogUtils.d("修改好友信息成功: ${friend.name}")
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(friend.name), listOf())
                     return true
                 } else {
                     LogUtils.e("修改用户信息失败: ${friend.name}")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime, listOf(), listOf(friend.name))
                     return false
                 }
             } else {
                 LogUtils.e("未找到用户: ${friend.name}")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到用户: ${friend.name}", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到用户: ${friend.name}", startTime, listOf(), listOf(friend.name))
                 return false
             }
         }
@@ -847,7 +824,7 @@ object WeworkOperationImpl {
                                 )
                             } else if (AccessibilityUtil.findOnceByText(getRoot(), "该用户不存在") != null) {
                                 LogUtils.e("该用户不存在: ${friend.phone}")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "该用户不存在: ${friend.phone}", startTime)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "该用户不存在: ${friend.phone}", startTime, listOf(), listOf(friend.phone))
                                 return false
                             }
                             if (modifyFriendInfo(friend)) {
@@ -858,52 +835,52 @@ object WeworkOperationImpl {
                                     }
                                     if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
                                         LogUtils.d("发送添加邀请成功: ${friend.phone}")
-                                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(friend.phone), listOf())
                                         return true
                                     } else {
                                         LogUtils.e("未找到发送邀请按钮")
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到发送邀请按钮", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到发送邀请按钮", startTime, listOf(), listOf(friend.phone))
                                         return false
                                     }
                                 } else {
                                     if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
                                         LogUtils.e("已经添加联系人，请勿重复添加" + friend.phone)
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_REPEAT, "已经添加联系人，请勿重复添加" + friend.phone, startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_REPEAT, "已经添加联系人，请勿重复添加" + friend.phone, startTime, listOf(), listOf(friend.phone))
                                         return false
                                     } else {
                                         LogUtils.e("未找到添加为联系人")
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加为联系人", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加为联系人", startTime, listOf(), listOf(friend.phone))
                                         return false
                                     }
                                 }
                             } else {
                                 LogUtils.e("修改用户信息失败: ${friend.phone}")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.phone}", startTime)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.phone}", startTime, listOf(), listOf(friend.phone))
                                 return false
                             }
                         } else {
                             LogUtils.e("未找到查找手机选项")
-                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查找手机选项", startTime)
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查找手机选项", startTime, listOf(), listOf(friend.phone))
                             return false
                         }
                     } else {
                         LogUtils.e("未找到添加客户按钮")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加客户按钮", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加客户按钮", startTime, listOf(), listOf(friend.phone))
                         return false
                     }
                 } else {
                     LogUtils.e("未找到添加客户列表")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加客户列表", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加客户列表", startTime, listOf(), listOf(friend.phone))
                     return false
                 }
             } else {
                 LogUtils.e("未找到搜索按钮")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到搜索按钮", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到搜索按钮", startTime, listOf(), listOf(friend.phone))
                 return false
             }
         } else {
             LogUtils.e("未找到聊天列表")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到聊天列表", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到聊天列表", startTime, listOf(), listOf(friend.phone))
             return false
         }
     }
@@ -969,55 +946,55 @@ object WeworkOperationImpl {
                                     }
                                     if (AccessibilityUtil.findTextAndClick(getRoot(), "发送添加邀请", "发送申请")) {
                                         LogUtils.d("发送添加邀请成功: ${friend.name}")
-                                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(friend.name), listOf())
                                         return true
                                     } else {
                                         if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
                                             LogUtils.d("已经添加成功: ${friend.name}")
-                                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(friend.name), listOf())
                                             return true
                                         }
                                         LogUtils.e("未找到发送邀请按钮")
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到发送邀请按钮", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到发送邀请按钮", startTime, listOf(), listOf(friend.name))
                                         return false
                                     }
                                 } else {
                                     if (AccessibilityUtil.findOnceByText(getRoot(), "发消息", exact = true) != null) {
                                         LogUtils.e("已经添加联系人，请勿重复添加: ${friend.name}")
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_REPEAT, "已经添加联系人，请勿重复添加 ${friend.name}", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_REPEAT, "已经添加联系人，请勿重复添加 ${friend.name}", startTime, listOf(), listOf(friend.name))
                                         return false
                                     } else {
                                         LogUtils.e("未找到添加为联系人")
-                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加为联系人", startTime)
+                                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加为联系人", startTime, listOf(), listOf(friend.name))
                                         return false
                                     }
                                 }
                             } else {
                                 LogUtils.e("修改用户信息失败: ${friend.name}")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "修改用户信息失败: ${friend.name}", startTime, listOf(), listOf(friend.name))
                                 return false
                             }
                         } else {
                             LogUtils.e("未搜索到结果: ${friend.name}")
-                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime)
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
                             return false
                         }
                     } else {
                         LogUtils.e("未发现搜索按钮")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现搜索按钮", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现搜索按钮", startTime, listOf(), listOf(friend.name))
                         return false
                     }
                 } else {
                     LogUtils.e("未发现通讯录列表")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现通讯录列表", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现通讯录列表", startTime, listOf(), listOf(friend.name))
                     return false
                 }
             } else {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查看全部群成员按钮 $groupName", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查看全部群成员按钮 $groupName", startTime, listOf(), listOf(friend.name))
                 return false
             }
         } else {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(friend.name))
             return false
         }
     }
@@ -1058,36 +1035,36 @@ object WeworkOperationImpl {
                         if (relaySelectTarget(titleList, needSend = false)) {
                             LogUtils.e("添加参与人成功")
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天", "保存并建群发送")) {
-                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
                                 return true
                             } else {
                                 LogUtils.e("未找到保存并发送按钮")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到保存并发送按钮", startTime)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到保存并发送按钮", startTime, listOf(), titleList)
                                 return false
                             }
                         } else {
                             LogUtils.e("添加参与人失败")
-                            uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "添加参与人失败: $titleList", startTime)
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "添加参与人失败: $titleList", startTime, listOf(), titleList)
                             return false
                         }
                     } else {
                         LogUtils.e("未找到添加按钮")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加按钮", startTime)
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到添加按钮", startTime, listOf(), titleList)
                         return false
                     }
                 } else {
                     LogUtils.e("未找到待办列表")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办列表", startTime)
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办列表", startTime, listOf(), titleList)
                     return false
                 }
             } else {
                 LogUtils.e("未找到待办按钮")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办按钮", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到待办按钮", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("未找到日程按钮")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到日程按钮", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到日程按钮", startTime, listOf(), titleList)
             return false
         }
     }
@@ -1149,19 +1126,19 @@ object WeworkOperationImpl {
             if (tvCorp != null) {
                 LogUtils.d("找到目标企业: $objectName")
                 AccessibilityUtil.performClick(tvCorp)
-                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime)
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime, listOf(objectName), listOf())
                 goHome()
                 WeworkGetImpl.getMyInfo(message)
                 return true
             } else {
                 LogUtils.e("未找到目标企业: $objectName")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到目标企业: $objectName", startTime)
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到目标企业: $objectName", startTime, listOf(), listOf(objectName))
                 goHome()
                 return false
             }
         } else {
             LogUtils.e("未找到企业列表: $objectName")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到企业列表: $objectName", startTime)
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到企业列表: $objectName", startTime, listOf(), listOf(objectName))
             return false
         }
     }
