@@ -177,7 +177,12 @@ object WeworkGetImpl {
                         }
                         if (tvList.size > 1) {
                             if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)) {
-                                AccessibilityUtil.performClick(tvList[1])
+                                if (tvList[1].text?.toString() == "未认证" && tvList.size > 2) {
+                                    log("企业未认证: $info")
+                                    AccessibilityUtil.performClick(tvList[2])
+                                } else {
+                                    AccessibilityUtil.performClick(tvList[1])
+                                }
                                 getRealName(nickname)
                             } else {
                                 LogUtils.d("已实名认证")
