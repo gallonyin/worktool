@@ -805,7 +805,7 @@ object WeworkOperationImpl {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 val list = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView).lastOrNull()
                 if (list != null) {
-                    val button = AccessibilityUtil.findOneByText(list, "添加客户", "添加居民", "加微信", "加学员", exact = true)
+                    val button = AccessibilityUtil.findOneByText(list, "添加客户", "添加居民", "加微信", "添加学员", exact = true)
                     if (button != null) {
                         AccessibilityUtil.performClick(button)
                         sleep(Constant.POP_WINDOW_INTERVAL)
