@@ -107,10 +107,15 @@ object WeworkLoopImpl {
                         return false
                     }
                     val addButton = AccessibilityUtil.findOneByText(getRoot(), "添加")
-                    val backNode = AccessibilityUtil.findBackNode(addButton)
-                    if (backNode?.className == Views.TextView) {
+                    var parent = addButton
+                    var son = addButton
+                    while (parent != null && parent.className != Views.RecyclerView && parent.className != Views.ListView) {
+                        son = parent
+                        parent = parent.parent
+                    }
+                    if (parent != null && AccessibilityUtil.findAllOnceByClazz(son, Views.TextView).size > 1) {
                         LogUtils.d("有待添加客户")
-                        AccessibilityUtil.performClick(backNode)
+                        AccessibilityUtil.performClick(son)
                         AccessibilityUtil.findTextAndClick(getRoot(), "新的")
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         var retry = 5
