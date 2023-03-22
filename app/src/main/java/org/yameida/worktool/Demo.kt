@@ -45,7 +45,7 @@ object Demo {
                         "$name",
                         "甲仑"
                       ],
-                      "groupAnnouncement": "(自动填写群公告) WorkTool欢迎大家~WorkTool管家是机器人，有问题可以在QQ群反馈~@我可以聊天~"
+                      "groupAnnouncement": "(自动拉群+自动群公告) WorkTool欢迎大家~WorkTool管家是机器人，有问题可以在QQ群反馈~@我可以聊天~"
                     }
                 ]
             }
