@@ -176,14 +176,11 @@ object WeworkTextUtil {
 ------------------ depth: 6 className: android.view.View
 ------------------ depth: 6 className: android.widget.RelativeLayout
 --------------------- depth: 7 className: android.widget.TextView
---------------------- depth: 7 text: 企微RPA机器人：
 --------------------- depth: 7 className: android.widget.LinearLayout
 ------------------------ depth: 8 className: android.widget.RelativeLayout
 --------------------------- depth: 9 className: android.widget.RelativeLayout
 ------------------------------ depth: 10 className: android.widget.TextView
------------------------------- depth: 10 text: 新公告
 --------------- depth: 5 className: android.widget.TextView
---------------- depth: 5 text: 111
 
 ------------------------------总结------------------------------
 图片 0tv 1iv (图片)

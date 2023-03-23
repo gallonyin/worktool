@@ -296,7 +296,6 @@ public class WeworkMessageBean {
 
     //我的信息
     public static class MyInfo {
-        //{姓名=企微RPA机器人, 工作签名=添加工作签名…, 手机=17326101105, 别名=企微RPA机器人, 对外信息显示=企微RPA机器人＠擎盾数据, 职务=企微RPA机器人, 所在企业=TEST 擎盾数据, 性别=男}
         public String name;
         public String alias;
         public String gender;
