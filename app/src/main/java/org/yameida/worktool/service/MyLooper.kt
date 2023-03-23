@@ -171,6 +171,9 @@ object MyLooper {
             WeworkMessageBean.ADD_FRIEND_BY_GROUP -> {
                 WeworkController.addFriendByGroup(message)
             }
+            WeworkMessageBean.MODIFY_GROUP_MEMBER_INFO -> {
+                WeworkController.modifyGroupMemberInfo(message)
+            }
             WeworkMessageBean.ADD_NEED_DEAL -> {
                 WeworkController.addNeedDeal(message)
             }

@@ -1000,6 +1000,86 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 给群成员添加备注
+     * @see WeworkMessageBean.MODIFY_GROUP_MEMBER_INFO
+     * @param groupName 外部群
+     * @param friend 待添加用户
+     */
+    fun modifyGroupMemberInfo(
+        message: WeworkMessageBean,
+        groupName: String,
+        friend: WeworkMessageBean.Friend
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "查看全部群成员")) {
+                val title = friend.name
+                val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                if (list != null) {
+                    val frontNode = AccessibilityUtil.findFrontNode(list)
+                    val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+                        .filter { it.text == null }
+                    if (textViewList.size >= 2) {
+                        val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                        AccessibilityUtil.performClick(searchButton)
+                        val needTrim = title.contains(Constant.regTrimTitle)
+                        val trimTitle = title.replace(Constant.regTrimTitle, "")
+                        AccessibilityUtil.findTextInput(getRoot(), trimTitle)
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        //消息页搜索结果列表
+                        val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                        val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
+                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                                (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                        val regex2 = ".*?\\($reverseRegexTitle\\)$"
+                        val regex = "($regex1)|($regex2)"
+                        val matchSelect = AccessibilityUtil.findOneByTextRegex(
+                            selectListView,
+                            regex,
+                            timeout = 2000,
+                            root = false
+                        )
+                        if (selectListView != null && matchSelect != null) {
+                            for (i in 0 until selectListView.childCount) {
+                                val item = selectListView.getChild(i)
+                                val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
+                                //过滤异常好友
+                                if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
+                                    item.refresh()
+                                    val imageView =
+                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    AccessibilityUtil.performClick(imageView)
+                                    break
+                                }
+                            }
+                            modifyFriendInfo(friend)
+                            return false
+                        } else {
+                            LogUtils.e("未搜索到结果: ${friend.name}")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                            return false
+                        }
+                    } else {
+                        LogUtils.e("未发现搜索按钮")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现搜索按钮", startTime, listOf(), listOf(friend.name))
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未发现通讯录列表")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未发现通讯录列表", startTime, listOf(), listOf(friend.name))
+                    return false
+                }
+            } else {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到查看全部群成员按钮 $groupName", startTime, listOf(), listOf(friend.name))
+                return false
+            }
+        } else {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(friend.name))
+            return false
+        }
+    }
+
+    /**
      * 添加待办
      * @see WeworkMessageBean.ADD_NEED_DEAL
      * @param titleList 内部用户昵称列表
