@@ -8,12 +8,14 @@
 **发送消息**
 
 <img src="https://github.com/gallonyin/worktool/blob/master/images/send_message.gif"  height="500" width="280">
-<img src="https://github.com/gallonyin/worktool/blob/master/images/chatgpt.png"  height="500" width="360">
-
 注：动图为机器人自动运行
-
 更多演示看这里
 https://www.apifox.cn/apidoc/project-1035094/doc-840833
+
+
+<img src="https://github.com/gallonyin/worktool/blob/master/images/chatgpt.png"  height="500" width="360">
+机器人集成ChatGPT效果
+
 
 ## 兼容版本（重要）
 
