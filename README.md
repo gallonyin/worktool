@@ -8,6 +8,7 @@
 **发送消息**
 
 <img src="https://github.com/gallonyin/worktool/blob/master/images/send_message.gif"  height="500" width="280">
+<img src="https://github.com/gallonyin/worktool/blob/master/images/chatgpt.png"  height="500" width="360">
 
 注：动图为机器人自动运行
 
