@@ -24,6 +24,8 @@ import org.yameida.worktool.utils.envcheck.CheckRoot
 
 class ListenActivity : AppCompatActivity() {
 
+    var riskRetry: Int = 0
+
     companion object {
         /**
          * @param type 0=游客登录
@@ -132,8 +134,17 @@ class ListenActivity : AppCompatActivity() {
                     ToastUtils.showLong("请先填写并保存链接号~")
                 } else if (!PermissionHelper.isAccessibilitySettingOn()) {
                     if (SPUtils.getInstance().getBoolean("risk", false)) {
+                        if (riskRetry > 10) {
+                            ToastUtils.showLong("再点${20 - riskRetry}次 允许本次运行")
+                        } else {
+                            ToastUtils.showLong("新号请勿使用模拟器/云手机！")
+                        }
+                        if (++riskRetry > 20) {
+                            SPUtils.getInstance().put("risk", false)
+                            startActivity(Intent(this, AccessibilityGuideActivity::class.java))
+                            ToastUtils.showLong("风险提示：临时允许本次运行")
+                        }
                         sw_accessibility.isChecked = false
-                        ToastUtils.showLong("新号请勿使用模拟器/云手机！")
                     } else {
                         startActivity(Intent(this, AccessibilityGuideActivity::class.java))
                     }
