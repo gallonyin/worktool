@@ -285,6 +285,13 @@ object WeworkGetImpl {
                 }
             }
         }
+        val tvCountFlag = AccessibilityUtil.findOnceByText(getRoot(), "查看全部群成员", exact = true)
+        val tvCount = AccessibilityUtil.findBackNode(tvCountFlag)
+        if (tvCount != null && tvCount.text != null) {
+            LogUtils.d("群成员: " + tvCount.text)
+            val count = tvCount.text.toString().replace("人", "")
+            weworkMessageBean.groupNumber = count.toIntOrNull()
+        }
         val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
         if (gridView != null && gridView.childCount >= 2) {
             val tvOwnerName = AccessibilityUtil.findOnceByClazz(gridView.getChild(0), Views.TextView)
@@ -292,13 +299,17 @@ object WeworkGetImpl {
                 LogUtils.d("群主: " + tvOwnerName.text)
                 weworkMessageBean.groupOwner = tvOwnerName.text.toString()
             }
-        }
-        val tvCountFlag = AccessibilityUtil.findOnceByText(getRoot(), "查看全部群成员", exact = true)
-        val tvCount = AccessibilityUtil.findBackNode(tvCountFlag)
-        if (tvCount != null && tvCount.text != null) {
-            LogUtils.d("群成员: " + tvCount.text)
-            val count = tvCount.text.toString().replace("人", "")
-            weworkMessageBean.groupNumber = count.toIntOrNull()
+            if (!saveMembers && weworkMessageBean.groupNumber ?: 0 <= 8) {
+                val set = linkedSetOf<String>()
+                for (i in 0 until gridView.childCount) {
+                    val item = gridView.getChild(i)
+                    val name = AccessibilityUtil.findOnceByClazz(item, Views.TextView)?.text?.toString()
+                        ?: continue
+                    set.add(name)
+                }
+                LogUtils.d("群成员: ${set.joinToString()}")
+                weworkMessageBean.nameList = set.toList()
+            }
         }
         val tvAnnouncementFlag = AccessibilityUtil.findOnceByText(getRoot(), "群公告", exact = true)
         val tvAnnouncement = AccessibilityUtil.findBackNode(tvAnnouncementFlag)
