@@ -99,8 +99,9 @@ object MyLooper {
                 } else {
                     WeworkController.mainLoopRunning = false
                     LogUtils.v("加入指令到执行队列", if (message.fileBase64.isNullOrEmpty()) GsonUtils.toJson(message) else message.type)
+                    getInstance().removeMessages(message.type * message.hashCode() + (System.currentTimeMillis() / 10000).toInt())
                     getInstance().sendMessage(Message.obtain().apply {
-                        what = message.type * message.hashCode()
+                        what = message.type * message.hashCode() + (System.currentTimeMillis() / 10000).toInt()
                         obj = message.apply {
                             messageId = messageList.messageId
                             apiSend = messageList.apiSend
