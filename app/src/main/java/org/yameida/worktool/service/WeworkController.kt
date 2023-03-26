@@ -364,6 +364,25 @@ object WeworkController {
     }
 
     /**
+     * 撤回消息
+     * @see WeworkMessageBean.RECALL_MESSAGE
+     * @param message#titleList 房间名称
+     * @param message#originalContent 原始消息的内容
+     * @param message#textType 原始消息的消息类型
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    @RequestMapping
+    fun recallMessage(message: WeworkMessageBean): Boolean {
+        LogUtils.d("recallMessage(): ${message.titleList} ${message.originalContent} ${message.textType}")
+        return WeworkOperationImpl.recallMessage(
+            message,
+            message.titleList,
+            message.originalContent,
+            message.textType
+        )
+    }
+
+    /**
      * 按手机号添加好友
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param message#friend 待添加用户

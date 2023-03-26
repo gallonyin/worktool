@@ -166,6 +166,9 @@ object MyLooper {
             WeworkMessageBean.PUSH_LINK -> {
                 WeworkController.pushLink(message)
             }
+            WeworkMessageBean.RECALL_MESSAGE -> {
+                WeworkController.recallMessage(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }
