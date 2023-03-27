@@ -205,6 +205,22 @@ object WeworkController {
     }
 
     /**
+     * 给群成员添加备注
+     * @see WeworkMessageBean.MODIFY_GROUP_MEMBER_INFO
+     * @param message#groupName 外部群
+     * @param message#friend 待添加用户
+     */
+    @RequestMapping
+    fun modifyGroupMemberInfo(message: WeworkMessageBean): Boolean {
+        LogUtils.d("modifyGroupMemberInfo(): ${message.groupName} ${message.friend}")
+        return WeworkOperationImpl.modifyGroupMemberInfo(
+            message,
+            message.groupName,
+            message.friend
+        )
+    }
+
+    /**
      * 添加待办
      * @see WeworkMessageBean.ADD_NEED_DEAL
      * @param message#titleList 内部用户昵称列表
