@@ -11,8 +11,6 @@ android {
         targetSdkVersion 30
         versionCode 2571
         versionName "2.5.7"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {

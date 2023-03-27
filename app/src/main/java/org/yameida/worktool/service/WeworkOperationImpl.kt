@@ -1802,6 +1802,7 @@ object WeworkOperationImpl {
         LogUtils.v("atFailed: $atFailed")
         val content = if (atFailed) "@${atList?.joinToString()} $text" else text
         val append = (reply == true) || (!atList.isNullOrEmpty() && !atFailed)
+        WeworkLoopImpl.getChatMessageList(needInfer = false, imageCheck = false)
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
             AccessibilityUtil.findOneByText(getRoot(), "发送", exact = true, timeout = 2000)
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)

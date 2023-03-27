@@ -152,7 +152,7 @@ object WeworkLoopImpl {
      * @param needInfer 是否需要推断@me并等待回复
      * @param timeout 在房间内等待回复的时长
      */
-    fun getChatMessageList(needInfer: Boolean = !Constant.pushImage, timeout: Long = 5000): Boolean {
+    fun getChatMessageList(needInfer: Boolean = !Constant.pushImage, imageCheck: Boolean = true, timeout: Long = 5000): Boolean {
         if (Constant.autoReply == 0) return true
         val roomType = WeworkRoomUtil.getRoomType()
         var titleList = WeworkRoomUtil.getRoomTitle()
@@ -193,7 +193,7 @@ object WeworkLoopImpl {
                 if (list2 != null) {
                     val childCount = list2.childCount
                     LogUtils.v("list2消息条数: $childCount")
-                    var imageCheck = true
+                    var imageCheck = imageCheck
                     if (Constant.enableMediaProject) {
                         for (i in 0 until childCount) {
                             val item = list2.getChild(childCount - 1 - i)
@@ -583,7 +583,7 @@ object WeworkLoopImpl {
                 if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
                     val lastSyncMessage = SPUtils.getInstance("lastSyncMessage").getString(title, null)
                         ?: continue
-                    if (tvList[2].contains(lastSyncMessage.replace("\n", " "))) {
+                    if (tvList[2].contains(lastSyncMessage.replace("\n", " ").trim(' ').trim())) {
                         continue
                     }
                     if (SPUtils.getInstance("noSyncMessage").getString(title) != lastSyncMessage) {
