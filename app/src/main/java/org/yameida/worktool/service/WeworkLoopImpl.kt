@@ -485,6 +485,15 @@ object WeworkLoopImpl {
                             return false
                         }
                     })
+                    LogUtils.v("回到消息列表顶部")
+                    for (item in list) {
+                        val childCount = item.parent?.parent?.parent?.childCount
+                        if (childCount == 4 || childCount == 5) {
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                        }
+                    }
                 }
             }
         }
