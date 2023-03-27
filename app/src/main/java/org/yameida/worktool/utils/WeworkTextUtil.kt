@@ -176,14 +176,11 @@ object WeworkTextUtil {
 ------------------ depth: 6 className: android.view.View
 ------------------ depth: 6 className: android.widget.RelativeLayout
 --------------------- depth: 7 className: android.widget.TextView
---------------------- depth: 7 text: 企微RPA机器人：
 --------------------- depth: 7 className: android.widget.LinearLayout
 ------------------------ depth: 8 className: android.widget.RelativeLayout
 --------------------------- depth: 9 className: android.widget.RelativeLayout
 ------------------------------ depth: 10 className: android.widget.TextView
------------------------------- depth: 10 text: 新公告
 --------------- depth: 5 className: android.widget.TextView
---------------- depth: 5 text: 111
 
 ------------------------------总结------------------------------
 图片 0tv 1iv (图片)
@@ -283,6 +280,15 @@ object WeworkTextUtil {
                     LogUtils.v("textType: $textType")
                     return textType
                 }
+            } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
+                LogUtils.v("头像在右边 本条消息发送者为自己")
+                var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
+                val subLayout = relativeLayoutItem.getChild(0)
+                if (subLayout.childCount > 0) {
+                    textType = WeworkTextUtil.getTextType(subLayout)
+                    LogUtils.v("textType: $textType")
+                    return textType
+                }
             }
         }
         return WeworkMessageBean.TEXT_TYPE_UNKNOWN
@@ -329,8 +335,9 @@ object WeworkTextUtil {
     }
 
     /**
-     * 群聊 长按消息条目
+     * 长按消息条目
      * 复制、转发、回复、收藏、置顶、多选、日程、待办、翻译、删除
+     * 适用左侧发言者
      * @param node 消息列表节点
      * @param replyTextType 带回复消息类型
      * @param replyNick 待回复人姓名
@@ -403,6 +410,50 @@ object WeworkTextUtil {
         return false
     }
 
+    /**
+     * 长按消息条目
+     * 复制、转发、回复、收藏、置顶、多选、日程、待办、翻译、删除、撤回
+     * 适用自己发言者
+     * @param node 消息列表节点
+     * @param replyTextType 带回复消息类型
+     * @param replyContent 待回复内容
+     * @param key 复制、转发、回复、收藏、多选
+     * @return true 进行了长按 否则 false
+     */
+    fun longClickMyMessageItem(
+        node: AccessibilityNodeInfo?,
+        replyTextType: Int,
+        replyContent: String,
+        key: String
+    ): Boolean {
+        if (node == null) return false
+        for (i in 0 until node.childCount) {
+            val item = node.getChild(node.childCount - 1 - i) ?: continue
+            val frontNode = getMyMessageListNode(item)
+            if (frontNode != null) {
+                val textType = getTextTypeFromItem(item)
+                if (replyTextType == WeworkMessageBean.TEXT_TYPE_UNKNOWN || replyTextType == textType) {
+                    if (replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
+                        return longClickMyMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                    }
+                    if ((replyTextType == WeworkMessageBean.TEXT_TYPE_FILE || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
+                        && replyContent.contains("###")) {
+                        val replyContentList = replyContent.split("###")
+                        if (AccessibilityUtil.findOnceByText(frontNode, replyContentList[0]) != null
+                            && AccessibilityUtil.findOnceByText(frontNode, replyContentList[1]) != null) {
+                            return longClickMyMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                        }
+                    }
+                    val textNode = AccessibilityUtil.findOnceByText(frontNode, replyContent, exact = true)
+                    if (textNode != null && replyContent.isNotEmpty()) {
+                        return longClickMyMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val backNode = getMessageListNode(item, roomType)
         AccessibilityUtil.performLongClickWithSon(backNode)
@@ -418,8 +469,26 @@ object WeworkTextUtil {
         return false
     }
 
+    private fun longClickMyMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
+        val frontNode = getMyMessageListNode(item)
+        AccessibilityUtil.performLongClickWithSon(frontNode)
+        sleep(Constant.POP_WINDOW_INTERVAL)
+        val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup)
+        for (optionRv in optionRvList) {
+            val keyTv = AccessibilityUtil.findOnceByText(optionRv, key, exact = true)
+            if (keyTv != null) {
+                AccessibilityUtil.performClick(keyTv)
+                if (AccessibilityExtraUtil.loadingPage("CustomDialog", timeout = Constant.POP_WINDOW_INTERVAL)) {
+                    AccessibilityUtil.findTextAndClick(getRoot(), "确定", exact = true)
+                }
+                return true
+            }
+        }
+        return false
+    }
+
     /**
-     * 群聊 提取消息主体框节点(昵称下面的气泡框)
+     * 提取消息主体框节点(昵称下面的气泡框)
      * 适用于左侧发言者
      * @param item 消息item节点
      */
@@ -434,6 +503,19 @@ object WeworkTextUtil {
             if (node != null) {
                 return AccessibilityUtil.findBackNode(node)
             }
+        }
+        return null
+    }
+
+    /**
+     * 提取消息主体框节点(昵称下面的气泡框)
+     * 适用于自己发言者
+     * @param item 消息item节点
+     */
+    private fun getMyMessageListNode(item: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        val node = AccessibilityUtil.findAllOnceByClazz(item, Views.ImageView).lastOrNull()
+        if (node?.parent?.getChild(0) != node) {
+            return AccessibilityUtil.findFrontNode(node)
         }
         return null
     }

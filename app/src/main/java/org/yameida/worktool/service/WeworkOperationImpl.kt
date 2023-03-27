@@ -765,6 +765,46 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 撤回消息
+     * @see WeworkMessageBean.RECALL_MESSAGE
+     * @param titleList 房间名称
+     * @param originalContent 原始消息的内容
+     * @param textType 原始消息的消息类型
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun recallMessage(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        originalContent: String,
+        textType: Int
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        for (title in titleList) {
+            if (WeworkRoomUtil.intoRoom(title)) {
+                if (WeworkTextUtil.longClickMyMessageItem(
+                        //聊天消息列表 1ListView 0RecycleView xViewGroup
+                        AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                        textType,
+                        originalContent,
+                        "撤回"
+                    )
+                ) {
+                    LogUtils.d("撤回成功")
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    return true
+                } else {
+                    LogUtils.e("撤回失败 未找到目标消息")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "撤回失败 未找到目标消息", startTime, listOf(), titleList)
+                    return false
+                }
+            }
+        }
+        LogUtils.e("撤回失败 未找到房间")
+        uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "撤回失败 未找到房间", startTime, listOf(), titleList)
+        return false
+    }
+
+    /**
      * 手机号添加好友或修改好友信息
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param friend 待添加用户
@@ -1787,8 +1827,20 @@ object WeworkOperationImpl {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
         }
         var atFailed = false
-        val atList = if (!at.isNullOrEmpty()) listOf(at) else atList
+        val atList = if (!at.isNullOrEmpty()) arrayListOf(at) else atList?.toMutableList()
         if (!atList.isNullOrEmpty() && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
+            val nameList = arrayListOf<String>()
+            if (atList.count { it.startsWith("#regex#") } > 0 && WeworkRoomUtil.intoGroupManager()) {
+                val groupInfo = WeworkGetImpl.getGroupInfoDetail(saveAddress = false, saveMembers = false)
+                nameList.addAll(groupInfo.nameList)
+                val regex = atList.first { it.startsWith("#regex#") }.split("#regex#").last().toRegex()
+                for (name in groupInfo.nameList) {
+                    if (name != Constant.myName && name.matches(regex)) {
+                        atList.add(name)
+                    }
+                }
+            }
+            atList.removeIf { it.startsWith("#regex#") }
             atList.forEachIndexed { index, at ->
                 if (index == 0) {
                     AccessibilityUtil.findTextInput(getRoot(), "@")

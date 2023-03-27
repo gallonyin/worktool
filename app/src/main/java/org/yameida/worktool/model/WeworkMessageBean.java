@@ -39,6 +39,7 @@ public class WeworkMessageBean {
      * 切换企业 SWITCH_CORP
      * 推送链接 PUSH_LINK
      * 修改群成员信息 MODIFY_GROUP_MEMBER_INFO
+     * 撤回消息 RECALL_MESSAGE
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -83,6 +84,7 @@ public class WeworkMessageBean {
     public static final int SWITCH_CORP = 223;
     public static final int PUSH_LINK = 224;
     public static final int MODIFY_GROUP_MEMBER_INFO = 225;
+    public static final int RECALL_MESSAGE = 226;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -298,7 +300,6 @@ public class WeworkMessageBean {
 
     //我的信息
     public static class MyInfo {
-        //{姓名=企微RPA机器人, 工作签名=添加工作签名…, 手机=17326101105, 别名=企微RPA机器人, 对外信息显示=企微RPA机器人＠擎盾数据, 职务=企微RPA机器人, 所在企业=TEST 擎盾数据, 性别=男}
         public String name;
         public String alias;
         public String gender;
@@ -362,12 +363,12 @@ public class WeworkMessageBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WeworkMessageBean that = (WeworkMessageBean) o;
-        return Objects.equals(messageId, that.messageId) && Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(textType, that.textType) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(showMessageHistory, that.showMessageHistory) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileBase64, that.fileBase64) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType) && Objects.equals(type, that.type);
+        return Objects.equals(titleList, that.titleList) && Objects.equals(messageList, that.messageList) && Objects.equals(log, that.log) && Objects.equals(roomType, that.roomType) && Objects.equals(receivedName, that.receivedName) && Objects.equals(receivedContent, that.receivedContent) && Objects.equals(at, that.at) && Objects.equals(atList, that.atList) && Objects.equals(originalContent, that.originalContent) && Objects.equals(nameList, that.nameList) && Objects.equals(extraText, that.extraText) && Objects.equals(textType, that.textType) && Objects.equals(groupName, that.groupName) && Objects.equals(groupOwner, that.groupOwner) && Objects.equals(selectList, that.selectList) && Objects.equals(groupNumber, that.groupNumber) && Objects.equals(groupAnnouncement, that.groupAnnouncement) && Objects.equals(groupRemark, that.groupRemark) && Objects.equals(groupTemplate, that.groupTemplate) && Objects.equals(newGroupName, that.newGroupName) && Objects.equals(newGroupAnnouncement, that.newGroupAnnouncement) && Objects.equals(removeList, that.removeList) && Objects.equals(showMessageHistory, that.showMessageHistory) && Objects.equals(myInfo, that.myInfo) && Objects.equals(objectName, that.objectName) && Objects.equals(qrcode, that.qrcode) && Objects.equals(friend, that.friend) && Objects.equals(fileBase64, that.fileBase64) && Objects.equals(fileUrl, that.fileUrl) && Objects.equals(fileType, that.fileType) && Objects.equals(type, that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(messageId, titleList, messageList, log, roomType, receivedName, receivedContent, at, atList, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, groupRemark, groupTemplate, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, qrcode, friend, fileBase64, fileUrl, fileType, type);
+        return Objects.hash(titleList, messageList, log, roomType, receivedName, receivedContent, at, atList, originalContent, nameList, extraText, textType, groupName, groupOwner, selectList, groupNumber, groupAnnouncement, groupRemark, groupTemplate, newGroupName, newGroupAnnouncement, removeList, showMessageHistory, myInfo, objectName, qrcode, friend, fileBase64, fileUrl, fileType, type);
     }
 
     @Override

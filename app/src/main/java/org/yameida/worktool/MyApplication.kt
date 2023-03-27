@@ -51,7 +51,7 @@ class MyApplication : Application() {
         if (SPUtils.getInstance().getString("uminit", "1") == "1") {
             UMConfigure.init(this, key, channel, UMConfigure.DEVICE_TYPE_PHONE, "")
         }
-        TalkingDataSDK.init(this, "80E9C84E39904DAFB28562910FF7C86C", "worktool_master", Constant.robotId);
+        TalkingDataSDK.init(this, "80E9C84E39904DAFB28562910FF7C86C", "worktool_master", Constant.robotId)
         //初始化企业微信sdk
         IWWAPIUtil.init(this)
         //初始化自动更新
