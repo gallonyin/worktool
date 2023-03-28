@@ -158,7 +158,7 @@ object WeworkOperationImpl {
     fun relayMessage(
         message: WeworkMessageBean,
         titleList: List<String>,
-        receivedName: String,
+        receivedName: String?,
         originalContent: String,
         textType: Int,
         nameList: List<String>,
@@ -167,21 +167,46 @@ object WeworkOperationImpl {
         val startTime = System.currentTimeMillis()
         for (title in titleList) {
             if (WeworkRoomUtil.intoRoom(title)) {
-                if (WeworkTextUtil.longClickMessageItem(
-                        //聊天消息列表 1ListView 0RecycleView xViewGroup
-                        AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
-                        textType,
-                        receivedName,
-                        originalContent,
-                        "转发"
-                    )
-                ) {
-                    LogUtils.d("开始转发")
-                    if (relaySelectTarget(nameList, extraText)) {
-                        LogUtils.d("$title: 转发成功")
+                if (!receivedName.isNullOrEmpty()) {
+                    if (WeworkTextUtil.longClickMessageItem(
+                            //聊天消息列表 1ListView 0RecycleView xViewGroup
+                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                            textType,
+                            receivedName,
+                            originalContent,
+                            "转发"
+                        )
+                    ) {
+                        LogUtils.d("开始转发")
+                        if (relaySelectTarget(nameList, extraText)) {
+                            LogUtils.d("$title: 转发成功")
+                        } else {
+                            LogUtils.e("$title: 转发失败")
+                            error("$title: 转发失败 $originalContent")
+                        }
                     } else {
-                        LogUtils.d("$title: 转发失败")
-                        error("$title: 转发失败 $originalContent")
+                        LogUtils.e("$title: 长按条目失败")
+                        error("$title: 长按条目失败 $originalContent")
+                    }
+                } else {
+                    if (WeworkTextUtil.longClickMyMessageItem(
+                            //聊天消息列表 1ListView 0RecycleView xViewGroup
+                            AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                            textType,
+                            originalContent,
+                            "转发"
+                        )
+                    ) {
+                        LogUtils.d("开始转发")
+                        if (relaySelectTarget(nameList, extraText)) {
+                            LogUtils.d("$title: 转发成功")
+                        } else {
+                            LogUtils.d("$title: 转发失败")
+                            error("$title: 转发失败 $originalContent")
+                        }
+                    } else {
+                        LogUtils.e("$title: 长按条目失败")
+                        error("$title: 长按条目失败 $originalContent")
                     }
                 }
             } else {
