@@ -479,7 +479,7 @@ object WeworkTextUtil {
             if (keyTv != null) {
                 AccessibilityUtil.performClick(keyTv)
                 if (AccessibilityExtraUtil.loadingPage("CustomDialog", timeout = Constant.POP_WINDOW_INTERVAL)) {
-                    AccessibilityUtil.findTextAndClick(getRoot(), "确定", exact = true)
+                    AccessibilityUtil.findTextAndClick(getRoot(), "确定", "我知道了", exact = true)
                 }
                 return true
             }
