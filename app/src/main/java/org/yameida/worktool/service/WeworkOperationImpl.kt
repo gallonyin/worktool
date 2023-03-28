@@ -1829,14 +1829,14 @@ object WeworkOperationImpl {
         var atFailed = false
         val atList = if (!at.isNullOrEmpty()) arrayListOf(at) else atList?.toMutableList()
         if (!atList.isNullOrEmpty() && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
-            val nameList = arrayListOf<String>()
             if (atList.count { it.startsWith("#regex#") } > 0 && WeworkRoomUtil.intoGroupManager()) {
-                val groupInfo = WeworkGetImpl.getGroupInfoDetail(saveAddress = false, saveMembers = false)
-                nameList.addAll(groupInfo.nameList)
+                val groupInfo = WeworkGetImpl.getGroupInfoDetail(saveAddress = false, saveMembers = true)
                 val regex = atList.first { it.startsWith("#regex#") }.split("#regex#").last().toRegex()
-                for (name in groupInfo.nameList) {
-                    if (name != Constant.myName && name.matches(regex)) {
-                        atList.add(name)
+                if (groupInfo.nameList != null) {
+                    for (name in groupInfo.nameList) {
+                        if (name != Constant.myName && name.matches(regex)) {
+                            atList.add(name)
+                        }
                     }
                 }
             }

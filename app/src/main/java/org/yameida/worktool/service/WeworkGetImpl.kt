@@ -299,7 +299,7 @@ object WeworkGetImpl {
                 LogUtils.d("群主: " + tvOwnerName.text)
                 weworkMessageBean.groupOwner = tvOwnerName.text.toString()
             }
-            if (!saveMembers && weworkMessageBean.groupNumber ?: 0 <= 8) {
+            if (weworkMessageBean.groupNumber ?: 0 <= 8) {
                 val set = linkedSetOf<String>()
                 for (i in 0 until gridView.childCount) {
                     val item = gridView.getChild(i)
@@ -323,7 +323,7 @@ object WeworkGetImpl {
             LogUtils.d("群备注: " + tvRemark.text)
             weworkMessageBean.groupRemark = tvRemark.text.toString()
         }
-        if (saveMembers) {
+        if (saveMembers && weworkMessageBean.nameList.isNullOrEmpty()) {
             if (AccessibilityUtil.findTextAndClick(getRoot(), "查看全部群成员", exact = true, timeout = 0)) {
                 val userList = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 if (userList != null) {
