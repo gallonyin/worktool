@@ -456,6 +456,9 @@ object WeworkTextUtil {
 
     private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val backNode = getMessageListNode(item, roomType)
+        if (key == "单击") {
+            return AccessibilityUtil.performClickWithSon(backNode)
+        }
         AccessibilityUtil.performLongClickWithSon(backNode)
         sleep(Constant.POP_WINDOW_INTERVAL)
         val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup)
@@ -471,6 +474,9 @@ object WeworkTextUtil {
 
     private fun longClickMyMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val frontNode = getMyMessageListNode(item)
+        if (key == "单击") {
+            return AccessibilityUtil.performClickWithSon(frontNode)
+        }
         AccessibilityUtil.performLongClickWithSon(frontNode)
         sleep(Constant.POP_WINDOW_INTERVAL)
         val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup)

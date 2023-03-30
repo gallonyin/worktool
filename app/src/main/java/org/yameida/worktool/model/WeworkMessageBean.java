@@ -40,6 +40,7 @@ public class WeworkMessageBean {
      * 推送链接 PUSH_LINK
      * 修改群成员信息 MODIFY_GROUP_MEMBER_INFO
      * 撤回消息 RECALL_MESSAGE
+     * 批量转发 RELAY_MULTI_MESSAGE
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -85,6 +86,7 @@ public class WeworkMessageBean {
     public static final int PUSH_LINK = 224;
     public static final int MODIFY_GROUP_MEMBER_INFO = 225;
     public static final int RECALL_MESSAGE = 226;
+    public static final int RELAY_MULTI_MESSAGE = 227;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -270,6 +272,18 @@ public class WeworkMessageBean {
         public int hashCode() {
             return Objects.hash(sender, textType, itemMessageList, nameList);
         }
+
+        @Override
+        public String toString() {
+            return "SubMessageBean{" +
+                    "sender=" + sender +
+                    ", textType=" + textType +
+                    ", itemMessageList=" + itemMessageList +
+                    ", nameList=" + nameList +
+                    ", imageRepeat=" + imageRepeat +
+                    ", imageSize=" + imageSize +
+                    '}';
+        }
     }
 
     //消息列表每条消息的text推断
@@ -295,6 +309,14 @@ public class WeworkMessageBean {
         @Override
         public int hashCode() {
             return Objects.hash(feature, text);
+        }
+
+        @Override
+        public String toString() {
+            return "ItemMessageBean{" +
+                    "feature=" + feature +
+                    ", text='" + text + '\'' +
+                    '}';
         }
     }
 

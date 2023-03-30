@@ -169,6 +169,9 @@ object MyLooper {
             WeworkMessageBean.RECALL_MESSAGE -> {
                 WeworkController.recallMessage(message)
             }
+            WeworkMessageBean.RELAY_MULTI_MESSAGE -> {
+                WeworkController.relayMultiMessage(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }

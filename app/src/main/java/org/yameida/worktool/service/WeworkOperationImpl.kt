@@ -830,6 +830,121 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 批量转发
+     * @see WeworkMessageBean.RELAY_MULTI_MESSAGE
+     * @param titleList 房间名称
+     * @param messageList 消息列表
+     * @param nameList 待转发姓名列表
+     * @param extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun relayMultiMessage(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        messageList: List<WeworkMessageBean.SubMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (messageList.isEmpty()) {
+            LogUtils.e("转发内容为空")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发内容为空", startTime, listOf(), titleList)
+            return false
+        } else if (messageList.size == 1) {
+            val subMessageBean = messageList.first()
+            //todo 检查receivedName异常场景
+            val receivedName = subMessageBean.nameList?.firstOrNull()
+            val textType = subMessageBean.textType
+            val originalContent = subMessageBean.itemMessageList?.firstOrNull()?.text ?: ""
+            LogUtils.d("receivedName $receivedName textType $textType originalContent $originalContent")
+            return relayMessage(message, titleList, receivedName, originalContent, textType, nameList, extraText)
+        }
+        for (title in titleList) {
+            if (WeworkRoomUtil.intoRoom(title)) {
+                var hasOpenMulti = false
+                for (subMessageBean in messageList) {
+                    //todo 检查receivedName异常场景
+                    val receivedName = subMessageBean.nameList?.firstOrNull()
+                    val textType = subMessageBean.textType
+                    val originalContent = subMessageBean.itemMessageList?.firstOrNull()?.text ?: ""
+                    LogUtils.d("receivedName $receivedName textType $textType originalContent $originalContent")
+                    if (!hasOpenMulti) {
+                        if (!receivedName.isNullOrEmpty()) {
+                            if (WeworkTextUtil.longClickMessageItem(
+                                    //聊天消息列表 1ListView 0RecycleView xViewGroup
+                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                                    textType,
+                                    receivedName,
+                                    originalContent,
+                                    "多选"
+                                )
+                            ) {
+                                LogUtils.d("多选成功")
+                                hasOpenMulti = true
+                            } else {
+                                LogUtils.e("$title: 多选失败")
+                                error("$title: 多选失败 $originalContent")
+                            }
+                        } else {
+                            if (WeworkTextUtil.longClickMyMessageItem(
+                                    //聊天消息列表 1ListView 0RecycleView xViewGroup
+                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                                    textType,
+                                    originalContent,
+                                    "多选"
+                                )
+                            ) {
+                                LogUtils.d("多选成功")
+                                hasOpenMulti = true
+                            } else {
+                                LogUtils.e("$title: 多选失败")
+                                error("$title: 多选失败 $originalContent")
+                            }
+                        }
+                    } else {
+                        if (!receivedName.isNullOrEmpty()) {
+                            if (WeworkTextUtil.longClickMessageItem(
+                                    //聊天消息列表 1ListView 0RecycleView xViewGroup
+                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                                    textType,
+                                    receivedName,
+                                    originalContent,
+                                    "单击"
+                                )
+                            ) {
+                                LogUtils.d("单击成功")
+                                hasOpenMulti = true
+                            } else {
+                                LogUtils.e("$title: 单击失败")
+                                error("$title: 单击失败 $originalContent")
+                            }
+                        } else {
+                            if (WeworkTextUtil.longClickMyMessageItem(
+                                    //聊天消息列表 1ListView 0RecycleView xViewGroup
+                                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                                    textType,
+                                    originalContent,
+                                    "单击"
+                                )
+                            ) {
+                                LogUtils.d("单击成功")
+                                hasOpenMulti = true
+                            } else {
+                                LogUtils.e("$title: 单击失败")
+                                error("$title: 单击失败 $originalContent")
+                            }
+                        }
+                    }
+                }
+            } else {
+                LogUtils.d("$title: 转发失败 未找到房间")
+                error("$title: 转发失败 未找到房间")
+            }
+        }
+        return true
+    }
+
+    /**
      * 手机号添加好友或修改好友信息
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param friend 待添加用户

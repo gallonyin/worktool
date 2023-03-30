@@ -1101,6 +1101,11 @@ object AccessibilityUtil {
             Log.d(tag, desc)
             sb.append(desc).append("\n")
         }
+        if (printText && node.className == "android.widget.CheckBox") {
+            text = "$s depth: $depth isChecked: " + node.isChecked
+            Log.d(tag, text)
+            sb.append(text).append("\n")
+        }
         for (i in 0 until node.childCount) {
             sb.append(printNodeClazzTree(node.getChild(i), printText, depth + 1))
         }

@@ -399,6 +399,27 @@ object WeworkController {
     }
 
     /**
+     * 批量转发
+     * @see WeworkMessageBean.RELAY_MULTI_MESSAGE
+     * @param message#titleList 房间名称
+     * @param message#messageList 消息列表
+     * @param message#nameList 待转发姓名列表
+     * @param message#extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    @RequestMapping
+    fun relayMultiMessage(message: WeworkMessageBean): Boolean {
+        LogUtils.d("relayMultiMessage(): ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
+        return WeworkOperationImpl.relayMultiMessage(
+            message,
+            message.titleList,
+            message.messageList,
+            message.nameList,
+            message.extraText
+        )
+    }
+
+    /**
      * 按手机号添加好友
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param message#friend 待添加用户
