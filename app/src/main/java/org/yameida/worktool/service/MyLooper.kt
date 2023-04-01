@@ -38,7 +38,14 @@ object MyLooper {
                         dealWithMessage(msg.obj as WeworkMessageBean)
                     } catch (e: Exception) {
                         LogUtils.e(e)
-                        uploadCommandResult(msg.obj as WeworkMessageBean, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, e.message ?: "", 0L)
+                        error("执行异常尝试重试 ${e.message}")
+                        try {
+                            dealWithMessage(msg.obj as WeworkMessageBean)
+                        } catch (e: Exception) {
+                            LogUtils.e(e)
+                            error("执行异常重试仍失败 ${e.message}")
+                            uploadCommandResult(msg.obj as WeworkMessageBean, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, e.message ?: "", 0L)
+                        }
                     }
                 }
             }
