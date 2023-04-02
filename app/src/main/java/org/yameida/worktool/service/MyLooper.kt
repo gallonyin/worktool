@@ -40,6 +40,7 @@ object MyLooper {
                         LogUtils.e(e)
                         error("执行异常尝试重试 ${e.message}")
                         try {
+                            goHome()
                             dealWithMessage(msg.obj as WeworkMessageBean)
                         } catch (e: Exception) {
                             LogUtils.e(e)
