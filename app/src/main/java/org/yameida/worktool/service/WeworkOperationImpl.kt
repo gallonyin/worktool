@@ -845,6 +845,39 @@ object WeworkOperationImpl {
         nameList: List<String>,
         extraText: String? = null
     ): Boolean {
+        return relayMultiMessage(message, titleList, messageList, nameList, extraText, "逐条转发")
+    }
+
+    /**
+     * 合并转发
+     * @see WeworkMessageBean.RELAY_MERGE_MESSAGE
+     * @param titleList 房间名称
+     * @param messageList 消息列表
+     * @param nameList 待转发姓名列表
+     * @param extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun relayMergeMessage(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        messageList: List<WeworkMessageBean.SubMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null
+    ): Boolean {
+        return relayMultiMessage(message, titleList, messageList, nameList, extraText, "合并转发")
+    }
+
+    /**
+     * 批量转发 合并转发
+     */
+    private fun relayMultiMessage(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        messageList: List<WeworkMessageBean.SubMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null,
+        key: String
+    ): Boolean {
         val startTime = System.currentTimeMillis()
         if (messageList.isEmpty()) {
             LogUtils.e("转发内容为空")
@@ -883,7 +916,8 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                error("$title: 多选失败 $originalContent")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $$originalContent", startTime, listOf(), titleList)
+                                return false
                             }
                         } else {
                             if (WeworkTextUtil.longClickMyMessageItem(
@@ -898,7 +932,8 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                error("$title: 多选失败 $originalContent")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $$originalContent", startTime, listOf(), titleList)
+                                return false
                             }
                         }
                     } else {
@@ -912,7 +947,8 @@ object WeworkOperationImpl {
                                     "单击"
                                 )
                             ) {
-                                LogUtils.d("单击成功")
+                                LogUtils.d("单击成功 $originalContent")
+                                sleep(3000)
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 单击失败")
@@ -927,13 +963,33 @@ object WeworkOperationImpl {
                                     "单击"
                                 )
                             ) {
-                                LogUtils.d("单击成功")
+                                LogUtils.d("单击成功 $originalContent")
+                                sleep(3000)
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 单击失败")
                                 error("$title: 单击失败 $originalContent")
                             }
                         }
+                    }
+                }
+                if (hasOpenMulti) {
+                    val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
+                    if (AccessibilityUtil.performClickWithSon(list)) {
+                        if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
+                            if (relaySelectTarget(nameList, extraText)) {
+                                LogUtils.d("$title: 转发成功")
+                            } else {
+                                LogUtils.e("$title: 转发失败")
+                                error("$title: 转发失败")
+                            }
+                        } else {
+                            LogUtils.e("未找到逐条转发按钮")
+                            error("未找到逐条转发按钮")
+                        }
+                    } else {
+                        LogUtils.e("未找到转发按钮")
+                        error("未找到转发按钮")
                     }
                 }
             } else {

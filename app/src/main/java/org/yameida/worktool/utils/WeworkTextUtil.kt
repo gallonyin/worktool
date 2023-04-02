@@ -4,6 +4,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
+import org.yameida.worktool.service.WeworkController
 import org.yameida.worktool.service.getRoot
 import org.yameida.worktool.service.sleep
 import org.yameida.worktool.utils.AccessibilityUtil.findAllByClazz
@@ -457,7 +458,7 @@ object WeworkTextUtil {
     private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val backNode = getMessageListNode(item, roomType)
         if (key == "单击") {
-            return AccessibilityUtil.performClickWithSon(backNode)
+            return AccessibilityUtil.clickByNode(WeworkController.weworkService, backNode)
         }
         AccessibilityUtil.performLongClickWithSon(backNode)
         sleep(Constant.POP_WINDOW_INTERVAL)
@@ -475,7 +476,7 @@ object WeworkTextUtil {
     private fun longClickMyMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
         val frontNode = getMyMessageListNode(item)
         if (key == "单击") {
-            return AccessibilityUtil.performClickWithSon(frontNode)
+            return AccessibilityUtil.clickByNode(WeworkController.weworkService, frontNode)
         }
         AccessibilityUtil.performLongClickWithSon(frontNode)
         sleep(Constant.POP_WINDOW_INTERVAL)

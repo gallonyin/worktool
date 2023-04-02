@@ -180,6 +180,9 @@ object MyLooper {
             WeworkMessageBean.RELAY_MULTI_MESSAGE -> {
                 WeworkController.relayMultiMessage(message)
             }
+            WeworkMessageBean.RELAY_MERGE_MESSAGE -> {
+                WeworkController.relayMergeMessage(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }
