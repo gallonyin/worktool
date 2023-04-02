@@ -349,23 +349,21 @@ object AccessibilityUtil {
      * 对某个节点或子节点进行点击
      */
     fun performClickWithSon(nodeInfo: AccessibilityNodeInfo?): Boolean {
-        var nodeInfo: AccessibilityNodeInfo? = nodeInfo ?: return false
-        while (nodeInfo != null) {
-            if (nodeInfo.isClickable) {
-                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                return true
-            }
-            if (nodeInfo.childCount > 0) {
-                for (i in 0 until nodeInfo.childCount) {
-                    if (performClickWithSon(nodeInfo.getChild(i))) {
-                        return true
-                    }
-                }
-            } else {
-                nodeInfo = null
-            }
+        if (nodeInfo == null) return false
+        if (nodeInfo.isClickable) {
+            nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            return true
         }
-        return false
+        if (nodeInfo.childCount > 0) {
+            for (i in 0 until nodeInfo.childCount) {
+                if (performClickWithSon(nodeInfo.getChild(i))) {
+                    return true
+                }
+            }
+            return false
+        } else {
+            return false
+        }
     }
 
     /**
