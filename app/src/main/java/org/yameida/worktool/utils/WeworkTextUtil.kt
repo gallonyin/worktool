@@ -271,7 +271,7 @@ object WeworkTextUtil {
         //消息主体
         val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, limitDepth = 1)
         if (relativeLayoutItem != null && relativeLayoutItem.childCount >= 2) {
-            if (Views.ImageView.equals(relativeLayoutItem.getChild(0).className)) {
+            if (Views.ImageView.equals(relativeLayoutItem.getChild(relativeLayoutItem.childCount - 2).className)) {
                 LogUtils.v("头像在左边 本条消息发送者为其他联系人")
                 var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
                 val relativeLayoutContent =
@@ -281,10 +281,10 @@ object WeworkTextUtil {
                     LogUtils.v("textType: $textType")
                     return textType
                 }
-            } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
+            } else if (Views.ImageView.equals(relativeLayoutItem.getChild(relativeLayoutItem.childCount - 1).className)) {
                 LogUtils.v("头像在右边 本条消息发送者为自己")
                 var textType = WeworkMessageBean.TEXT_TYPE_UNKNOWN
-                val subLayout = relativeLayoutItem.getChild(0)
+                val subLayout = relativeLayoutItem.getChild(relativeLayoutItem.childCount - 2)
                 if (subLayout.childCount > 0) {
                     textType = WeworkTextUtil.getTextType(subLayout)
                     LogUtils.v("textType: $textType")
@@ -293,6 +293,24 @@ object WeworkTextUtil {
             }
         }
         return WeworkMessageBean.TEXT_TYPE_UNKNOWN
+    }
+
+    /**
+     * 企微消息 发送者
+     * sender 0其他人 1机器人自己 2unknown(如系统消息)
+     */
+    private fun getSender(node: AccessibilityNodeInfo?, isGroup: Boolean = true): Int {
+        if (node == null) return WeworkMessageBean.TEXT_TYPE_UNKNOWN
+        //消息主体
+        val relativeLayoutItem = AccessibilityUtil.findOnceByClazz(node, Views.RelativeLayout, limitDepth = 1)
+        if (relativeLayoutItem != null && relativeLayoutItem.childCount >= 2) {
+            if (Views.ImageView.equals(relativeLayoutItem.getChild(0).className)) {
+                return 0
+            } else if (Views.ImageView.equals(relativeLayoutItem.getChild(1).className)) {
+                return 1
+            }
+        }
+        return 2
     }
 
     /**
@@ -360,8 +378,13 @@ object WeworkTextUtil {
             if (nameList.isEmpty()) {
                 val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT)
                 if (backNode != null) {
+                    val textTypeFromItem = getTextTypeFromItem(item)
+                    val sender = getSender(item)
+                    if ((replyNick != null && sender == 1) || (replyNick == null && sender == 0)) {
+                        continue
+                    }
                     if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
-                        && (replyTextType == getTextTypeFromItem(item))) {
+                        && (replyTextType == textTypeFromItem)) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                         return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
                     }
@@ -385,8 +408,9 @@ object WeworkTextUtil {
                 if (name == replyNick) {
                     val backNode = getMessageListNode(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP)
                     if (backNode != null) {
+                        val textTypeFromItem = getTextTypeFromItem(item)
                         if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
-                            && (replyTextType == getTextTypeFromItem(item))) {
+                            && (replyTextType == textTypeFromItem)) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
                             return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
                         }

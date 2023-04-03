@@ -180,13 +180,17 @@ object WeworkOperationImpl {
                         LogUtils.d("开始转发")
                         if (relaySelectTarget(nameList, extraText)) {
                             LogUtils.d("$title: 转发成功")
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            return true
                         } else {
-                            LogUtils.e("$title: 转发失败")
-                            error("$title: 转发失败 $originalContent")
+                            LogUtils.d("$title: 转发失败 $originalContent")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败 $originalContent", startTime, listOf(), titleList)
+                            return false
                         }
                     } else {
-                        LogUtils.e("$title: 长按条目失败")
-                        error("$title: 长按条目失败 $originalContent")
+                        LogUtils.e("$title: 长按条目失败 $originalContent")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "$title: 长按条目失败 $originalContent", startTime, listOf(), titleList)
+                        return false
                     }
                 } else {
                     if (WeworkTextUtil.longClickMyMessageItem(
@@ -200,13 +204,17 @@ object WeworkOperationImpl {
                         LogUtils.d("开始转发")
                         if (relaySelectTarget(nameList, extraText)) {
                             LogUtils.d("$title: 转发成功")
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            return true
                         } else {
-                            LogUtils.d("$title: 转发失败")
-                            error("$title: 转发失败 $originalContent")
+                            LogUtils.d("$title: 转发失败 $originalContent")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败 $originalContent", startTime, listOf(), titleList)
+                            return false
                         }
                     } else {
-                        LogUtils.e("$title: 长按条目失败")
-                        error("$title: 长按条目失败 $originalContent")
+                        LogUtils.e("$title: 长按条目失败 $originalContent")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "$title: 长按条目失败 $originalContent", startTime, listOf(), titleList)
+                        return false
                     }
                 }
             } else {
@@ -214,7 +222,9 @@ object WeworkOperationImpl {
                 error("$title: 转发失败 $originalContent")
             }
         }
-        return true
+        LogUtils.d("转发失败 未找到房间名")
+        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发失败 未找到房间名", startTime, listOf(), titleList)
+        return false
     }
 
     /**
@@ -519,25 +529,6 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "用过的小程序")
-        if (node != null) {
-            AccessibilityUtil.performClick(node)
-            sleep(Constant.CHANGE_PAGE_INTERVAL)
-            val textViewList = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
-            if (textViewList.size > 3) {
-                AccessibilityUtil.performClick(textViewList[2])
-                AccessibilityUtil.findTextInput(getRoot(), objectName)
-                AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView)
-                sleep(2000)
-                //todo 转发小程序
-                return true
-            } else {
-                LogUtils.e("未找到小程序内搜索")
-            }
-        } else {
-            LogUtils.e("未找到小程序")
-        }
         return false
     }
 
@@ -885,7 +876,6 @@ object WeworkOperationImpl {
             return false
         } else if (messageList.size == 1) {
             val subMessageBean = messageList.first()
-            //todo 检查receivedName异常场景
             val receivedName = subMessageBean.nameList?.firstOrNull()
             val textType = subMessageBean.textType
             val originalContent = subMessageBean.itemMessageList?.firstOrNull()?.text ?: ""
@@ -896,7 +886,6 @@ object WeworkOperationImpl {
             if (WeworkRoomUtil.intoRoom(title)) {
                 var hasOpenMulti = false
                 for (subMessageBean in messageList) {
-                    //todo 检查receivedName异常场景
                     val receivedName = subMessageBean.nameList?.firstOrNull()
                     val textType = subMessageBean.textType
                     val originalContent = subMessageBean.itemMessageList?.firstOrNull()?.text ?: ""
@@ -948,8 +937,8 @@ object WeworkOperationImpl {
                                 )
                             ) {
                                 LogUtils.d("单击成功 $originalContent")
-                                sleep(3000)
                                 hasOpenMulti = true
+                                sleep(Constant.POP_WINDOW_INTERVAL / 2)
                             } else {
                                 LogUtils.e("$title: 单击失败")
                                 error("$title: 单击失败 $originalContent")
@@ -964,8 +953,8 @@ object WeworkOperationImpl {
                                 )
                             ) {
                                 LogUtils.d("单击成功 $originalContent")
-                                sleep(3000)
                                 hasOpenMulti = true
+                                sleep(Constant.POP_WINDOW_INTERVAL / 2)
                             } else {
                                 LogUtils.e("$title: 单击失败")
                                 error("$title: 单击失败 $originalContent")
@@ -979,25 +968,33 @@ object WeworkOperationImpl {
                         if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                             if (relaySelectTarget(nameList, extraText)) {
                                 LogUtils.d("$title: 转发成功")
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                                return true
                             } else {
                                 LogUtils.e("$title: 转发失败")
-                                error("$title: 转发失败")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败", startTime, listOf(), titleList)
+                                return false
                             }
                         } else {
                             LogUtils.e("未找到逐条转发按钮")
-                            error("未找到逐条转发按钮")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), titleList)
+                            return false
                         }
                     } else {
                         LogUtils.e("未找到转发按钮")
-                        error("未找到转发按钮")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), titleList)
+                        return false
                     }
                 }
             } else {
                 LogUtils.d("$title: 转发失败 未找到房间")
-                error("$title: 转发失败 未找到房间")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$title: 转发失败 未找到房间", startTime, listOf(), titleList)
+                return false
             }
         }
-        return true
+        LogUtils.d("转发失败 未找到房间名")
+        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发失败 未找到房间名", startTime, listOf(), titleList)
+        return false
     }
 
     /**
@@ -1649,7 +1646,7 @@ object WeworkOperationImpl {
                     AccessibilityUtil.findTextInput(getRoot(), groupName)
                     val confirmButton = AccessibilityUtil.findOneByText(getRoot(), "确定")
                     AccessibilityUtil.performClick(confirmButton)
-                    sleep(2000)
+                    sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
                     return true
                 } else {
                     LogUtils.e("未找到填写群名按钮")
@@ -1661,7 +1658,7 @@ object WeworkOperationImpl {
                     AccessibilityUtil.findTextInput(getRoot(), groupName)
                     val confirmButton = AccessibilityUtil.findOneByText(getRoot(), "确定")
                     AccessibilityUtil.performClick(confirmButton)
-                    sleep(2000)
+                    sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
                     return true
                 } else {
                     LogUtils.e("未找到群聊名称按钮")
@@ -1920,7 +1917,7 @@ object WeworkOperationImpl {
                         if (publishButtonList.size >= 2) {
                             AccessibilityUtil.performClick(publishButtonList[1])
                         }
-                        sleep(3000)
+                        sleep(Constant.CHANGE_PAGE_INTERVAL * 3)
                     } else {
                         LogUtils.e("无法进行群公告发布")
                     }
