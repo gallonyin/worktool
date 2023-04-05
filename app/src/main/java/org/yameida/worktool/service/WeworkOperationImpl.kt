@@ -2034,6 +2034,7 @@ object WeworkOperationImpl {
                 }
             }
             atList.removeIf { it.startsWith("#regex#") }
+            LogUtils.v("atList: ${atList.joinToString()}")
             atList.forEachIndexed { index, at ->
                 if (index == 0) {
                     AccessibilityUtil.findTextInput(getRoot(), "@")
@@ -2048,7 +2049,7 @@ object WeworkOperationImpl {
                     val container = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)?.parent
                     if (container != null) {
                         val atNode = AccessibilityUtil.findOnceByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?")
-                        if (atNode != null) {
+                        if (atNode != null && !at.matches("^[A-Z#]$".toRegex())) {
                             AccessibilityUtil.performClick(atNode)
                         } else {
                             AccessibilityUtil.findTextInput(getRoot(), at)
