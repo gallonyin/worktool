@@ -441,6 +441,47 @@ object WeworkController {
     }
 
     /**
+     * 批量发送
+     * @see WeworkMessageBean.SEND_MULTI_MESSAGE
+     * @param message#titleList 房间名称
+     * @param message#messageList 消息列表
+     * @param message#nameList 待转发姓名列表
+     * @param message#extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    @RequestMapping
+    fun sendMultiMessage(message: WeworkMessageBean): Boolean {
+        LogUtils.d("sendMultiMessage(): ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
+        return WeworkOperationImpl.sendMultiMessage(
+            message,
+            message.titleList,
+            message.messageList,
+            message.nameList,
+            message.extraText
+        )
+    }
+
+    /**
+     * 合并发送
+     * @see WeworkMessageBean.SEND_MERGE_MESSAGE
+     * @param message#titleList 房间名称
+     * @param message#weworkMessageList 消息列表
+     * @param message#nameList 待转发姓名列表
+     * @param message#extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    @RequestMapping
+    fun sendMergeMessage(message: WeworkMessageBean): Boolean {
+        LogUtils.d("sendMergeMessage(): ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
+        return WeworkOperationImpl.sendMergeMessage(
+            message,
+            message.weworkMessageList,
+            message.nameList,
+            message.extraText
+        )
+    }
+
+    /**
      * 按手机号添加好友
      * @see WeworkMessageBean.ADD_FRIEND_BY_PHONE
      * @param message#friend 待添加用户

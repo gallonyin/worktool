@@ -859,6 +859,167 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 批量发送
+     * @see WeworkMessageBean.SEND_MULTI_MESSAGE
+     * @param titleList 房间名称
+     * @param messageList 消息列表
+     * @param nameList 待转发姓名列表
+     * @param extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun sendMultiMessage(
+        message: WeworkMessageBean,
+        titleList: List<String>,
+        messageList: List<WeworkMessageBean.SubMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null
+    ): Boolean {
+        return relayMultiMessage(message, titleList, messageList, nameList, extraText, "逐条转发")
+    }
+
+    /**
+     * 合并发送
+     * @see WeworkMessageBean.SEND_MERGE_MESSAGE
+     * @param weworkMessageList 消息列表
+     * @param nameList 待转发姓名列表
+     * @param extraText 附加留言 选填
+     * @see WeworkMessageBean.TEXT_TYPE
+     */
+    fun sendMergeMessage(
+        message: WeworkMessageBean,
+        weworkMessageList: List<WeworkMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null
+    ): Boolean {
+        val startTime = System.currentTimeMillis()
+        val groupName = "消息转发专用群"
+        message.titleList = arrayListOf(groupName)
+        if (!WeworkRoomUtil.isGroupExists(groupName)) {
+            if (!createGroup()) {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName))
+                return false
+            }
+            if (!groupRename(groupName)) {
+                uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), listOf(groupName))
+                return false
+            }
+        }
+        LogUtils.d("进入转发专用群")
+        sendMessage(message, message.titleList, startTime.toString())
+        for (weworkMessage in weworkMessageList) {
+            weworkMessage.titleList = message.titleList
+            when (weworkMessage.type) {
+                WeworkMessageBean.SEND_MESSAGE -> {
+                    WeworkController.sendMessage(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_MICRO_DISK_IMAGE -> {
+                    WeworkController.pushMicroDiskImage(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_MICRO_DISK_FILE -> {
+                    WeworkController.pushMicroDiskFile(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_MICROPROGRAM -> {
+                    WeworkController.pushMicroprogram(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_OFFICE -> {
+                    WeworkController.pushOffice(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_FILE -> {
+                    WeworkController.pushFile(weworkMessage)
+                }
+                WeworkMessageBean.PUSH_LINK -> {
+                    WeworkController.pushLink(weworkMessage)
+                }
+            }
+        }
+        return sendMultiMessage(message, groupName, startTime, nameList, extraText, "合并转发")
+    }
+
+    /**
+     * 批量发送 合并发送
+     */
+    private fun sendMultiMessage(
+        message: WeworkMessageBean,
+        groupName: String,
+        startTime: Long,
+        nameList: List<String>,
+        extraText: String? = null,
+        key: String
+    ): Boolean {
+        val titleList = arrayListOf(groupName)
+        if (WeworkRoomUtil.intoRoom(groupName)) {
+            if (WeworkTextUtil.longClickMyMessageItem(
+                    //聊天消息列表 1ListView 0RecycleView xViewGroup
+                    AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
+                    WeworkMessageBean.TEXT_TYPE_PLAIN,
+                    startTime.toString(),
+                    "多选"
+                )
+            ) {
+                LogUtils.d("多选成功")
+            } else {
+                LogUtils.e("$groupName: 多选失败")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $startTime", startTime, listOf(), titleList)
+                return false
+            }
+            //聊天消息列表 1ListView 0RecycleView xViewGroup
+            val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+            if (list != null) {
+                val childCount = list.childCount
+                LogUtils.v("消息条数: $childCount")
+                var start = false
+                for (i in 0 until list.childCount) {
+                    val item = list.getChild(i)
+                    if (item != null && item.childCount > 0) {
+                        if (!start) {
+                            val parseChatMessageItem = WeworkLoopImpl.parseChatMessageItem(
+                                item,
+                                titleList,
+                                WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP,
+                                false
+                            )
+                            if (parseChatMessageItem.itemMessageList.find { it.feature == 2 && it.text?.toString() == startTime.toString() } != null) {
+                                start = true
+                            }
+                        }
+                        if (start) {
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                            LogUtils.d("单击成功")
+                            sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                        }
+                    }
+                }
+            }
+            val bottomList = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
+            if (AccessibilityUtil.performClickWithSon(bottomList)) {
+                if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
+                    if (relaySelectTarget(nameList, extraText)) {
+                        LogUtils.d("$groupName: 转发成功")
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, titleList, listOf())
+                        return true
+                    } else {
+                        LogUtils.e("$groupName: 转发失败")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$groupName: 转发失败", startTime, listOf(), titleList)
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未找到逐条转发按钮")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), titleList)
+                    return false
+                }
+            } else {
+                LogUtils.e("未找到转发按钮")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), titleList)
+                return false
+            }
+        } else {
+            LogUtils.d("$groupName: 转发失败 未找到房间")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$groupName: 转发失败 未找到房间", startTime, listOf(), titleList)
+            return false
+        }
+    }
+
+    /**
      * 批量转发 合并转发
      */
     private fun relayMultiMessage(
@@ -905,7 +1066,7 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $$originalContent", startTime, listOf(), titleList)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), titleList)
                                 return false
                             }
                         } else {
@@ -921,7 +1082,7 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $$originalContent", startTime, listOf(), titleList)
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), titleList)
                                 return false
                             }
                         }
@@ -937,7 +1098,6 @@ object WeworkOperationImpl {
                                 )
                             ) {
                                 LogUtils.d("单击成功 $originalContent")
-                                hasOpenMulti = true
                                 sleep(Constant.POP_WINDOW_INTERVAL / 2)
                             } else {
                                 LogUtils.e("$title: 单击失败")
@@ -953,7 +1113,6 @@ object WeworkOperationImpl {
                                 )
                             ) {
                                 LogUtils.d("单击成功 $originalContent")
-                                hasOpenMulti = true
                                 sleep(Constant.POP_WINDOW_INTERVAL / 2)
                             } else {
                                 LogUtils.e("$title: 单击失败")
@@ -963,8 +1122,8 @@ object WeworkOperationImpl {
                     }
                 }
                 if (hasOpenMulti) {
-                    val list = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
-                    if (AccessibilityUtil.performClickWithSon(list)) {
+                    val bottomList = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
+                    if (AccessibilityUtil.performClickWithSon(bottomList)) {
                         if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                             if (relaySelectTarget(nameList, extraText)) {
                                 LogUtils.d("$title: 转发成功")

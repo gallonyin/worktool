@@ -183,6 +183,12 @@ object MyLooper {
             WeworkMessageBean.RELAY_MERGE_MESSAGE -> {
                 WeworkController.relayMergeMessage(message)
             }
+            WeworkMessageBean.SEND_MULTI_MESSAGE -> {
+                WeworkController.sendMultiMessage(message)
+            }
+            WeworkMessageBean.SEND_MERGE_MESSAGE -> {
+                WeworkController.sendMergeMessage(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }

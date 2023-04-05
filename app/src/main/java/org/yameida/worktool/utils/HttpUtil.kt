@@ -158,7 +158,7 @@ object HttpUtil {
                 override fun onError(response: Response<String>) {
                     ToastUtils.showLong("推送图片失败")
                     LogUtils.e("推送图片失败")
-                    error("推送图片失败: $${titleList.joinToString()} $receivedName")
+                    error("推送图片失败: ${titleList.joinToString()} $receivedName")
                 }
             })
     }

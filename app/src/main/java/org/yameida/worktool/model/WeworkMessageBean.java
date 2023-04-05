@@ -42,6 +42,8 @@ public class WeworkMessageBean {
      * 撤回消息 RECALL_MESSAGE
      * 批量转发 RELAY_MULTI_MESSAGE
      * 合并转发 RELAY_MERGE_MESSAGE
+     * 批量发送 SEND_MULTI_MESSAGE
+     * 合并发送 SEND_MERGE_MESSAGE
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -89,6 +91,8 @@ public class WeworkMessageBean {
     public static final int RECALL_MESSAGE = 226;
     public static final int RELAY_MULTI_MESSAGE = 227;
     public static final int RELAY_MERGE_MESSAGE = 228;
+    public static final int SEND_MULTI_MESSAGE = 229;
+    public static final int SEND_MERGE_MESSAGE = 230;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
@@ -219,6 +223,8 @@ public class WeworkMessageBean {
     public String objectName;
     //二维码转码
     public String qrcode;
+    //批量发送
+    public List<WeworkMessageBean> weworkMessageList;
 
     //添加好友
     public Friend friend;

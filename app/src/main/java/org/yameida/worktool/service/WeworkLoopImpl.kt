@@ -620,7 +620,7 @@ object WeworkLoopImpl {
     /**
      * 解析消息列表里的一条消息
      */
-    private fun parseChatMessageItem(
+    fun parseChatMessageItem(
         node: AccessibilityNodeInfo,
         titleList: ArrayList<String>,
         roomType: Int,
