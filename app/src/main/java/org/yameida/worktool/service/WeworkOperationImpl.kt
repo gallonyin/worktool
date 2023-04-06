@@ -1924,6 +1924,10 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
+                        if (AccessibilityExtraUtil.loadingPage("CustomDialog", timeout = Constant.POP_WINDOW_INTERVAL)) {
+                            AccessibilityUtil.findTextAndClick(getRoot(), "邀请", exact = true)
+                            log("群邀请: ${selectList.joinToString()}")
+                        }
                         return true
                     } else {
                         LogUtils.e("未发现确认按钮")
