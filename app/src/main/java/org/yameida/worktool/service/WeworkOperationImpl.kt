@@ -861,20 +861,18 @@ object WeworkOperationImpl {
     /**
      * 批量发送
      * @see WeworkMessageBean.SEND_MULTI_MESSAGE
-     * @param titleList 房间名称
-     * @param messageList 消息列表
+     * @param weworkMessageList 消息列表
      * @param nameList 待转发姓名列表
      * @param extraText 附加留言 选填
      * @see WeworkMessageBean.TEXT_TYPE
      */
     fun sendMultiMessage(
         message: WeworkMessageBean,
-        titleList: List<String>,
-        messageList: List<WeworkMessageBean.SubMessageBean>,
+        weworkMessageList: List<WeworkMessageBean>,
         nameList: List<String>,
         extraText: String? = null
     ): Boolean {
-        return relayMultiMessage(message, titleList, messageList, nameList, extraText, "逐条转发")
+        return sendMultiMessage(message, weworkMessageList, nameList, extraText, "逐条转发")
     }
 
     /**
@@ -891,9 +889,23 @@ object WeworkOperationImpl {
         nameList: List<String>,
         extraText: String? = null
     ): Boolean {
+        return sendMultiMessage(message, weworkMessageList, nameList, extraText, "合并转发")
+    }
+
+    /**
+     * 批量发送 合并发送
+     */
+    private fun sendMultiMessage(
+        message: WeworkMessageBean,
+        weworkMessageList: List<WeworkMessageBean>,
+        nameList: List<String>,
+        extraText: String? = null,
+        key: String
+    ): Boolean {
         val startTime = System.currentTimeMillis()
         val groupName = "消息转发专用群"
-        message.titleList = arrayListOf(groupName)
+        val titleList = arrayListOf(groupName)
+        message.titleList = titleList
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
             if (!createGroup()) {
                 uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName))
@@ -932,21 +944,6 @@ object WeworkOperationImpl {
                 }
             }
         }
-        return sendMultiMessage(message, groupName, startTime, nameList, extraText, "合并转发")
-    }
-
-    /**
-     * 批量发送 合并发送
-     */
-    private fun sendMultiMessage(
-        message: WeworkMessageBean,
-        groupName: String,
-        startTime: Long,
-        nameList: List<String>,
-        extraText: String? = null,
-        key: String
-    ): Boolean {
-        val titleList = arrayListOf(groupName)
         if (WeworkRoomUtil.intoRoom(groupName)) {
             if (WeworkTextUtil.longClickMyMessageItem(
                     //聊天消息列表 1ListView 0RecycleView xViewGroup

@@ -443,19 +443,16 @@ object WeworkController {
     /**
      * 批量发送
      * @see WeworkMessageBean.SEND_MULTI_MESSAGE
-     * @param message#titleList 房间名称
-     * @param message#messageList 消息列表
+     * @param message#weworkMessageList 消息列表
      * @param message#nameList 待转发姓名列表
      * @param message#extraText 附加留言 选填
-     * @see WeworkMessageBean.TEXT_TYPE
      */
     @RequestMapping
     fun sendMultiMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("sendMultiMessage(): ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
+        LogUtils.d("sendMultiMessage(): ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.sendMultiMessage(
             message,
-            message.titleList,
-            message.messageList,
+            message.weworkMessageList,
             message.nameList,
             message.extraText
         )
@@ -464,11 +461,9 @@ object WeworkController {
     /**
      * 合并发送
      * @see WeworkMessageBean.SEND_MERGE_MESSAGE
-     * @param message#titleList 房间名称
      * @param message#weworkMessageList 消息列表
      * @param message#nameList 待转发姓名列表
      * @param message#extraText 附加留言 选填
-     * @see WeworkMessageBean.TEXT_TYPE
      */
     @RequestMapping
     fun sendMergeMessage(message: WeworkMessageBean): Boolean {
