@@ -155,6 +155,27 @@ object WeworkGetImpl {
                 .firstOrNull { it.text == null }
             AccessibilityUtil.performClick(firstTv, retry = false)
             sleep(Constant.CHANGE_PAGE_INTERVAL)
+            val listviewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+                .filter { it.childCount >= 2 }
+            val list = listviewList.firstOrNull()
+            if (list != null) {
+                val corpList = arrayListOf<String>()
+                for (i in 0 until list.childCount) {
+                    val item = list.getChild(i)
+                    val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView)
+                    val textList = tvList.mapNotNull { it.text?.toString() }
+                    if (textList.isNotEmpty()) {
+                        corpList.add(textList[0])
+                    }
+                }
+                LogUtils.d("我的企业", GsonUtils.toJson(corpList))
+                val weworkMessageBean = WeworkMessageBean()
+                weworkMessageBean.type = WeworkMessageBean.GET_CORP_LIST
+                weworkMessageBean.titleList = corpList
+                WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
+            } else {
+                LogUtils.e("未找到企业列表")
+            }
             val newFirstTv = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
             val nickname = newFirstTv?.text?.toString()
             if (nickname != null) {
@@ -200,7 +221,7 @@ object WeworkGetImpl {
                     sumInfo = info.toString()
                 }
                 WeworkController.weworkService.webSocketManager.send(weworkMessageBean)
-                return getCorpList(message)
+                return true
             } else {
                 LogUtils.d("未找到我的昵称")
                 log("未找到我的昵称")
