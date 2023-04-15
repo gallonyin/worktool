@@ -589,6 +589,9 @@ object WeworkLoopImpl {
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
                 val title = tvList[0]
+                if (title == "群聊") {
+                    continue
+                }
                 if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
                     val lastSyncMessage = SPUtils.getInstance("lastSyncMessage").getString(title, null)
                         ?: continue
