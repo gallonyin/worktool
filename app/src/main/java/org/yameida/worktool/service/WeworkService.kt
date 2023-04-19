@@ -68,6 +68,7 @@ class WeworkService : AccessibilityService() {
     }
 
     private fun initObserver() {
+        if (!Constant.pushImage) return
         try {
             LogUtils.d("initObserver... mFileObserver is null ? ${mFileObserver == null}")
             if (mFileObserver == null) {
