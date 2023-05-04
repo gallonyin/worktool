@@ -170,7 +170,7 @@ class DefaultFloatService : BaseFloatWindow(), View.OnClickListener {
     public override fun leftViewOpened(leftView: View) {
         val layoutParams = leftView.fl_window_measure_left.layoutParams as FrameLayout.LayoutParams
         leftView.fl_window_measure_left.measure(0, 0)
-        layoutParams.topMargin = (params.y - leftView.fl_window_measure_left.measuredHeight / 2 - leftView.iv_logo_left.measuredHeight / 2)
+        layoutParams.topMargin = params.y - BarUtils.getStatusBarHeight() - (leftView.fl_window_measure_left.measuredHeight / 2 - leftView.iv_logo_left.measuredHeight / 2)
         leftView.fl_window_measure_left.layoutParams = layoutParams
 //        ToastUtils.showShort("左边的菜单被打开了")
     }
@@ -178,7 +178,7 @@ class DefaultFloatService : BaseFloatWindow(), View.OnClickListener {
     public override fun rightViewOpened(rightView: View) {
         val layoutParams = rightView.fl_window_measure_right.layoutParams as FrameLayout.LayoutParams
         rightView.fl_window_measure_right.measure(0, 0)
-        layoutParams.topMargin = params.y - rightView.fl_window_measure_right.measuredHeight / 2 - rightView.iv_logo_right.measuredHeight / 2
+        layoutParams.topMargin = params.y - BarUtils.getStatusBarHeight() - (rightView.fl_window_measure_right.measuredHeight / 2 - rightView.iv_logo_right.measuredHeight / 2)
         layoutParams.leftMargin = ScreenUtils.getScreenWidth() - rightView.fl_window_measure_right.measuredWidth
         rightView.fl_window_measure_right.layoutParams = layoutParams
 //        ToastUtils.showShort("右边的菜单被打开了")
