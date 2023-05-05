@@ -183,7 +183,7 @@ object WeworkLoopImpl {
                     for (i in 0 until list.childCount) {
                         val item = list.getChild(childCount - 1 - i)
                         if (item != null && item.childCount > 0) {
-                            messageList.add(parseChatMessageItem(item, titleList, roomType, false))
+                            messageList.add(parseChatMessageItem(item, titleList, roomType))
                         }
                     }
                 }
@@ -198,7 +198,7 @@ object WeworkLoopImpl {
                         for (i in 0 until childCount) {
                             val item = list2.getChild(childCount - 1 - i)
                             if (item != null && item.childCount > 0) {
-                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
+                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck, lastParse = true)
                                 if (chatMessageItem.imageRepeat == true) {
                                     chatMessageItem.imageRepeat = null
                                     imageCheck = false
@@ -215,7 +215,7 @@ object WeworkLoopImpl {
                         for (i in 0 until list2.childCount) {
                             val item = list2.getChild(childCount - 1 - i)
                             if (item != null && item.childCount > 0) {
-                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck)
+                                val chatMessageItem = parseChatMessageItem(item, titleList, roomType, imageCheck, lastParse = true)
                                 if (chatMessageItem.sender == 0 && chatMessageItem.textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                                     imageCheck = false
                                 }
@@ -627,7 +627,8 @@ object WeworkLoopImpl {
         node: AccessibilityNodeInfo,
         titleList: ArrayList<String>,
         roomType: Int,
-        imageCheck: Boolean
+        imageCheck: Boolean = false,
+        lastParse: Boolean = false
     ): WeworkMessageBean.SubMessageBean {
         val message: WeworkMessageBean.SubMessageBean
         val nameList = arrayListOf<String>()
@@ -671,14 +672,14 @@ object WeworkLoopImpl {
                 }
                 if (textType == WeworkMessageBean.TEXT_TYPE_LINK) {
                     val tempList = itemMessageList.filter { it.feature != 0 }
-                    if (tempList.size == 2 && tempList[0].text.contains("邀请你加入群聊")
+                    if (lastParse && tempList.size == 2 && tempList[0].text.contains("邀请你加入群聊")
                         && SPUtils.getInstance("groupInvite").getInt(tempList[1].text, 0) == 0) {
                         LogUtils.d("邀请你加入群聊: ${tempList[1].text}")
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                         if (AccessibilityExtraUtil.loadingPage("JsWebActivity")) {
-                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", "你已接受过此邀请，无法再次加入", exact = true)
+                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", "你已接受过此邀请，无法再次加入", "你已接受邀请", exact = true)
                             val text = tvButton?.text?.toString()
-                            if (text == "我知道了" || text == "你已接受过此邀请，无法再次加入") {
+                            if (text == "我知道了" || text?.startsWith("你已接受") == true) {
                                 backPress()
                                 SPUtils.getInstance("groupInvite").put(tempList[1].text, 1)
                                 error("加入群聊失败: ${tempList[1].text}")
@@ -687,9 +688,11 @@ object WeworkLoopImpl {
                                 SPUtils.getInstance("groupInvite").put(tempList[1].text, 1)
                                 LogUtils.d("加入群聊: ${tempList[1].text}")
                                 log("加入群聊: ${tempList[1].text}")
+                                //该房间的信息读取任务会被强制中断并跳转到新房间且返回无效
                             } else {
                                 LogUtils.e("加入群聊异常: ${tempList[1].text}")
                                 error("加入群聊异常: ${tempList[1].text}")
+                                backPress()
                             }
                         }
                     }

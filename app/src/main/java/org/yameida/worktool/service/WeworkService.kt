@@ -96,6 +96,7 @@ class WeworkService : AccessibilityService() {
         currentPackage = event.packageName?.toString() ?: ""
         val className = event.className?.toString() ?: ""
         if (className.contains(currentPackage)) {
+            LogUtils.d("更新当前页面: currentPackage: ${event.packageName} className: ${event.className}")
             currentClass = className
         }
     }

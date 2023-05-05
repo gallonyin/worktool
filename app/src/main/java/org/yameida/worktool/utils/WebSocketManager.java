@@ -31,7 +31,7 @@ public class WebSocketManager {
     private static final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     public static Map<String, WebSocketManager> webSocketManager = new ConcurrentHashMap<>();
     private static final int reconnectInt = 5000;  //毫秒
-    private static final long heartBeatRate = 10;  //秒
+    private static final long heartBeatRate = 5;  //秒
     private Map<String, Long> messageIdMap = new ConcurrentHashMap<>();
     private ScheduledFuture task;
     private WebSocket socket;

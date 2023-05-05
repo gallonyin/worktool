@@ -972,8 +972,7 @@ object WeworkOperationImpl {
                             val parseChatMessageItem = WeworkLoopImpl.parseChatMessageItem(
                                 item,
                                 titleList,
-                                WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP,
-                                false
+                                WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
                             )
                             if (parseChatMessageItem.itemMessageList.find { it.feature == 2 && it.text?.toString() == startTime.toString() } != null) {
                                 start = true
