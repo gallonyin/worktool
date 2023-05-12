@@ -30,7 +30,7 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 2. 手机登录企业微信（账号需要提前实名认证，不然很多功能无法正常使用）
 3. 建议提前给该企业微信账号开通"工作台"-"客户群"权限（如无需外部群创建和管理可不开启）
 4. 自助申请一个[机器人链接号(点击这里)](https://wt.asrtts.cn/regist.html)，您也可以加入QQ群向管理员咨询如何操作。
-5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-2.5.8.apk)
+5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-2.5.9.apk)
 6. 打开WorkTool APP，按照APP提示保存链接号，开启主功能，并打开到企业微信界面，不要关闭屏幕即可。
 
 如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://www.apifox.cn/apidoc/project-1035094/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://www.apifox.cn/apidoc/project-1035094/api-22587884)提交您的机器人id和回调接口地址
@@ -57,11 +57,13 @@ Apache License, Version 2.0
 
 - 官网: http://wt.asrtts.cn/
 - Email: gallonyin@163.com
-- QQ群: 764377820, 767701323（链接号申请/问题反馈）
-- 如果遇到问题欢迎在群里提问，个人能力也有限，希望一起学习一起进步。
+- QQ群: 716513331, 801199277（链接号申请/问题反馈）
+- 如果遇到问题欢迎在群里提问或提交issue。
 - WorkTool志愿者开发群: 716217439
 
 # 版本更新
+
+tag 2.5.9 2023-05-12 自动通过群邀请;拉人进群发送邀请;获取群聊全称;获取群二维码;其他已知问题修复
 
 tag 2.5.8 2023-04-06 优化消息一致性检查;执行异常自动重试;兼容性更新;其他已知问题修复
 
