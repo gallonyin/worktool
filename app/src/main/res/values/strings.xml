@@ -15,6 +15,7 @@
     <string name="input_new_host">请输入新的host</string>
     <string name="delete">删除</string>
     <string name="cancel">取消</string>
+    <string name="copy">复制</string>
     <string name="confirm">确认</string>
     <string name="add">新增</string>
     <string name="host_list">host列表</string>

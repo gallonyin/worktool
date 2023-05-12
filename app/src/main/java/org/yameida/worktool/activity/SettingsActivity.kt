@@ -1,14 +1,11 @@
 package org.yameida.worktool.activity
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.text.InputType
 import android.view.WindowManager
 import android.widget.CompoundButton
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.*
 import com.lzy.okgo.OkGo
@@ -25,7 +22,7 @@ import org.yameida.worktool.utils.*
 
 
 /**
- * 登录页
+ * 设置页
  */
 class SettingsActivity : AppCompatActivity() {
 
@@ -69,9 +66,9 @@ class SettingsActivity : AppCompatActivity() {
             SPUtils.getInstance().put("autoReply", Constant.autoReply)
         })
         rl_reply_strategy.setOnClickListener { showReplyStrategyDialog() }
-        rl_qa_url.setOnClickListener { showQaUrlDialog() }
         rl_donate.setOnClickListener { showDonateDialog() }
         rl_share.setOnClickListener { showShareDialog() }
+        rl_advance.setOnClickListener { SettingsAdvanceActivity.enterActivity(this) }
         freshOpenFlow()
         bt_open_flow.setOnClickListener {
             freshOpenFlow()
@@ -119,33 +116,6 @@ class SettingsActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun showQaUrlDialog() {
-        val builder = QMUIDialog.EditTextDialogBuilder(this)
-        builder.setTitle("消息回调地址")
-            .setPlaceholder("请输入回调接口地址")
-            .setDefaultText(Constant.qaUrl)
-            .setInputType(InputType.TYPE_CLASS_TEXT)
-            .addAction(getString(R.string.delete)) { dialog, index ->
-                dialog.dismiss()
-                updateRobotQaUrl("")
-            }
-            .addAction(getString(R.string.cancel)) { dialog, index -> dialog.dismiss() }
-            .addAction(getString(R.string.add)) { dialog, index ->
-                val text = builder.editText.text
-                if (text != null) {
-                    if (text.matches("https?://[^/]+.*".toRegex())) {
-                        dialog.dismiss()
-                        updateRobotQaUrl(text.toString().trim())
-                    } else {
-                        ToastUtils.showLong("格式异常！")
-                    }
-                } else {
-                    ToastUtils.showLong("请勿为空！")
-                }
-            }
-            .create(R.style.QMUI_Dialog).show()
-    }
-
     private fun showDonateDialog() {
         DonateUtil.zfbDonate(this)
     }
@@ -180,40 +150,6 @@ class SettingsActivity : AppCompatActivity() {
         } else {
             bt_open_main.setBackgroundResource(R.drawable.comment_red_btn)
             bt_open_main.text = "开启主功能"
-        }
-    }
-
-    private fun updateRobotQaUrl(callbackUrl: String) {
-        try {
-            val json = hashMapOf<String, Any>()
-            json["robotId"] = Constant.robotId
-            if (callbackUrl.isEmpty()) {
-                json["openCallback"] = 0
-            } else {
-                json["openCallback"] = 1
-                json["callbackUrl"] = callbackUrl
-            }
-            val requestBody = RequestBody.create(
-                MediaType.parse("application/json;charset=UTF-8"),
-                GsonUtils.toJson(json)
-            )
-            val call = object : StringCallback() {
-                override fun onSuccess(response: Response<String>?) {
-                    if (response != null && JSONObject(response.body()).getInt("code") == 200) {
-                        Constant.qaUrl = callbackUrl
-                        ToastUtils.showLong(if (callbackUrl.isEmpty()) "关闭成功" else "更新成功")
-                    } else {
-                        onError(response)
-                    }
-                }
-
-                override fun onError(response: Response<String>?) {
-                    ToastUtils.showLong(if (callbackUrl.isEmpty()) "关闭失败，请稍后再试~" else "更新失败，请稍后再试~")
-                }
-            }
-            OkGo.post<String>(Constant.getRobotUpdateUrl()).upRequestBody(requestBody).execute(call)
-        } catch (e: Exception) {
-            throw RuntimeException(e)
         }
     }
 

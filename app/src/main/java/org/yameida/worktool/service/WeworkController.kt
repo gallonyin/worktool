@@ -294,19 +294,25 @@ object WeworkController {
     }
 
     /**
-     * 推送任意小程序
+     * 推送小程序
      * @see WeworkMessageBean.PUSH_MICROPROGRAM
      * @param message#titleList 待发送姓名列表
      * @param message#objectName 小程序名称
+     * @param message#receivedContent 小程序描述
+     * @param message#originalContent 小程序链接地址
+     * @param message#fileUrl 图片地址
      * @param message#extraText 附加留言 可选
      */
     @RequestMapping
     fun pushMicroprogram(message: WeworkMessageBean): Boolean {
-        LogUtils.d("pushMicroprogram(): ${message.titleList} ${message.objectName} ${message.extraText}")
+        LogUtils.d("pushMicroprogram(): ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
         return WeworkOperationImpl.pushMicroprogram(
             message,
             message.titleList,
             message.objectName,
+            message.receivedContent,
+            message.originalContent,
+            message.fileUrl,
             message.extraText
         )
     }

@@ -18,19 +18,52 @@ object Constant {
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
     val transformation = "AES/CBC/PKCS7Padding"
-    val weworkCorpId = ""
-    val weworkAgentId = ""
-    val weworkSchema = ""
-    var encryptType = SPUtils.getInstance().getInt("encryptType", 1)
-    var autoReply = SPUtils.getInstance().getInt("autoReply", 1)
-    var groupStrict = false
-    var friendRemarkStrict = false
+    var weworkCorpId: String
+        get() = SPUtils.getInstance().getString("weworkCorpId", "")
+        set(value) {
+            SPUtils.getInstance().put("weworkCorpId", value)
+        }
+    var weworkAgentId: String
+        get() = SPUtils.getInstance().getString("weworkAgentId", "")
+        set(value) {
+            SPUtils.getInstance().put("weworkAgentId", value)
+        }
+    var weworkSchema: String
+        get() = SPUtils.getInstance().getString("weworkSchema", "")
+        set(value) {
+            SPUtils.getInstance().put("weworkSchema", value)
+        }
+    var weworkMP: String
+        get() = SPUtils.getInstance().getString("weworkMP", "")
+        set(value) {
+            SPUtils.getInstance().put("weworkMP", value)
+        }
+    var encryptType: Int = SPUtils.getInstance().getInt("encryptType", 1)
+    var autoReply: Int = SPUtils.getInstance().getInt("autoReply", 1)
+    var groupStrict: Boolean
+        get() = SPUtils.getInstance().getBoolean("groupStrict", false)
+        set(value) = SPUtils.getInstance().put("groupStrict", value)
+    var friendRemarkStrict: Boolean
+        get() = SPUtils.getInstance().getBoolean("friendRemarkStrict", false)
+        set(value) = SPUtils.getInstance().put("friendRemarkStrict", value)
     var pushImage = false
-    var autoPublishComment = false
-    var groupQrCode = false
+    var autoPublishComment: Boolean
+        get() = SPUtils.getInstance().getBoolean("autoPublishComment", true)
+        set(value) = SPUtils.getInstance().put("autoPublishComment", value)
+    var groupQrCode: Boolean
+        get() = SPUtils.getInstance().getBoolean("groupQrCode", false)
+        set(value) = SPUtils.getInstance().put("groupQrCode", value)
     var enableMediaProject = false
     var enableSdkShare = false
-    var fullGroupName = false
+    var fullGroupName: Boolean
+        get() = SPUtils.getInstance().getBoolean("fullGroupName", true)
+        set(value) = SPUtils.getInstance().put("fullGroupName", value)
+    var customLink: Boolean
+        get() = SPUtils.getInstance().getBoolean("customLink", false)
+        set(value) = SPUtils.getInstance().put("customLink", value)
+    var customMP: Boolean
+        get() = SPUtils.getInstance().getBoolean("customMP", false)
+        set(value) = SPUtils.getInstance().put("customMP", value)
     var robotId: String
         get() = SPUtils.getInstance().getString("robotId", SPUtils.getInstance().getString("LISTEN_CHANNEL_ID", ""))
         set(value) {

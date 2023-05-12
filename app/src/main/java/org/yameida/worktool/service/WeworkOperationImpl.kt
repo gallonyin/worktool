@@ -517,19 +517,40 @@ object WeworkOperationImpl {
     }
 
     /**
-     * 推送任意小程序(不推荐)
+     * 推送小程序
+     * @see WeworkMessageBean.PUSH_MICROPROGRAM
      * @param titleList 待发送姓名列表
      * @param objectName 小程序名称
-     * @param extraText  附加留言 可选
+     * @param receivedContent 小程序描述
+     * @param originalContent 小程序链接地址
+     * @param fileUrl 图片地址
+     * @param extraText 附加留言 可选
      */
     fun pushMicroprogram(
         message: WeworkMessageBean,
         titleList: List<String>,
         objectName: String,
-        extraText: String? = null
+        receivedContent: String,
+        originalContent: String,
+        fileUrl: String,
+        extraText: String? = null,
+        maxRetryCount: Int? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        return false
+        if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
+            if (relaySelectTarget(titleList, extraText)) {
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                return true
+            } else {
+                LogUtils.e("转发失败")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime, listOf(), titleList)
+                return false
+            }
+        } else {
+            LogUtils.e("非法操作")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_OPERATION, "非法操作", startTime, listOf(), titleList)
+            return false
+        }
     }
 
     /**
