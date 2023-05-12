@@ -26,7 +26,7 @@ public class WeworkMessageBean {
      * 进入群聊并修改群配置 INTO_GROUP_AND_CONFIG
      * 推送微盘图片 PUSH_MICRO_DISK_IMAGE
      * 推送微盘文件 PUSH_MICRO_DISK_FILE
-     * 推送任意小程序 PUSH_MICROPROGRAM
+     * 推送小程序 PUSH_MICROPROGRAM
      * 推送腾讯文档 PUSH_OFFICE
      * 通过当前所有好友请求 PASS_ALL_FRIEND_REQUEST
      * 按手机号添加好友 ADD_FRIEND_BY_PHONE

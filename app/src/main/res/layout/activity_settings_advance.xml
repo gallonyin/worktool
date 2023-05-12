@@ -97,7 +97,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="群聊过长时仍获取群聊全称(性能会降低)"
+                        android:text="群聊过长时获取群聊全称(性能降低)"
                         android:textColor="@color/color_999999"
                         android:textSize="@dimen/setting_end_font_size" />
 
@@ -139,7 +139,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="更新群信息时回调二维码(性能会降低)"
+                        android:text="更新群信息时回调二维码(性能降低)"
                         android:textColor="@color/color_999999"
                         android:textSize="@dimen/setting_end_font_size" />
 
@@ -219,14 +219,14 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="消息回调"
+                        android:text="设置消息回调"
                         android:textColor="@color/color_333333"
                         android:textSize="@dimen/setting_start_font_size" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="设置回调地址接收处理新消息(详见文档)"
+                        android:text="回调地址接收处理新消息(详见文档)"
                         android:textColor="@color/color_999999"
                         android:textSize="@dimen/setting_end_font_size" />
 
