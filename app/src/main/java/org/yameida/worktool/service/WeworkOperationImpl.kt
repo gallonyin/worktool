@@ -403,7 +403,7 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘", exact = true)
         if (node != null) {
             AccessibilityUtil.performClick(node)
             sleep(Constant.POP_WINDOW_INTERVAL)
@@ -478,7 +478,7 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘", exact = true)
         if (node != null) {
             AccessibilityUtil.performClick(node)
             sleep(Constant.POP_WINDOW_INTERVAL)
@@ -1565,7 +1565,7 @@ object WeworkOperationImpl {
     fun clockIn(message: WeworkMessageBean): Boolean {
         val startTime = System.currentTimeMillis()
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "打卡")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "打卡", exact = true)
         if (node != null) {
             AccessibilityUtil.performClick(node)
             sleep(Constant.POP_WINDOW_INTERVAL)
@@ -1761,7 +1761,7 @@ object WeworkOperationImpl {
      */
     private fun createGroup(): Boolean {
         goHomeTab("工作台")
-        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "客户群", "居民群", "学员群")
+        val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "客户群", "居民群", "学员群", exact = true)
         if (node != null) {
             AccessibilityUtil.performClick(node)
             sleep(Constant.POP_WINDOW_INTERVAL)

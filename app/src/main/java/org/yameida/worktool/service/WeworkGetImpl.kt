@@ -373,7 +373,7 @@ object WeworkGetImpl {
             }
         }
         if (saveAddress) {
-            val tvAddressFlag = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "保存到通讯录")
+            val tvAddressFlag = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "保存到通讯录", exact = true)
             val tvAddress = AccessibilityUtil.findBackNode(tvAddressFlag, minChildCount = 1)
             val addressDesc = AccessibilityUtil.findOnceByDesc(tvAddress, "false", "true", exact = true)
             if (addressDesc?.contentDescription == "false") {

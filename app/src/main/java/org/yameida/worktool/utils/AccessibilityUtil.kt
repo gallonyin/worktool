@@ -259,16 +259,17 @@ object AccessibilityUtil {
         service: AccessibilityService,
         nodeInfo: AccessibilityNodeInfo,
         vararg textList: String,
+        exact: Boolean = false,
         maxRetry: Int = 3
     ): AccessibilityNodeInfo? {
-        val node = findOnceByText(nodeInfo, *textList)
+        val node = findOnceByText(nodeInfo, *textList, exact = exact)
         if (node != null) {
             return node
         }
         var index = 0
         while (index++ < maxRetry) {
             performScrollDown(nodeInfo, 0)
-            val node = findOnceByText(nodeInfo, *textList)
+            val node = findOnceByText(nodeInfo, *textList, exact = exact)
             if (node != null) {
                 return node
             }
@@ -276,7 +277,7 @@ object AccessibilityUtil {
         index = 0
         while (index++ < maxRetry * 2) {
             performScrollUp(nodeInfo, 0)
-            val node = findOnceByText(nodeInfo, *textList)
+            val node = findOnceByText(nodeInfo, *textList, exact = exact)
             if (node != null) {
                 return node
             }
@@ -288,7 +289,7 @@ object AccessibilityUtil {
         index = 0
         while (index++ < maxRetry * 2) {
             scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, -height / 3)
-            val node = findOnceByText(nodeInfo, *textList)
+            val node = findOnceByText(nodeInfo, *textList, exact = exact)
             if (node != null) {
                 return node
             }
@@ -296,7 +297,7 @@ object AccessibilityUtil {
         index = 0
         while (index++ < maxRetry * 3) {
             scrollByXY(service, width / 2, (height / 2.2).toInt(), 0, height / 3)
-            val node = findOnceByText(nodeInfo, *textList)
+            val node = findOnceByText(nodeInfo, *textList, exact = exact)
             if (node != null) {
                 return node
             }
