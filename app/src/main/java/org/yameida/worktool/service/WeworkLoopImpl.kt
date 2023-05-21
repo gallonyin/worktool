@@ -1,5 +1,6 @@
 package org.yameida.worktool.service
 
+import android.graphics.Bitmap
 import android.os.Message
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.text.isDigitsOnly
@@ -263,6 +264,8 @@ object WeworkLoopImpl {
                         MultiFileObserver.saveSet.reversed().forEachIndexed { index, targetPath ->
                             if (imageMessageList.size > index) {
                                 val message = imageMessageList[index]
+                                val save2Album = ImageUtils.save2Album(ImageUtils.getBitmap(targetPath), Bitmap.CompressFormat.PNG, true)
+                                LogUtils.v("save2Album $save2Album")
                             }
                         }
                         MultiFileObserver.saveSet.clear()
@@ -738,8 +741,6 @@ object WeworkLoopImpl {
                             sleep(Constant.POP_WINDOW_INTERVAL)
                         }
                     } else {
-                        MultiFileObserver.createSet.clear()
-                        MultiFileObserver.finishSet.clear()
                         MultiFileObserver.saveSet.clear()
                         LogUtils.v("点击图片类型")
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
@@ -757,13 +758,19 @@ object WeworkLoopImpl {
                                     downloading = false
                                     try {
                                         for (path in MultiFileObserver.finishSet) {
+                                            val rawFileLength = File(path).length()
+                                            if (rawFileLength < 50 * 1000) {
+                                                LogUtils.d("原始文件大小<50k: $rawFileLength $path")
+                                                log("原始文件大小<50k: $rawFileLength $path")
+                                                continue
+                                            }
                                             val df = SimpleDateFormat("MMdd_HHmmss")
                                             val targetPath = "${
                                                 Utils.getApp().getExternalFilesDir("copy")
                                             }/${df.format(Date())}/${File(path).name}.png"
                                             if (FileUtils.copy(path, targetPath)) {
-                                                LogUtils.d("复制图片完成: $targetPath " + ImageDepthSizeUtil.checkRawImage(targetPath))
-                                                log("复制图片完成: $targetPath")
+                                                LogUtils.d("复制图片完成: $rawFileLength $targetPath ")
+                                                log("复制图片完成: $$rawFileLength $targetPath")
                                                 MultiFileObserver.saveSet.add(targetPath)
                                             } else {
                                                 LogUtils.e("复制图片失败 请检查权限: $targetPath")

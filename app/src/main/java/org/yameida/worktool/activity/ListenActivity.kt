@@ -1,5 +1,6 @@
 package org.yameida.worktool.activity
 
+import android.Manifest
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
@@ -50,7 +51,7 @@ class ListenActivity : AppCompatActivity() {
         initOverlays()
         initData()
         initNotification()
-        PermissionUtils.permission("android.permission.READ_EXTERNAL_STORAGE").request()
+        PermissionUtils.permission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
 

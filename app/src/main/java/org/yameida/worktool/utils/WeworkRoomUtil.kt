@@ -6,6 +6,7 @@ import org.yameida.worktool.utils.AccessibilityUtil.findFrontNode
 import org.yameida.worktool.model.WeworkMessageBean
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
+import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.service.*
 import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 
@@ -85,6 +86,7 @@ object WeworkRoomUtil {
                     .replace("\\(.*?\\)".toRegex(), "")
             } > 0
         ) {
+            intoRoomPreInit()
             LogUtils.d("当前正在房间")
             return true
         }
@@ -95,6 +97,7 @@ object WeworkRoomUtil {
                 val item = list.getChild(i)
                 val tvList = findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
                 if (tvList.isNotEmpty() && title == tvList[0].toString()) {
+                    intoRoomPreInit()
                     AccessibilityUtil.performClick(item)
                     LogUtils.d("快捷进入房间: $title")
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
@@ -135,6 +138,7 @@ object WeworkRoomUtil {
                         it.parent != null && it.parent.childCount < 3
                     }
                     if (searchItem != null) {
+                        intoRoomPreInit()
                         AccessibilityUtil.performClick(searchItem)
                         LogUtils.d("进入房间: $title")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
@@ -292,6 +296,15 @@ object WeworkRoomUtil {
      */
     private fun isExternalSingleChat(roomTitle: ArrayList<String>): Boolean {
         return roomTitle.size > 1 && roomTitle.count { it.matches("^[@＠].*?".toRegex()) } > 0
+    }
+
+    /**
+     * 初始化进入房间前的事件
+     */
+    private fun intoRoomPreInit(): Boolean {
+        MultiFileObserver.createSet.clear()
+        MultiFileObserver.finishSet.clear()
+        return true
     }
 
 }
