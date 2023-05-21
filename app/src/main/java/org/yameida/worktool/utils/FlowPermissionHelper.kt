@@ -5,10 +5,16 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.blankj.utilcode.util.AppUtils
 import org.yameida.worktool.utils.envcheck.CheckRoot
 import java.lang.reflect.Method
 
 object FlowPermissionHelper {
+
+    fun isBlueCloud(): Boolean {
+        val blueVersionName = AppUtils.getAppInfo("com.blue.backup")?.versionName
+        return blueVersionName != null
+    }
 
     fun isXiaoMi(): Boolean {
         return checkManufacturer("xiaomi")
@@ -28,6 +34,10 @@ object FlowPermissionHelper {
 
     fun canBackgroundStart(context: Context): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1 || CheckRoot.isDeviceRooted()) {
+            return true
+        }
+
+        if (isBlueCloud()) {
             return true
         }
 
