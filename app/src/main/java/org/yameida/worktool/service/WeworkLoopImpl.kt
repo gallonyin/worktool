@@ -770,7 +770,7 @@ object WeworkLoopImpl {
                                             }/${df.format(Date())}/${File(path).name}.png"
                                             if (FileUtils.copy(path, targetPath)) {
                                                 LogUtils.d("复制图片完成: $rawFileLength $targetPath ")
-                                                log("复制图片完成: $$rawFileLength $targetPath")
+                                                log("复制图片完成: $rawFileLength $targetPath")
                                                 MultiFileObserver.saveSet.add(targetPath)
                                             } else {
                                                 LogUtils.e("复制图片失败 请检查权限: $targetPath")
