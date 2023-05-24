@@ -123,6 +123,18 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                 return root
             } else {
                 LogUtils.e("当前不在企业微信: ${root.packageName}")
+                if (root.packageName == "com.android.systemui") {
+                    if (AccessibilityUtil.findTextAndClick(root, "立即开始", exact = true, timeout = 0)) {
+                        LogUtils.i("点击立即开始投屏")
+                        log("点击立即开始投屏")
+                    }
+                }
+                if (root.packageName == "android") {
+                    if (AccessibilityUtil.findTextAndClick(root, "关闭应用", exact = true, timeout = 0)) {
+                        LogUtils.e("点击关闭应用ANR")
+                        error("点击关闭应用ANR")
+                    }
+                }
                 WeworkController.weworkService.currentPackage = root.packageName?.toString() ?: ""
                 if (System.currentTimeMillis() % 30 == 0L) {
                     error("当前不在企业微信: ${root.packageName}")
