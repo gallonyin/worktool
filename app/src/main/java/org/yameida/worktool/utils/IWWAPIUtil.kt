@@ -11,6 +11,7 @@ import com.tencent.wework.api.model.WWMediaLink
 import com.tencent.wework.api.model.WWMediaMiniProgram
 import org.yameida.worktool.Constant
 import org.yameida.worktool.R
+import org.yameida.worktool.service.log
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
@@ -52,9 +53,10 @@ object IWWAPIUtil {
         miniProgram.path = webpageUrl
         miniProgram.title = title
 
+        log("小程序: ${miniProgram.appId} ${miniProgram.username} ${miniProgram.title}")
         val bitmap = (Utils.getApp().getDrawable(R.mipmap.ic_launcher) as BitmapDrawable).bitmap
         val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream)
         miniProgram.hdImageData = stream.toByteArray()
         if (imageUrl != null) {
             LogUtils.i("下载开始 $imageUrl")
@@ -73,7 +75,7 @@ object IWWAPIUtil {
                     LogUtils.i("文件存储本地成功 $filePath")
                     val bitmap = ImageUtils.bytes2Bitmap(File(filePath).readBytes())
                     val stream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream)
                     miniProgram.hdImageData = stream.toByteArray()
                 } else {
                     LogUtils.e("文件存储本地失败 $filePath")

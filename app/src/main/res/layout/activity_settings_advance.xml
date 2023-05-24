@@ -490,7 +490,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="企微绑定的小程序UserName"
+                            android:text="应用绑的小程序原始Id(gh_xxx)"
                             android:textColor="@color/color_999999"
                             android:textSize="@dimen/setting_end_font_size" />
 

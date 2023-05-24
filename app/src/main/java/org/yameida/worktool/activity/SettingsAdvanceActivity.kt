@@ -203,7 +203,8 @@ class SettingsAdvanceActivity : AppCompatActivity() {
                 val text = builder.editText.text
                 if (text != null) {
                     dialog.dismiss()
-                    Constant.weworkMP = text.toString().trim()
+                    val username = text.toString().trim()
+                    Constant.weworkMP = if (username.endsWith("@app")) username else "$username@app"
                 } else {
                     ToastUtils.showLong("请勿为空！")
                 }

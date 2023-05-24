@@ -399,8 +399,10 @@ object WeworkOperationImpl {
         message: WeworkMessageBean,
         titleList: List<String>,
         objectName: String,
-        extraText: String? = null
+        extraText: String? = null,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘", exact = true)
@@ -443,21 +445,33 @@ object WeworkOperationImpl {
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
+                        if (retryCount > 0) {
+                            return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                        }
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
                         return false
                     }
                 } else {
                     LogUtils.e("微盘未搜索到相关图片: $objectName")
+                    if (retryCount > 0) {
+                        return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                    }
                     uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "微盘未搜索到相关图片: $objectName", startTime, listOf(), titleList)
                     return false
                 }
             } else {
                 LogUtils.e("未找到微盘内搜索")
+                if (retryCount > 0) {
+                    return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                }
                 uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘内搜索", startTime, listOf(), titleList)
                 return false
             }
         } else {
             LogUtils.e("未找到微盘")
+            if (retryCount > 0) {
+                return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+            }
             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到微盘", startTime, listOf(), titleList)
             return false
         }
@@ -533,8 +547,7 @@ object WeworkOperationImpl {
         receivedContent: String,
         originalContent: String,
         fileUrl: String,
-        extraText: String? = null,
-        maxRetryCount: Int? = null
+        extraText: String? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
@@ -630,7 +643,7 @@ object WeworkOperationImpl {
         extraText: String? = null,
         maxRetryCount: Int? = null
     ): Boolean {
-        val retryCount = maxRetryCount ?: 1
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (!PermissionUtils.isGrantedDrawOverlays()) {
             LogUtils.e("未打开悬浮窗权限")
@@ -781,8 +794,7 @@ object WeworkOperationImpl {
         receivedContent: String,
         originalContent: String,
         fileUrl: String,
-        extraText: String? = null,
-        maxRetryCount: Int? = null
+        extraText: String? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
