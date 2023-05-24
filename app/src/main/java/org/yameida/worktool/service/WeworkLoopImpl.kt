@@ -759,9 +759,9 @@ object WeworkLoopImpl {
                                     try {
                                         for (path in MultiFileObserver.finishSet) {
                                             val rawFileLength = File(path).length()
-                                            if (rawFileLength < 50 * 1000) {
-                                                LogUtils.d("原始文件大小<50k: $rawFileLength $path")
-                                                log("原始文件大小<50k: $rawFileLength $path")
+                                            if (rawFileLength < 20 * 1000) {
+                                                LogUtils.d("原始文件大小<20k: $rawFileLength $path")
+                                                log("原始文件大小<20k: $rawFileLength $path")
                                                 continue
                                             }
                                             val df = SimpleDateFormat("MMdd_HHmmss")
