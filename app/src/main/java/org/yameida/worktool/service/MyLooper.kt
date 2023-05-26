@@ -189,6 +189,9 @@ object MyLooper {
             WeworkMessageBean.SEND_MERGE_MESSAGE -> {
                 WeworkController.sendMergeMessage(message)
             }
+            WeworkMessageBean.SCAN_QR_CODE -> {
+                WeworkController.scanQrCode(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }

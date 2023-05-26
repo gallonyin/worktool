@@ -93,6 +93,9 @@ public class WeworkMessageBean {
     public static final int RELAY_MERGE_MESSAGE = 228;
     public static final int SEND_MULTI_MESSAGE = 229;
     public static final int SEND_MERGE_MESSAGE = 230;
+    public static final int VOICE_CALL = 231;
+    public static final int VIDEO_CALL = 232;
+    public static final int SCAN_QR_CODE = 233;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;

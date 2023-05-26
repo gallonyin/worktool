@@ -1,5 +1,6 @@
 package org.yameida.worktool.service
 
+import android.graphics.Bitmap
 import android.view.accessibility.AccessibilityNodeInfo
 import org.yameida.worktool.Constant
 import org.yameida.worktool.model.WeworkMessageBean
@@ -1645,6 +1646,85 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 扫一扫
+     * @see WeworkMessageBean.SCAN_QR_CODE
+     * @param fileUrl 图片地址
+     * @param fileBase64 文件Base64
+     */
+    fun scanQrCode(message: WeworkMessageBean, fileUrl: String?, fileBase64: String?): Boolean {
+        val startTime = System.currentTimeMillis()
+        goHome()
+        var filePath = ""
+        if (fileUrl != null) {
+            LogUtils.i("下载开始 $fileUrl")
+            val execute = OkGo.get<File>(fileUrl).execute()
+            LogUtils.i("下载完成 $fileUrl")
+            val body = execute.body()
+            if (body != null) {
+                val df = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss")
+                filePath = "${Utils.getApp().getExternalFilesDir("scan")}/${df.format(Date())}_scan.jpg"
+                ImageUtils.save(ImageUtils.getBitmap(body.byteStream()), filePath, Bitmap.CompressFormat.JPEG, 100, true)
+                PropUtil.setProp(PropUtil.propVideo, filePath)
+                LogUtils.i("文件存储本地成功 $filePath")
+            } else {
+                LogUtils.e("文件下载失败")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_FILE_DOWNLOAD, "文件下载失败 $fileUrl", startTime)
+                return false
+            }
+        } else {
+            //todo base64
+        }
+        val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
+        if (list != null) {
+            val frontNode = AccessibilityUtil.findFrontNode(list)
+            val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+            if (textViewList.size >= 2) {
+                val searchButton: AccessibilityNodeInfo = textViewList[textViewList.size - 2]
+                val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                AccessibilityUtil.performClick(multiButton)
+                sleep(Constant.POP_WINDOW_INTERVAL)
+                val list = AccessibilityUtil.findAllByClazz(getRoot(), Views.ListView).lastOrNull()
+                if (list != null) {
+                    if (AccessibilityUtil.findTextAndClick(list, "扫一扫", exact = true)) {
+                        AccessibilityExtraUtil.loadingPage("LoginScannerActivity")
+                        if (AccessibilityExtraUtil.loadingPage("LoginPcActivity")) {
+                            if (AccessibilityUtil.findTextAndClick(getRoot(), "登录", exact = true)) {
+                                LogUtils.i("点击登录")
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "点击登录", startTime)
+                                return true
+                            } else {
+                                LogUtils.e("未找到登录按钮")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到登录按钮", startTime)
+                                return false
+                            }
+                        } else {
+                            LogUtils.e("未找到确认登录页")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到确认登录页", startTime)
+                            return false
+                        }
+                    } else {
+                        LogUtils.e("未找到扫一扫按钮")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到扫一扫按钮", startTime)
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未找到扫一扫列表")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到扫一扫列表", startTime)
+                    return false
+                }
+            } else {
+                LogUtils.e("未找到搜索按钮")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到搜索按钮", startTime)
+                return false
+            }
+        } else {
+            LogUtils.e("未找到聊天列表")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到聊天列表", startTime)
+            return false
+        }
+    }
+
+    /**
      * 展示群信息
      * @see WeworkMessageBean.SHOW_GROUP_INFO
      * @param titleList 待查询群名
@@ -2500,7 +2580,7 @@ object WeworkOperationImpl {
     /**
      * 获取群二维码并上传后台
      */
-    fun getGroupQrcode(groupName: String, groupRemark: String?): Boolean {
+    private fun getGroupQrcode(groupName: String, groupRemark: String?): Boolean {
         if (!Constant.groupQrCode) return true
         if (AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL) != null ||
             (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager())) {

@@ -514,6 +514,22 @@ object WeworkController {
     }
 
     /**
+     * 扫一扫
+     * @see WeworkMessageBean.SCAN_QR_CODE
+     * @param message#fileUrl 图片地址
+     * @param message#fileBase64 文件Base64
+     */
+    @RequestMapping
+    fun scanQrCode(message: WeworkMessageBean): Boolean {
+        LogUtils.d("scanQrCode(): ${message.fileUrl} ${message.fileBase64?.substring(0, 100)}")
+        return WeworkOperationImpl.scanQrCode(
+            message,
+            message.fileUrl,
+            message.fileBase64
+        )
+    }
+
+    /**
      * 获取群信息
      * @see WeworkMessageBean.GET_GROUP_INFO
      * @param message#selectList 群名列表 为空时去群管理页查询并返回群聊页

@@ -1,6 +1,5 @@
 package org.yameida.worktool.activity
 
-import android.Manifest
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
@@ -13,6 +12,7 @@ import org.yameida.worktool.*
 import android.content.*
 import android.os.IBinder
 import android.text.InputType
+import com.blankj.utilcode.constant.PermissionConstants
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog
 import org.yameida.worktool.service.PlayNotifyService
@@ -51,7 +51,7 @@ class ListenActivity : AppCompatActivity() {
         initOverlays()
         initData()
         initNotification()
-        PermissionUtils.permission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).request()
+        PermissionUtils.permission(PermissionConstants.STORAGE).request()
         registerReceiver(openWsReceiver, IntentFilter(Constant.WEWORK_NOTIFY))
     }
 
