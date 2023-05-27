@@ -45,7 +45,8 @@ object HttpUtil {
                                         UpdateConfig(
                                             force = AppUtils.getAppVersionCode() < this.minVersionCode,
                                             serverVersionName = this.versionName,
-                                            serverVersionCode = this.versionCode
+                                            serverVersionCode = this.versionCode,
+                                            isShowNotification = false
                                         )
                                     )
                                     .update()
