@@ -124,13 +124,17 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
             } else {
                 LogUtils.e("当前不在企业微信: ${root.packageName}")
                 if (root.packageName == "com.android.systemui") {
-                    if (AccessibilityUtil.findTextAndClick(root, "立即开始", exact = true, timeout = 0)) {
+                    val tvProjection = AccessibilityUtil.findOnceByText(root, "立即开始", exact = true)
+                    if (tvProjection != null) {
+                        AccessibilityUtil.performClick(tvProjection)
                         LogUtils.i("点击立即开始投屏")
                         log("点击立即开始投屏")
                     }
                 }
                 if (root.packageName == "android") {
-                    if (AccessibilityUtil.findTextAndClick(root, "关闭应用", exact = true, timeout = 0)) {
+                    val tvANR = AccessibilityUtil.findOnceByText(root, "关闭应用", exact = true)
+                    if (tvANR != null) {
+                        AccessibilityUtil.performClick(tvANR)
                         LogUtils.e("点击关闭应用ANR")
                         error("点击关闭应用ANR")
                     }
