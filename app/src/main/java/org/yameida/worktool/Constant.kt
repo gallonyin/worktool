@@ -101,6 +101,8 @@ object Constant {
 
     fun getTestUrl() = "${getBaseUrl()}/test"
 
+    fun getPushLocalFileUrl() = "${getBaseUrl()}/fileUpload/upload?robotId=$robotId"
+
     private fun getBaseUrl() = host.replace("wss", "https").replace("ws", "http")
 
 }

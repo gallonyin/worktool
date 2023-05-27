@@ -16,6 +16,7 @@ import com.umeng.commonsdk.UMConfigure
 import org.yameida.worktool.config.GlobalException
 import org.yameida.worktool.notification.PlayNotifyManager
 import org.yameida.worktool.utils.IWWAPIUtil
+import org.yameida.worktool.utils.LogUtilsInit
 import update.UpdateAppUtils
 
 class MyApplication : Application() {
@@ -40,6 +41,8 @@ class MyApplication : Application() {
         super.onCreate()
         //初始化工具类
         Utils.init(this)
+        //初始化Log工具配置
+        LogUtilsInit.init()
         GsonUtils.setGsonDelegate(Gson())
         //初始化 Toast 框架
         ToastUtils.init(this)

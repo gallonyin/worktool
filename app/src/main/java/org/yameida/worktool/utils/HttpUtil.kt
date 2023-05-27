@@ -162,4 +162,17 @@ object HttpUtil {
                 }
             })
     }
+
+    /**
+     * 推送本地文件
+     */
+    fun pushLocalFile(file: File) {
+        OkGo.post<String>(Constant.getPushLocalFileUrl())
+            .addFileParams("file", listOf(file))
+            .execute(object : StringCallback() {
+                override fun onSuccess(response: Response<String>?) {
+                    LogUtils.d("推送本地文件成功: ${file.absolutePath}")
+                }
+            })
+    }
 }

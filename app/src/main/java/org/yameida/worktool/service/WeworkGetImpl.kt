@@ -1,5 +1,6 @@
 package org.yameida.worktool.service
 
+import com.blankj.utilcode.util.FileUtils
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.SPUtils
@@ -7,6 +8,7 @@ import org.yameida.worktool.Constant
 import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.utils.*
+import java.io.File
 import java.lang.StringBuilder
 
 /**
@@ -141,6 +143,31 @@ object WeworkGetImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到群聊入口", startTime)
             return false
         }
+    }
+
+    /**
+     * 获取本地文件
+     * @see WeworkMessageBean.GET_LOCAL_FILE
+     * @param fileUrl 文件地址
+     */
+    fun getLocalFile(message: WeworkMessageBean, fileUrl: String?): Boolean {
+        val startTime = System.currentTimeMillis()
+        val fileUrl = if (fileUrl.isNullOrBlank()) {
+            val currentLogFilePath = LogUtils.getCurrentLogFilePath()
+            FileUtils.copy(currentLogFilePath, "$currentLogFilePath.snapshot")
+            "$currentLogFilePath.snapshot"
+        } else fileUrl
+        LogUtils.d("localFileUrl: $fileUrl")
+        val file = File(fileUrl)
+        if (!file.exists()) {
+            LogUtils.e("文件不存在: ${file.absolutePath}")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "文件不存在: ${file.absolutePath}", startTime)
+            return false
+        }
+        HttpUtil.pushLocalFile(file)
+        LogUtils.d("推送本地文件成功: ${file.absolutePath}")
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime)
+        return true
     }
 
     /**

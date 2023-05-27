@@ -573,6 +573,17 @@ object WeworkController {
     }
 
     /**
+     * 获取本地文件
+     * @see WeworkMessageBean.GET_LOCAL_FILE
+     * @param message#fileUrl 文件地址
+     */
+    @RequestMapping
+    fun getLocalFile(message: WeworkMessageBean): Boolean {
+        LogUtils.d("getLocalFile(): ${message.fileUrl}")
+        return WeworkGetImpl.getLocalFile(message, message.fileUrl)
+    }
+
+    /**
      * 获取我的信息
      * @see WeworkMessageBean.GET_MY_INFO
      */

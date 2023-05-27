@@ -231,6 +231,9 @@ object MyLooper {
             WeworkMessageBean.GET_ALL_GROUP_INFO -> {
                 WeworkController.getAllGroupInfo(message)
             }
+            WeworkMessageBean.GET_LOCAL_FILE -> {
+                WeworkController.getLocalFile(message)
+            }
             WeworkMessageBean.GET_CORP_LIST -> {
                 WeworkController.getCorpList(message)
             }

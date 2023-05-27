@@ -58,6 +58,7 @@ public class WeworkMessageBean {
      * 获取企业列表 GET_CORP_LIST
      * 获取全部好友信息 GET_ALL_FRIEND_INFO
      * 获取全部群信息 GET_ALL_GROUP_INFO
+     * 获取本地文件 GET_LOCAL_FILE
      */
     public static final int HEART_BEAT = 11;
     public static final int TYPE_RECEIVE_MESSAGE_LIST = 101;
@@ -109,6 +110,7 @@ public class WeworkMessageBean {
     public static final int GET_CORP_LIST = 506;
     public static final int GET_ALL_FRIEND_INFO = 507;
     public static final int GET_ALL_GROUP_INFO = 508;
+    public static final int GET_LOCAL_FILE = 509;
 
     /**
      * roomType
