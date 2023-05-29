@@ -1688,9 +1688,10 @@ object WeworkOperationImpl {
                     if (AccessibilityUtil.findTextAndClick(list, "扫一扫", exact = true)) {
                         AccessibilityExtraUtil.loadingPage("LoginScannerActivity")
                         if (AccessibilityExtraUtil.loadingPage("LoginPcActivity")) {
-                            if (AccessibilityUtil.findTextAndClick(getRoot(), "登录", exact = true)) {
+                            if (AccessibilityUtil.findTextAndClick(getRoot(), "登录", exact = true, timeout = Constant.LONG_INTERVAL * 2)) {
                                 LogUtils.i("点击登录")
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "点击登录", startTime)
+                                sleep(Constant.CHANGE_PAGE_INTERVAL * 2)
                                 return true
                             } else {
                                 LogUtils.e("未找到登录按钮")
