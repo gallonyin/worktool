@@ -18,6 +18,7 @@ import okhttp3.RequestBody
 import org.json.JSONObject
 import org.yameida.worktool.Constant
 import org.yameida.worktool.R
+import org.yameida.worktool.service.WeworkController
 import org.yameida.worktool.utils.*
 
 
@@ -87,8 +88,7 @@ class SettingsActivity : AppCompatActivity() {
         bt_open_main.setOnClickListener {
             freshOpenMain()
             if (PermissionHelper.isAccessibilitySettingOn()) {
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
+                WeworkController.weworkService.disableSelf()
             } else {
                 if (Constant.robotId.isBlank()) {
                     ToastUtils.showLong("请先填写并保存链接号~")

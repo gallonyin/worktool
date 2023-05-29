@@ -29,6 +29,7 @@ class WeworkService : AccessibilityService() {
     lateinit var webSocketManager: WebSocketManager
     var currentPackage = ""
     var currentClass = ""
+    var currentClassPackage = ""
 
     companion object {
         private var mFileObserver: FileObserver? = null
@@ -98,6 +99,7 @@ class WeworkService : AccessibilityService() {
         if (className.contains(currentPackage)) {
             LogUtils.d("更新当前页面: currentPackage: ${event.packageName} className: ${event.className}")
             currentClass = className
+            currentClassPackage = currentPackage
         }
     }
 

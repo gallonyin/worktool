@@ -1323,4 +1323,29 @@ object AccessibilityUtil {
         return false
     }
 
+    /**
+     * 等待页面消失
+     * @param clazz 页面Class
+     * @param timeout 检查超时时间
+     */
+    fun waitForPageMissing(
+        clazz: String,
+        timeout: Long = 5000
+    ): Boolean {
+        val service = WeworkController.weworkService
+        val startTime = System.currentTimeMillis()
+        var currentTime = startTime
+        while (currentTime - startTime <= timeout) {
+            if (service.currentClass == clazz || service.currentClass.split(".").last() == clazz) {
+            } else {
+                Log.v(tag, "pageMissing: $clazz")
+                return true
+            }
+            sleep(SHORT_INTERVAL)
+            currentTime = System.currentTimeMillis()
+        }
+        Log.e(tag, "pageMissing: not found: $clazz current: ${service.currentClass}")
+        return false
+    }
+
 }

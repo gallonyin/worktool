@@ -16,6 +16,7 @@ import com.blankj.utilcode.constant.PermissionConstants
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog
 import org.yameida.worktool.service.PlayNotifyService
+import org.yameida.worktool.service.WeworkController
 import org.yameida.worktool.service.fastStartActivity
 import org.yameida.worktool.utils.*
 import org.yameida.worktool.utils.capture.MediaProjectionHolder
@@ -152,9 +153,7 @@ class ListenActivity : AppCompatActivity() {
                 }
             } else {
                 if (PermissionHelper.isAccessibilitySettingOn()) {
-                    sw_accessibility.isChecked = true
-                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    startActivity(intent)
+                    WeworkController.weworkService.disableSelf()
                 }
             }
         })
