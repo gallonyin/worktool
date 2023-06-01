@@ -40,6 +40,7 @@ class WeworkService : AccessibilityService() {
         //隐藏软键盘模式
         softKeyboardController.showMode = SHOW_MODE_HIDDEN
         WeworkController.weworkService = this
+        WeworkController.enableLoopRunning = true
         //初始化长连接
         initWebSocket()
         //初始化消息处理器

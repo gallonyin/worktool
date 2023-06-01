@@ -680,9 +680,9 @@ object WeworkLoopImpl {
                         LogUtils.d("邀请你加入群聊: ${tempList[1].text}")
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
                         if (AccessibilityExtraUtil.loadingPage("JsWebActivity")) {
-                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", "你已接受过此邀请，无法再次加入", "你已接受邀请", exact = true)
+                            val tvButton = AccessibilityUtil.findOneByText(getRoot(), "我知道了", "加入群聊", "你已接受过此邀请，无法再次加入", "二维码已失效，无法加入群聊", "你已接受邀请", exact = true)
                             val text = tvButton?.text?.toString()
-                            if (text == "我知道了" || text?.startsWith("你已接受") == true) {
+                            if (text == "我知道了" || text?.startsWith("你已接受") == true || text?.startsWith("二维码已失效") == true) {
                                 backPress()
                                 SPUtils.getInstance("groupInvite").put(tempList[1].text, 1)
                                 error("加入群聊失败: ${tempList[1].text}")
