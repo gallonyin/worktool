@@ -45,6 +45,10 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 
 https://worktool.apifox.cn/doc-850007
 
+## 零代码集成
+
+- 集简云: https://www.jijyun.cn/apps/apps/1000218_1000983
+
 ## 混淆
 
 绝大部分代码均可以混淆，但由于使用的类库如okhttp、umeng不能混淆等情况，已经列在proguard-rules.pro当中，可以直接使用
