@@ -1337,7 +1337,7 @@ object WeworkOperationImpl {
                         //消息页搜索结果列表
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                                 (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
@@ -1451,7 +1451,7 @@ object WeworkOperationImpl {
                         //消息页搜索结果列表
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                                 (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
@@ -1786,7 +1786,7 @@ object WeworkOperationImpl {
                     sleep(Constant.CHANGE_PAGE_INTERVAL)
                     val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
                     val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                    val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                    val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                             (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                     val regex2 = ".*?\\($reverseRegexTitle\\)$"
                     val regex = "($regex1)|($regex2)"
@@ -1977,7 +1977,7 @@ object WeworkOperationImpl {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.TextView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                                 (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
@@ -2094,7 +2094,7 @@ object WeworkOperationImpl {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.RelativeLayout)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                        val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                                 (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
@@ -2392,7 +2392,7 @@ object WeworkOperationImpl {
                 //消息页搜索结果列表
                 val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
-                val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)?$reverseRegexTitle") +
+                val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
                         (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
                 val regex2 = ".*?\\($reverseRegexTitle\\)$"
                 val regex = "($regex1)|($regex2)"
