@@ -2321,12 +2321,12 @@ object WeworkOperationImpl {
                     val searchFlag = AccessibilityUtil.findOneByText(getRoot(), "搜索", exact = true)
                     val container = AccessibilityUtil.findBackNode(searchFlag, minChildCount = 2)?.parent
                     if (container != null) {
-                        val atNode = AccessibilityUtil.findOnceByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?")
+                        val atNode = AccessibilityUtil.findOnceByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?(\\(.*\\))?")
                         if (atNode != null && !at.matches("^[A-Z#]$".toRegex())) {
                             AccessibilityUtil.performClick(atNode)
                         } else {
                             AccessibilityUtil.findTextInput(getRoot(), at)
-                            val atNodeList = AccessibilityUtil.findAllByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?", root = false, minSize = 2)
+                            val atNodeList = AccessibilityUtil.findAllByTextRegex(container, "${RegexHelper.reverseRegexTitle(at)}(@.*)?(\\(.*\\))?", root = false, minSize = 2)
                             if (atNodeList.size > 1 && at != "@所有人") {
                                 AccessibilityUtil.performClick(atNodeList[1])
                             } else {
