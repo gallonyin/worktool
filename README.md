@@ -47,7 +47,7 @@ https://worktool.apifox.cn/doc-850007
 
 ## 零代码集成
 
-- 集简云: https://www.jijyun.cn/apps/apps/1000218_1000983
+- 集简云: https://www.jijyun.cn/apps/detail/1000983
 
 ## 混淆
 
