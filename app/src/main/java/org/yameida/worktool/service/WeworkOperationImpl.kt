@@ -2216,7 +2216,7 @@ object WeworkOperationImpl {
     private fun groupChangeRemark(groupRemark: String?): Boolean {
         if (groupRemark == null) return true
         if (WeworkRoomUtil.intoGroupManager()) {
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "备注", exact = true)
+            val textView = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(),  "备注", exact = true)
             if (textView != null) {
                 AccessibilityUtil.performClick(textView)
                 if (AccessibilityUtil.findTextInput(getRoot(), groupRemark)) {
@@ -2244,7 +2244,7 @@ object WeworkOperationImpl {
     private fun groupTemplate(groupTemplate: String?): Boolean {
         if (groupTemplate == null) return true
         if (WeworkRoomUtil.intoGroupManager()) {
-            val textView = AccessibilityUtil.findOneByText(getRoot(), "使用模板快速配置群", exact = true)
+            val textView = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "使用模板快速配置群", exact = true)
             if (textView != null) {
                 AccessibilityUtil.performClick(textView)
                 val item = AccessibilityUtil.findOneByDesc(getRoot(), groupTemplate)
