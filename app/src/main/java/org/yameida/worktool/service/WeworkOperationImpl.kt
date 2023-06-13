@@ -1987,12 +1987,12 @@ object WeworkOperationImpl {
                             timeout = 2000,
                             root = false
                         )
-                        if (selectListView != null && matchSelect != null) {
+                        if (selectListView != null && (matchSelect != null || reverseRegexTitle.matches(Constant.regMail))) {
                             var flag = false
                             for (i in 0 until selectListView.childCount) {
                                 val item = selectListView.getChild(i)
-                                val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
-                                if (searchResult != null) {
+                                if ((matchSelect == null && item.className == Views.RelativeLayout)
+                                    || AccessibilityUtil.findOnceByTextRegex(item, regex) != null) {
                                     item.refresh()
                                     val imageView =
                                         AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)

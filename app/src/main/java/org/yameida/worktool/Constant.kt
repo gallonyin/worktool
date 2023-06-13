@@ -13,7 +13,8 @@ object Constant {
     private const val DEFAULT_HOST = "wss://worktool.asrtts.cn"
 
     var myName = ""
-//    var regTrimTitle = "(…$)|(-.*$)|(\\(.*?\\)$)".toRegex()
+    //    var regTrimTitle = "(…$)|(-.*$)|(\\(.*?\\)$)".toRegex()
+    var regMail = "\\S+@\\S+\\.\\S+".toRegex()
     var regTrimTitle = "(…$)".toRegex()
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
