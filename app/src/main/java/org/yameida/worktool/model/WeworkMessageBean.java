@@ -148,6 +148,7 @@ public class WeworkMessageBean {
      * 合并聊天记录类型 TEXT_TYPE_CHAT_RECORD
      * 群收集表类型 TEXT_TYPE_COLLECTION
      * 接收带回复引用文本类型 TEXT_TYPE_REPLY
+     * 内部群通知机器人类型 TEXT_TYPE_NOTIFY_ROBOT
      */
     public static final int TEXT_TYPE = 0;
     public static final int TEXT_TYPE_UNKNOWN = 0;
@@ -166,6 +167,7 @@ public class WeworkMessageBean {
     public static final int TEXT_TYPE_CHAT_RECORD = 13;
     public static final int TEXT_TYPE_COLLECTION = 14;
     public static final int TEXT_TYPE_REPLY = 15;
+    public static final int TEXT_TYPE_NOTIFY_ROBOT = 16;
 
     //消息id(解析指令时同步)
     public String messageId;
