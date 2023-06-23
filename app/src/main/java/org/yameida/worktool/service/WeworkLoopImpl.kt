@@ -238,8 +238,8 @@ object WeworkLoopImpl {
                 } else {
                     lastMessage.itemMessageList.lastOrNull()?.text
                 }
-                SPUtils.getInstance("lastSyncMessage").put(title, lastSyncMessage)
-                LogUtils.v("lastSyncMessage: $lastSyncMessage")
+                SPUtils.getInstance("lastSyncMessage").put(titleList[0], lastSyncMessage)
+                LogUtils.v("lastSyncMessage: ${titleList[0]}: $lastSyncMessage")
                 if (Constant.enableMediaProject && Constant.pushImage) {
                     log("image: ${imageSet.size}")
                     if (imageSet.isNotEmpty()) {
@@ -471,31 +471,31 @@ object WeworkLoopImpl {
             if (stop) {
                 return false
             }
-            val listview = AccessibilityUtil.findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
             if (listview != null && listview.childCount >= 2) {
-                if (checkNoTipMessage(listview) != 1) {
-                    AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = object : AccessibilityUtil.OnScrollListener() {
-                        override fun onScroll(): Boolean {
-                            if (hasNewMessage()) {
-                                return true
-                            }
-                            if (checkNoTipMessage(listview) != 0) {
-                                return true
-                            }
-                            if (checkNoSyncMessage(listview) != 0) {
-                                return true
-                            }
-                            return false
+                val onScrollListener = object : AccessibilityUtil.OnScrollListener() {
+                    override fun onScroll(): Boolean {
+                        if (hasNewMessage()) {
+                            return true
                         }
-                    })
-                    LogUtils.v("回到消息列表顶部")
-                    for (item in list) {
-                        val childCount = item.parent?.parent?.parent?.childCount
-                        if (childCount == 4 || childCount == 5) {
-                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
-                            sleep(Constant.POP_WINDOW_INTERVAL / 5)
-                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                        if (checkNoTipMessage(listview) == 1) {
+                            return true
                         }
+                        if (checkNoSyncMessage(listview) != 0) {
+                            return true
+                        }
+                        return false
+                    }
+                }
+                //滚动前先获取一次
+                onScrollListener.onScroll()
+                AccessibilityUtil.scrollToBottom(WeworkController.weworkService, getRoot(), listener = onScrollListener)
+                LogUtils.v("回到消息列表顶部")
+                for (item in list) {
+                    val childCount = item.parent?.parent?.parent?.childCount
+                    if (childCount == 4 || childCount == 5) {
+                        AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                        sleep(Constant.POP_WINDOW_INTERVAL / 5)
+                        AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
                     }
                 }
             }
@@ -546,7 +546,7 @@ object WeworkLoopImpl {
         val listBriefList = arrayListOf<List<CharSequence>>()
         for (i in 0 until list.childCount) {
             val item = list.getChild(i)
-            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }
+            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }.filter { !it.startsWith("＠") }
             listBriefList.add(tvList)
             //tvList title/time/content
             if (tvList.size == 3) {
@@ -584,15 +584,16 @@ object WeworkLoopImpl {
     private fun checkNoSyncMessage(list: AccessibilityNodeInfo): Int {
         list.refresh()
         val listBriefList = arrayListOf<List<CharSequence>>()
+        val titleSet = hashSetOf<String>()
         for (i in 0 until list.childCount) {
             val item = list.getChild(i)
-            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }
+            val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text?.toString() }.filter { !it.startsWith("＠") }
             listBriefList.add(tvList)
             //tvList title/time/content
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
                 val title = tvList[0]
-                if (title == "群聊") {
+                if (title == "群聊" || !titleSet.add(title)) {
                     continue
                 }
                 if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
