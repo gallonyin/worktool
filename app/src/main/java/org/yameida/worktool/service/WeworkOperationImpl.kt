@@ -284,6 +284,7 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
             return false
         }
+        saveToContract()
         getGroupQrcode(groupName, groupRemark)
         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
         return true
@@ -292,7 +293,7 @@ object WeworkOperationImpl {
     /**
      * 进入群聊并修改群配置
      * 群名称、群公告、拉人、踢人、群备注、群模板
-     * @see WeworkMessageBean.INTO_GROUP_AND_CONFIG
+     * @see WeworkMessageBean.UPDATE_GROUP
      * @param groupName 待修改的群
      * @param newGroupName 修改群名 选填
      * @param newGroupAnnouncement 修改群公告 选填
@@ -302,7 +303,7 @@ object WeworkOperationImpl {
      * @param showMessageHistory 拉人是否附带历史记录 选填
      * @param removeList 移除群成员名称列表/踢人 选填
      */
-    fun intoGroupAndConfig(
+    fun updateGroup(
         message: WeworkMessageBean,
         groupName: String,
         newGroupName: String?,
@@ -342,6 +343,7 @@ object WeworkOperationImpl {
             uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
             return false
         }
+        saveToContract()
         getGroupQrcode(groupName, groupRemark)
         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
         return true
@@ -2685,6 +2687,24 @@ object WeworkOperationImpl {
             }
         }
         return false
+    }
+
+    /**
+     * 保存到通讯录
+     */
+    private fun saveToContract(): Boolean {
+        if (WeworkRoomUtil.intoGroupManager()) {
+            AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建") ?: return false
+            LogUtils.d("保存到通讯录")
+            val tvAddressFlag = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "保存到通讯录", exact = true)
+            val tvAddress = AccessibilityUtil.findBackNode(tvAddressFlag, minChildCount = 1)
+            val addressDesc = AccessibilityUtil.findOnceByDesc(tvAddress, "false", "true", exact = true)
+            if (addressDesc?.contentDescription == "false") {
+                LogUtils.d("未保存到通讯录 进行保存...")
+                AccessibilityUtil.performClick(addressDesc)
+            }
+        }
+        return true
     }
 
 }

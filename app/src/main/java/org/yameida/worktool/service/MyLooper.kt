@@ -148,8 +148,8 @@ object MyLooper {
             WeworkMessageBean.INIT_GROUP -> {
                 WeworkController.initGroup(message)
             }
-            WeworkMessageBean.INTO_GROUP_AND_CONFIG -> {
-                WeworkController.intoGroupAndConfig(message)
+            WeworkMessageBean.UPDATE_GROUP -> {
+                WeworkController.updateGroup(message)
             }
             WeworkMessageBean.PUSH_MICRO_DISK_IMAGE -> {
                 WeworkController.pushMicroDiskImage(message)

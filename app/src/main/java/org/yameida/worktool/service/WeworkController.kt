@@ -148,7 +148,7 @@ object WeworkController {
     /**
      * 进入群聊并修改群配置
      * 群名称、群公告、拉人、踢人、群备注、群模板
-     * @see WeworkMessageBean.INTO_GROUP_AND_CONFIG
+     * @see WeworkMessageBean.UPDATE_GROUP
      * @param message#groupName 待修改的群
      * @param message#newGroupName 修改群名 选填
      * @param message#newGroupAnnouncement 修改群公告 选填
@@ -159,9 +159,9 @@ object WeworkController {
      * @param message#removeList 移除群成员名称列表/踢人 选填
      */
     @RequestMapping
-    fun intoGroupAndConfig(message: WeworkMessageBean): Boolean {
-        LogUtils.d("intoGroupAndConfig(): ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList} ${message.groupRemark} ${message.groupTemplate}")
-        return WeworkOperationImpl.intoGroupAndConfig(
+    fun updateGroup(message: WeworkMessageBean): Boolean {
+        LogUtils.d("updateGroup(): ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList} ${message.groupRemark} ${message.groupTemplate}")
+        return WeworkOperationImpl.updateGroup(
             message,
             message.groupName,
             message.newGroupName,

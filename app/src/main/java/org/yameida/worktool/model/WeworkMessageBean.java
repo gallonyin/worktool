@@ -23,7 +23,7 @@ public class WeworkMessageBean {
      * 在房间内指定回复消息 REPLY_MESSAGE
      * 在房间内转发消息 RELAY_MESSAGE
      * 创建群 INIT_GROUP
-     * 进入群聊并修改群配置 INTO_GROUP_AND_CONFIG
+     * 进入群聊并修改群配置 UPDATE_GROUP
      * 推送微盘图片 PUSH_MICRO_DISK_IMAGE
      * 推送微盘文件 PUSH_MICRO_DISK_FILE
      * 推送小程序 PUSH_MICROPROGRAM
@@ -70,7 +70,7 @@ public class WeworkMessageBean {
     public static final int REPLY_MESSAGE = 204;
     public static final int RELAY_MESSAGE = 205;
     public static final int INIT_GROUP = 206;
-    public static final int INTO_GROUP_AND_CONFIG = 207;
+    public static final int UPDATE_GROUP = 207;
     public static final int PUSH_MICRO_DISK_IMAGE = 208;
     public static final int PUSH_MICRO_DISK_FILE = 209;
     public static final int PUSH_MICROPROGRAM = 210;
