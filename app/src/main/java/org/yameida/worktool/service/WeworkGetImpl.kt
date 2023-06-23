@@ -427,7 +427,7 @@ object WeworkGetImpl {
                     for (i in 0 until list.childCount) {
                         val item = list.getChild(i)
                         val tempList = arrayListOf<WeworkMessageBean.ItemMessageBean>()
-                        val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
+                        val tvList = AccessibilityUtil.findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }.filter { !it.startsWith("＠") }
                         tvList.forEach { tempList.add(WeworkMessageBean.ItemMessageBean(null, it.toString())) }
                         listBriefList.add(WeworkMessageBean.SubMessageBean(null, null, tempList, null))
                         //tvList title/time/content
