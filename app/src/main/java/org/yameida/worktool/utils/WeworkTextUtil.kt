@@ -258,6 +258,7 @@ object WeworkTextUtil {
                     WeworkMessageBean.TEXT_TYPE_LOCATION
             }
             tvCount == 3 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_REPLY
+            tvCount == 0 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_NOTIFY_ROBOT
             else -> WeworkMessageBean.TEXT_TYPE_UNKNOWN
         }
     }
