@@ -1771,6 +1771,7 @@ object WeworkOperationImpl {
     private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): Boolean {
         if (AccessibilityUtil.findOneByText(getRoot(), "选择联系人", "选择参与人", exact = true, timeout = timeout) == null) {
             LogUtils.e("未找到选择联系人/选择参与人")
+            error("未找到选择联系人/选择参与人")
             return false
         }
         //聊天消息列表 1ListView 0RecycleView xViewGroup
@@ -1818,6 +1819,7 @@ object WeworkOperationImpl {
                         LogUtils.d("找到搜索结果: $select")
                     } else {
                         LogUtils.e("未搜索到结果: $select")
+                        error("未搜索到结果: $select")
                     }
                     sleep(Constant.POP_WINDOW_INTERVAL)
                 }
@@ -1839,17 +1841,21 @@ object WeworkOperationImpl {
                         return true
                     }
                     LogUtils.e("未发现发送按钮")
+                    error("未发现发送按钮")
                     return false
                 } else {
                     LogUtils.e("未发现确认按钮")
+                    error("未发现确认按钮")
                     return false
                 }
             } else {
                 LogUtils.e("未发现搜索和多选按钮")
+                error("未发现搜索和多选按钮")
                 return false
             }
         }
         LogUtils.e("未知错误")
+        error("未知错误")
         return false
     }
 
@@ -1868,7 +1874,7 @@ object WeworkOperationImpl {
             return AccessibilityUtil.performClick(textView)
         }
         LogUtils.e("未找到客户群应用")
-        log("未找到客户群应用")
+        error("未找到客户群应用")
         return false
     }
 
@@ -1923,6 +1929,7 @@ object WeworkOperationImpl {
                     return true
                 } else {
                     LogUtils.e("未找到填写群名按钮")
+                    error("未找到填写群名按钮")
                     return false
                 }
             } else {
@@ -1935,6 +1942,7 @@ object WeworkOperationImpl {
                     return true
                 } else {
                     LogUtils.e("未找到群聊名称按钮")
+                    error("未找到群聊名称按钮")
                 }
             }
         }
@@ -1963,6 +1971,7 @@ object WeworkOperationImpl {
                 }
             } else {
                 LogUtils.e("未找到添加成员按钮")
+                error("未找到添加成员按钮")
                 return false
             }
             //群详情列表
@@ -2010,6 +2019,7 @@ object WeworkOperationImpl {
                             }
                             if (!flag) {
                                 LogUtils.e("拉人失败 找不到: $select")
+                                error("拉人失败 找不到: $select")
                             }
                         }
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
@@ -2021,6 +2031,7 @@ object WeworkOperationImpl {
                             LogUtils.d("找到搜索结果: $select")
                         } else {
                             LogUtils.e("未搜索到结果: $select")
+                            error("未搜索到结果: $select")
                             if (Constant.groupStrict) return false
                         }
                     }
@@ -2045,18 +2056,22 @@ object WeworkOperationImpl {
                         return true
                     } else {
                         LogUtils.e("未发现确认按钮")
+                        error("未发现确认按钮")
                         return false
                     }
                 } else {
                     LogUtils.e("未找到搜索按钮")
+                    error("未找到搜索按钮")
                     return false
                 }
             } else {
                 LogUtils.e("未找到成员列表")
+                error("未找到成员列表")
                 return false
             }
         } else {
             LogUtils.e("进入群详情失败")
+            error("进入群详情失败")
             return false
         }
     }
@@ -2074,12 +2089,14 @@ object WeworkOperationImpl {
                 LogUtils.v("tvEmptySize: $tvEmptySize")
                 if (tvEmptySize <= 1) {
                     LogUtils.e("未找到踢人按钮")
+                    error("未找到踢人按钮")
                     return true
                 } else if (tvEmptySize == 2) {
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
                 }
             } else {
                 LogUtils.e("未找到删除成员按钮")
+                error("未找到删除成员按钮")
                 return false
             }
             //群详情列表
@@ -2131,6 +2148,7 @@ object WeworkOperationImpl {
                             LogUtils.d("找到搜索结果: $select")
                         } else {
                             LogUtils.e("未搜索到结果: $select")
+                            error("未搜索到结果: $select")
                             //待踢人已经不在群里的不算失败
 //                            if (Constant.groupStrict) return false
                         }
@@ -2149,18 +2167,22 @@ object WeworkOperationImpl {
                         return true
                     } else {
                         LogUtils.e("未发现移出按钮")
+                        error("未发现移出按钮")
                         return false
                     }
                 } else {
                     LogUtils.e("未找到搜索按钮")
+                    error("未找到搜索按钮")
                     return false
                 }
             } else {
                 LogUtils.e("未找到成员列表")
+                error("未找到成员列表")
                 return false
             }
         } else {
             LogUtils.e("进入群详情失败")
+            error("进入群详情失败")
             return false
         }
     }
@@ -2197,17 +2219,21 @@ object WeworkOperationImpl {
                         sleep(Constant.CHANGE_PAGE_INTERVAL * 3)
                     } else {
                         LogUtils.e("无法进行群公告发布")
+                        error("无法进行群公告发布")
                     }
                 } else {
                     LogUtils.e("无法进行群公告发布和编辑")
+                    error("无法进行群公告发布和编辑")
                     return false
                 }
             } else {
                 LogUtils.e("未找到群公告按钮")
+                error("未找到群公告按钮")
                 return false
             }
         } else {
             LogUtils.e("进入群管理页失败")
+            error("进入群管理页失败")
         }
         return true
     }
@@ -2229,15 +2255,19 @@ object WeworkOperationImpl {
                         return true
                     } else {
                         LogUtils.e("无法进行群备注发布")
+                        error("无法进行群备注发布")
                     }
                 } else {
                     LogUtils.e("无法进行群备注修改")
+                    error("无法进行群备注修改")
                 }
             } else {
                 LogUtils.e("未找到群公告按钮")
+                error("未找到群公告按钮")
             }
         } else {
             LogUtils.e("进入群管理页失败")
+            error("进入群管理页失败")
         }
         return false
     }
@@ -2271,18 +2301,23 @@ object WeworkOperationImpl {
                             return true
                         } else {
                             LogUtils.e("未找到使用按钮: $groupTemplate")
+                            error("未找到使用按钮: $groupTemplate")
                         }
                     } else {
                         LogUtils.e("未找到使用该模板按钮: $groupTemplate")
+                        error("未找到使用该模板按钮: $groupTemplate")
                     }
                 } else {
                     LogUtils.e("未找到指定配置: $groupTemplate")
+                    error("未找到指定配置: $groupTemplate")
                 }
             } else {
                 LogUtils.e("未找到使用模板按钮")
+                error("未找到使用模板按钮")
             }
         } else {
             LogUtils.e("进入群管理页失败")
+            error("进入群管理页失败")
         }
         return false
     }
@@ -2342,11 +2377,13 @@ object WeworkOperationImpl {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                     } else {
                         LogUtils.e("未找到搜索按钮和@列表")
+                        error("未找到搜索按钮和@列表")
                         backPress()
                         sleep(Constant.POP_WINDOW_INTERVAL)
                     }
                 } else {
                     LogUtils.e("未找到选择提醒的人按钮")
+                    error("未找到选择提醒的人按钮")
                 }
             }
         }
@@ -2425,12 +2462,15 @@ object WeworkOperationImpl {
                     return true
                 } else {
                     LogUtils.e("未搜索到结果: $title")
+                    error("未搜索到结果: $title")
                 }
             } else {
                 LogUtils.e("ActionBar获取失败: $title")
+                error("ActionBar获取失败: $title")
             }
         } else {
             LogUtils.e("通讯录列表获取失败: $title")
+            error("通讯录列表获取失败: $title")
         }
         return false
     }
@@ -2512,9 +2552,11 @@ object WeworkOperationImpl {
         } else {
             if (AccessibilityUtil.findOnceByText(getRoot(), "无权查看") != null) {
                 LogUtils.e("无权查看该用户")
+                error("无权查看该用户")
                 return false
             }
             LogUtils.e("未找到标签")
+            error("未找到标签")
             return false
         }
     }
@@ -2579,6 +2621,7 @@ object WeworkOperationImpl {
             }
         }
         LogUtils.e("未找到个人标签")
+        error("未找到个人标签")
         return false
     }
 
