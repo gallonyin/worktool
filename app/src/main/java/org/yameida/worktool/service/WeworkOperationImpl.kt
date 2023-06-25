@@ -45,8 +45,8 @@ object WeworkOperationImpl {
         val failList = arrayListOf<String>()
         for (title in titleList) {
             var successFlag = true
-            if (WeworkRoomUtil.intoRoom(title)) {
-                if (sendChatMessage(receivedContent, at = at, atList = atList)) {
+            if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
+                if (sendChatMessage(receivedContent, at = at, atList = atList, title = title)) {
                     successList.add(title)
                     LogUtils.d("$title: 发送成功")
                 } else {
@@ -57,7 +57,7 @@ object WeworkOperationImpl {
             }
             if (!successFlag) {
                 if (WeworkRoomUtil.intoRoom(title, fastIn = false)) {
-                    if (sendChatMessage(receivedContent, at = at, atList = atList)) {
+                    if (sendChatMessage(receivedContent, at = at, atList = atList, title = title)) {
                         successList.add(title)
                         LogUtils.d("$title: 发送成功")
                     } else {
@@ -118,7 +118,7 @@ object WeworkOperationImpl {
                     )
                 ) {
                     LogUtils.v("开始回复")
-                    if (sendChatMessage(receivedContent, reply = true)) {
+                    if (sendChatMessage(receivedContent, reply = true, title = title)) {
                         LogUtils.d("$title: 回复成功")
                         successList.add(title)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, successList, failList)
@@ -133,7 +133,7 @@ object WeworkOperationImpl {
                     LogUtils.d("$title: 回复失败 直接发送答案")
                     error("$title: 回复失败 直接发送答案 $receivedContent")
                     val text = if (originalContent.isNotEmpty()) "【$originalContent】\n$receivedContent" else receivedContent
-                    if (sendChatMessage(text, receivedName)) {
+                    if (sendChatMessage(text, receivedName, title = title)) {
                         LogUtils.d("$title: 直接发送答案成功")
                         successList.add(title)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, successList, failList)
@@ -2340,11 +2340,39 @@ object WeworkOperationImpl {
     /**
      * 发送消息+@at
      */
-    private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false): Boolean {
+    private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false, title: String? = null): Boolean {
         val roomType = WeworkRoomUtil.getRoomType()
         val voiceFlag = AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (voiceFlag != null) {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
+        }
+        val quitFlag = AccessibilityUtil.findOnceByText(getRoot(), "无法在已退出的群聊中发送消息", exact = true)
+        if (quitFlag != null) {
+            LogUtils.e("无法在已退出的群聊中发送消息 title: $title")
+            error("无法在已退出的群聊中发送消息 title: $title")
+            if (WeworkRoomUtil.intoGroupManager()) {
+                if (AccessibilityUtil.findTextAndClick(getRoot(), "删除", exact = true)) {
+                    if (AccessibilityExtraUtil.loadingPage("CommonIconInfoDialog")) {
+                        if (AccessibilityUtil.findTextAndClick(getRoot(), "删除", exact = true)) {
+                            LogUtils.e("删除群聊成功 title: $title")
+                            log("删除群聊成功 title: $title")
+                        } else {
+                            LogUtils.e("未找到确认删除按钮 title: $title")
+                            error("未找到确认删除按钮 title: $title")
+                        }
+                    } else {
+                        LogUtils.e("未找到确认删除对话框 title: $title")
+                        error("未找到确认删除对话框 title: $title")
+                    }
+                } else {
+                    LogUtils.e("未找到删除按钮 title: $title")
+                    error("未找到删除按钮 title: $title")
+                }
+            } else {
+                LogUtils.e("未进入群详情页 title: $title")
+                error("未进入群详情页 title: $title")
+            }
+            return false
         }
         var atFailed = false
         val atList = if (!at.isNullOrEmpty()) arrayListOf(at) else atList?.toMutableList()
