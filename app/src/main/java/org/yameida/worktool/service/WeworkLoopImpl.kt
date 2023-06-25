@@ -552,7 +552,7 @@ object WeworkLoopImpl {
             if (tvList.size == 3) {
                 //只查看最近一周内的消息
                 if (tvList[1].isBlank() || tvList[1].contains("(刚刚)|(分钟前)|(上午)|(下午)|(昨天)|(星期)|(日程)|(会议)|(:)".toRegex())) {
-                    if (tvList[2].contains("(移出了群聊)|(邀请你加入了)|(修改群名为)|(此群为外部群)|(加入了外部群)".toRegex())) {
+                    if (tvList[2].contains("(退出了外部群)|(移出了群聊)|(邀请你加入了)|(修改群名为)|(此群为外部群)|(加入了外部群)".toRegex())) {
                         val interval = System.currentTimeMillis() / 1000 - SPUtils.getInstance("noTipMessage").getLong(tvList[0], 0)
                         if (interval > 3600) {
                             LogUtils.i("发现无提示消息: $tvList")

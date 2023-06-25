@@ -44,19 +44,32 @@ object WeworkOperationImpl {
         val successList = arrayListOf<String>()
         val failList = arrayListOf<String>()
         for (title in titleList) {
+            var successFlag = true
             if (WeworkRoomUtil.intoRoom(title)) {
                 if (sendChatMessage(receivedContent, at = at, atList = atList)) {
                     successList.add(title)
                     LogUtils.d("$title: 发送成功")
                 } else {
-                    LogUtils.d("$title: 发送失败")
-                    failList.add(title)
-                    error("$title: 发送失败 $receivedContent")
+                    successFlag = false
                 }
             } else {
-                failList.add(title)
-                LogUtils.d("$title: 发送失败 进入房间失败")
-                error("$title: 发送失败 进入房间失败 $receivedContent")
+                successFlag = false
+            }
+            if (!successFlag) {
+                if (WeworkRoomUtil.intoRoom(title)) {
+                    if (sendChatMessage(receivedContent, at = at, atList = atList)) {
+                        successList.add(title)
+                        LogUtils.d("$title: 发送成功")
+                    } else {
+                        LogUtils.d("$title: 发送失败")
+                        failList.add(title)
+                        error("$title: 发送失败 $receivedContent")
+                    }
+                } else {
+                    LogUtils.d("$title: 发送失败 进入房间失败")
+                    failList.add(title)
+                    error("$title: 发送失败 进入房间失败 $receivedContent")
+                }
             }
         }
         if (failList.isNotEmpty()) {

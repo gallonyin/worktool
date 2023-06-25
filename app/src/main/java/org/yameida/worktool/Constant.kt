@@ -7,9 +7,12 @@ object Constant {
     val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10", "4.0.12", "4.0.16", "4.0.18", "4.0.19", "4.0.20", "4.1.0", "4.1.2", "4.1.3", "4.1.6")
     const val PACKAGE_NAMES = "com.tencent.wework"
     const val WEWORK_NOTIFY = "wework_notify"
-    const val LONG_INTERVAL = 5000L
-    const val CHANGE_PAGE_INTERVAL = 1000L
-    const val POP_WINDOW_INTERVAL = 500L
+    const val BASE_LONG_INTERVAL = 5000L
+    const val BASE_CHANGE_PAGE_INTERVAL = 1000L
+    const val BASE_POP_WINDOW_INTERVAL = 500L
+    var LONG_INTERVAL = BASE_LONG_INTERVAL
+    var CHANGE_PAGE_INTERVAL = BASE_CHANGE_PAGE_INTERVAL
+    var POP_WINDOW_INTERVAL = BASE_POP_WINDOW_INTERVAL
     private const val DEFAULT_HOST = "wss://worktool.asrtts.cn"
 
     var myName = ""
@@ -91,6 +94,9 @@ object Constant {
         set(value) {
             SPUtils.getInstance().put("host", value)
         }
+    var oldDevice: Boolean
+        get() = SPUtils.getInstance().getBoolean("oldDevice", false)
+        set(value) = SPUtils.getInstance().put("oldDevice", value)
 
     fun getWsUrl() = "$host/webserver/wework/$robotId"
 

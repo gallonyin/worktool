@@ -64,6 +64,12 @@ class SettingsAdvanceActivity : AppCompatActivity() {
             LogUtils.i("sw_auto_publish onCheckedChanged: $isChecked")
             Constant.autoPublishComment = isChecked
         })
+        sw_old_device.isChecked = Constant.oldDevice
+        sw_old_device.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            LogUtils.i("sw_old_device onCheckedChanged: $isChecked")
+            Constant.oldDevice = isChecked
+            updateOldDeviceConfig()
+        })
         ll_corp_param.visibility = if (Constant.customLink) View.VISIBLE else View.GONE
         rl_username.visibility = if (Constant.customMP) View.VISIBLE else View.GONE
         rl_qa_url.setOnClickListener { showQaUrlDialog() }
@@ -224,6 +230,20 @@ class SettingsAdvanceActivity : AppCompatActivity() {
                 ToastUtils.showLong("复制成功")
             }
             .create(R.style.QMUI_Dialog).show()
+    }
+
+    private fun updateOldDeviceConfig() {
+        if (Constant.oldDevice) {
+            Constant.LONG_INTERVAL = (Constant.BASE_LONG_INTERVAL * 1.5).toLong()
+            Constant.CHANGE_PAGE_INTERVAL = (Constant.BASE_CHANGE_PAGE_INTERVAL * 1.5).toLong()
+            Constant.POP_WINDOW_INTERVAL = (Constant.BASE_POP_WINDOW_INTERVAL * 1.5).toLong()
+            ToastUtils.showLong("防卡顿模式开启")
+        } else {
+            Constant.LONG_INTERVAL = Constant.BASE_LONG_INTERVAL
+            Constant.CHANGE_PAGE_INTERVAL = Constant.BASE_CHANGE_PAGE_INTERVAL
+            Constant.POP_WINDOW_INTERVAL = Constant.BASE_POP_WINDOW_INTERVAL
+            ToastUtils.showLong("防卡顿模式关闭")
+        }
     }
 
 }
