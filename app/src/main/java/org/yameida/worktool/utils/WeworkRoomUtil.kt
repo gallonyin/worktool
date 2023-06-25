@@ -76,32 +76,25 @@ object WeworkRoomUtil {
     /**
      * 进入房间（单聊或群聊）
      */
-    fun intoRoom(title: String): Boolean {
-        LogUtils.d("intoRoom(): $title")
-        val titleList = getRoomTitle(false)
-        val roomType = getRoomType()
-        if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && titleList.count {
-                it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
-                    .replace("\\(.*?\\)".toRegex(), "")
-            } > 0
-        ) {
-            intoRoomPreInit()
-            LogUtils.d("当前正在房间")
+    fun intoRoom(title: String, fastIn: Boolean = true): Boolean {
+        if (checkRoom(title)) {
             return true
         }
         goHome()
         val list = findOneByClazz(getRoot(), Views.RecyclerView, Views.ListView, Views.ViewGroup)
-        if (list != null && list.childCount >= 2) {
-            for (i in 0 until list.childCount) {
-                val item = list.getChild(i)
-                val tvList = findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
-                if (tvList.isNotEmpty() && title == tvList[0].toString()) {
-                    intoRoomPreInit()
-                    AccessibilityUtil.performClick(item)
-                    LogUtils.d("快捷进入房间: $title")
-                    sleep(Constant.CHANGE_PAGE_INTERVAL)
-                    return true
+        if (fastIn) {
+            if (list != null && list.childCount >= 2) {
+                for (i in 0 until list.childCount) {
+                    val item = list.getChild(i)
+                    val tvList = findAllOnceByClazz(item, Views.TextView).mapNotNull { it.text }
+                    if (tvList.isNotEmpty() && title == tvList[0].toString()) {
+                        intoRoomPreInit()
+                        AccessibilityUtil.performClick(item)
+                        LogUtils.d("快捷进入房间: $title")
+                        AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
+                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        return checkRoom(title)
+                    }
                 }
             }
         }
@@ -141,8 +134,9 @@ object WeworkRoomUtil {
                         intoRoomPreInit()
                         AccessibilityUtil.performClick(searchItem)
                         LogUtils.d("进入房间: $title")
+                        AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
-                        return true
+                        return checkRoom(title)
                     } else {
                         LogUtils.e("搜索到已退出群聊")
                     }
@@ -248,6 +242,26 @@ object WeworkRoomUtil {
      */
     fun isGroupExists(groupName: String): Boolean {
         return intoRoom(groupName)
+    }
+
+    /**
+     * 检查当前房间
+     */
+    private fun checkRoom(title: String): Boolean {
+        LogUtils.d("checkRoom(): $title")
+        val titleList = getRoomTitle(false)
+        val roomType = getRoomType()
+        if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
+            && titleList.count {
+                it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
+                    .replace("\\(.*?\\)".toRegex(), "")
+            } > 0
+        ) {
+            intoRoomPreInit()
+            LogUtils.d("当前正在房间")
+            return true
+        }
+        return false
     }
 
     /**

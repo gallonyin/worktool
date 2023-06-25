@@ -56,7 +56,7 @@ object WeworkOperationImpl {
                 successFlag = false
             }
             if (!successFlag) {
-                if (WeworkRoomUtil.intoRoom(title)) {
+                if (WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                     if (sendChatMessage(receivedContent, at = at, atList = atList)) {
                         successList.add(title)
                         LogUtils.d("$title: 发送成功")
@@ -107,7 +107,7 @@ object WeworkOperationImpl {
         val successList = arrayListOf<String>()
         val failList = arrayListOf<String>()
         for (title in titleList) {
-            if (WeworkRoomUtil.intoRoom(title)) {
+            if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (WeworkTextUtil.longClickMessageItem(
                         //聊天消息列表 1ListView 0RecycleView xViewGroup
                         AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
@@ -180,7 +180,7 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         for (title in titleList) {
-            if (WeworkRoomUtil.intoRoom(title)) {
+            if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (!receivedName.isNullOrEmpty()) {
                     if (WeworkTextUtil.longClickMessageItem(
                             //聊天消息列表 1ListView 0RecycleView xViewGroup
@@ -328,7 +328,7 @@ object WeworkOperationImpl {
         removeList: List<String>?
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        if (!WeworkRoomUtil.intoRoom(groupName)) {
+        if (!WeworkRoomUtil.intoRoom(groupName, fastIn = false)) {
             uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(groupName))
             return false
         }
@@ -372,7 +372,7 @@ object WeworkOperationImpl {
         groupName: String
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
+        if ((WeworkRoomUtil.intoRoom(groupName) || WeworkRoomUtil.intoRoom(groupName, fastIn = false)) && WeworkRoomUtil.intoGroupManager()) {
             val groupManagerTv =
                 AccessibilityUtil.findOneByText(getRoot(), "群管理", exact = true, timeout = 2000)
             if (groupManagerTv != null) {
@@ -845,7 +845,7 @@ object WeworkOperationImpl {
     ): Boolean {
         val startTime = System.currentTimeMillis()
         for (title in titleList) {
-            if (WeworkRoomUtil.intoRoom(title)) {
+            if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (WeworkTextUtil.longClickMyMessageItem(
                         //聊天消息列表 1ListView 0RecycleView xViewGroup
                         AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
@@ -993,7 +993,7 @@ object WeworkOperationImpl {
                 }
             }
         }
-        if (WeworkRoomUtil.intoRoom(groupName)) {
+        if (WeworkRoomUtil.intoRoom(groupName) || WeworkRoomUtil.intoRoom(groupName, fastIn = false)) {
             if (WeworkTextUtil.longClickMyMessageItem(
                     //聊天消息列表 1ListView 0RecycleView xViewGroup
                     AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView),
@@ -1089,7 +1089,7 @@ object WeworkOperationImpl {
             return relayMessage(message, titleList, receivedName, originalContent, textType, nameList, extraText)
         }
         for (title in titleList) {
-            if (WeworkRoomUtil.intoRoom(title)) {
+            if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 var hasOpenMulti = false
                 for (subMessageBean in messageList) {
                     val receivedName = subMessageBean.nameList?.firstOrNull()
