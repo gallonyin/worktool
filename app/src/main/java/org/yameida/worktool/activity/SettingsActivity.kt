@@ -20,6 +20,7 @@ import org.yameida.worktool.Constant
 import org.yameida.worktool.R
 import org.yameida.worktool.service.WeworkController
 import org.yameida.worktool.utils.*
+import java.io.File
 
 
 /**
@@ -67,6 +68,7 @@ class SettingsActivity : AppCompatActivity() {
             SPUtils.getInstance().put("autoReply", Constant.autoReply)
         })
         rl_reply_strategy.setOnClickListener { showReplyStrategyDialog() }
+        rl_log.setOnClickListener { showLogDialog() }
         rl_donate.setOnClickListener { showDonateDialog() }
         rl_share.setOnClickListener { showShareDialog() }
         rl_advance.setOnClickListener { SettingsAdvanceActivity.enterActivity(this) }
@@ -114,6 +116,26 @@ class SettingsActivity : AppCompatActivity() {
             .setCheckedIndex(Constant.replyStrategy)
             .create(R.style.QMUI_Dialog)
             .show()
+    }
+
+    private fun showLogDialog() {
+        val logDir = Utils.getApp().getExternalFilesDir("log")
+        if (logDir != null && logDir.exists()) {
+            val listFiles = logDir.listFiles()
+            QMUIDialog.CheckableDialogBuilder(this)
+                .setTitle("日志文件分享")
+                .addItems(listFiles.map { it.name.replace("_" + AppUtils.getAppPackageName(), "") }.toTypedArray()) { dialog, which ->
+                    dialog.dismiss()
+                    ToastUtils.showLong(listFiles[which].name)
+                    val currentLogFilePath = listFiles[which].absolutePath
+                    FileUtils.copy(currentLogFilePath, "$currentLogFilePath.snapshot")
+                    ShareUtil.share("*", File("$currentLogFilePath.snapshot"), auto = false)
+                }
+                .create(R.style.QMUI_Dialog)
+                .show()
+        } else {
+            ToastUtils.showLong("日志文件夹为空~")
+        }
     }
 
     private fun showDonateDialog() {

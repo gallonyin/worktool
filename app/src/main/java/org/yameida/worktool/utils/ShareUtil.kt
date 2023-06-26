@@ -49,16 +49,18 @@ object ShareUtil {
     /**
      * 文件分享 需要先授权显示悬浮窗
      */
-    fun share(type: String, file: File): Boolean {
-        val root = WeworkController.weworkService.rootInActiveWindow
-        if (root.packageName != Constant.PACKAGE_NAMES) {
-            LogUtils.e("文件分享失败 当前应用不在前台")
-            return false
-        }
+    fun share(type: String, file: File, auto: Boolean = true): Boolean {
         val app = Utils.getApp()
-        if (!Settings.canDrawOverlays(app)) {
-            LogUtils.e("文件分享失败 没有悬浮窗权限~")
-            return false
+        if (auto) {
+            val root = WeworkController.weworkService.rootInActiveWindow
+            if (root.packageName != Constant.PACKAGE_NAMES) {
+                LogUtils.e("文件分享失败 当前应用不在前台")
+                return false
+            }
+            if (!Settings.canDrawOverlays(app)) {
+                LogUtils.e("文件分享失败 没有悬浮窗权限~")
+                return false
+            }
         }
         val intent = Intent().apply {
             action = Intent.ACTION_SEND

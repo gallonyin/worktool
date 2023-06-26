@@ -420,24 +420,23 @@
                 android:textStyle="bold" />
 
             <RelativeLayout
-                android:id="@+id/rl_language"
+                android:id="@+id/rl_log"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:paddingStart="@dimen/setting_start_padding"
                 android:paddingTop="@dimen/setting_vertical_padding"
                 android:paddingEnd="@dimen/setting_end_padding"
                 android:paddingBottom="@dimen/setting_vertical_padding">
 
                 <ImageView
-                    android:id="@+id/iv_rec_language_"
+                    android:id="@+id/iv_rec_log_"
                     android:layout_width="@dimen/setting_start_image_width"
                     android:layout_height="@dimen/setting_start_image_width"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/settings_language" />
+                    android:src="@drawable/settings_fps" />
 
                 <TextView
-                    android:id="@+id/tv_select_language"
+                    android:id="@+id/tv_select_log"
                     android:layout_width="@dimen/setting_end_font_width"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
@@ -452,24 +451,23 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/setting_start_padding"
-                    android:layout_toStartOf="@id/tv_select_language"
-                    android:layout_toEndOf="@id/iv_rec_language_"
+                    android:layout_toStartOf="@id/tv_select_log"
+                    android:layout_toEndOf="@id/iv_rec_log_"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="language"
+                        android:text="客户端日志上传"
                         android:textColor="@color/color_333333"
                         android:textSize="@dimen/setting_start_font_size" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="reply_strategy_tips"
+                        android:text="提供客户端日志给开发者"
                         android:textColor="@color/color_999999"
-                        android:textSize="@dimen/setting_end_font_size"
-                        android:visibility="gone" />
+                        android:textSize="@dimen/setting_end_font_size" />
 
                 </LinearLayout>
 
