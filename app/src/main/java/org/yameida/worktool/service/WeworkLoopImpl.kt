@@ -55,10 +55,10 @@ object WeworkLoopImpl {
                 sleep(300)
             }
         } catch (e: Exception) {
-            mainLoopRunning = false
             LogUtils.e("ERROR mainLoop: " + e.message, e)
             error("ERROR mainLoop: $e")
             sleep(Constant.LONG_INTERVAL)
+            MyLooper.getInstance().removeMessages(WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE)
             MyLooper.getInstance().sendMessage(Message.obtain().apply {
                 what = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE
                 obj = WeworkMessageBean().apply { type = WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE }
@@ -526,10 +526,10 @@ object WeworkLoopImpl {
         if (spotNodeList.size > 0) {
             LogUtils.i("发现未读消息: " + spotNodeList.size + "条")
             log("发现未读消息: " + spotNodeList.size + "条")
-            if (AccessibilityUtil.performClick(spotNodeList.first())) {
+            if (AccessibilityUtil.performClick(spotNodeList.firstOrNull())) {
                 //进入聊天页 下一步 getChatMessageList
             } else {
-                AccessibilityUtil.clickByNode(WeworkController.weworkService, spotNodeList.first().parent)
+                AccessibilityUtil.clickByNode(WeworkController.weworkService, spotNodeList.firstOrNull()?.parent)
             }
             return true
         } else {
