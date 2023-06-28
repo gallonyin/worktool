@@ -1707,7 +1707,7 @@ object WeworkOperationImpl {
                                 LogUtils.i("点击登录")
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "点击登录", startTime)
                                 sleep(Constant.CHANGE_PAGE_INTERVAL * 3)
-                                if (AccessibilityExtraUtil.loadingPage("WwMainActivity", timeout = 0)) {
+                                if (AccessibilityExtraUtil.loadingPage("WwMainActivity", "JsWebActivity", timeout = 0)) {
                                     AccessibilityUtil.findTextAndClick(getRoot(), "继续登录", exact = true)
                                     sleep(Constant.CHANGE_PAGE_INTERVAL * 3)
                                 }

@@ -706,7 +706,7 @@ object WeworkLoopImpl {
                 if (imageCheck && Constant.pushImage && textType == WeworkMessageBean.TEXT_TYPE_IMAGE) {
                     if (Constant.enableMediaProject) {
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
-                        AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                        AccessibilityExtraUtil.loadingPage("ShowImageController", timeout = Constant.CHANGE_PAGE_INTERVAL)
                         //图片双重校验
                         var image = 0
                         var image2 = 0
@@ -745,7 +745,7 @@ object WeworkLoopImpl {
                         MultiFileObserver.saveSet.clear()
                         LogUtils.v("点击图片类型")
                         AccessibilityUtil.performClickWithSon(relativeLayoutContent)
-                        AccessibilityExtraUtil.loadingPage("ShowImageController", Constant.CHANGE_PAGE_INTERVAL)
+                        AccessibilityExtraUtil.loadingPage("ShowImageController", timeout = Constant.CHANGE_PAGE_INTERVAL)
                         LogUtils.v("发现图片类型 查看图片检查有无新图片产生")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
                         if (MultiFileObserver.createSet.isNotEmpty()) {

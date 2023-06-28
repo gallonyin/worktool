@@ -17,25 +17,25 @@ object AccessibilityExtraUtil {
 
     /**
      * 等待进入页面
-     * @param clazz 页面Class
+     * @param clazzList 页面Class
      * @param timeout 检查超时时间
      */
     fun loadingPage(
-        clazz: String,
+        vararg clazzList: String,
         timeout: Long = 5000
     ): Boolean {
         val service = WeworkController.weworkService
         val startTime = System.currentTimeMillis()
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
-            if (service.currentClass == clazz || service.currentClass.split(".").last() == clazz) {
-                Log.v(tag, "loadingPage: $clazz")
+            if (service.currentClass in clazzList || service.currentClass.split(".").last() in clazzList) {
+                Log.v(tag, "loadingPage: $clazzList")
                 return true
             }
             sleep(SHORT_INTERVAL)
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "loadingPage: not found: $clazz current: ${service.currentClass}")
+        Log.e(tag, "loadingPage: not found: $clazzList current: ${service.currentClass}")
         return false
     }
 
