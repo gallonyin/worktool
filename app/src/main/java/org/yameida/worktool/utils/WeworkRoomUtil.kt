@@ -77,7 +77,7 @@ object WeworkRoomUtil {
      * 进入房间（单聊或群聊）
      */
     fun intoRoom(title: String, fastIn: Boolean = true): Boolean {
-        if (checkRoom(title)) {
+        if (checkRoom(title, strict = true)) {
             return true
         }
         goHome()
@@ -93,7 +93,7 @@ object WeworkRoomUtil {
                         LogUtils.d("快捷进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
-                        return checkRoom(title)
+                        return checkRoom(title, strict = false)
                     }
                 }
             }
@@ -136,7 +136,7 @@ object WeworkRoomUtil {
                         LogUtils.d("进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
-                        return checkRoom(title)
+                        return checkRoom(title, strict = false)
                     } else {
                         LogUtils.e("搜索到已退出群聊")
                     }
@@ -247,15 +247,16 @@ object WeworkRoomUtil {
     /**
      * 检查当前房间
      */
-    private fun checkRoom(title: String): Boolean {
+    private fun checkRoom(title: String, strict: Boolean = false): Boolean {
         LogUtils.d("checkRoom(): $title")
         val titleList = getRoomTitle(false)
         val roomType = getRoomType()
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && titleList.count {
+            && (titleList.count {
                 it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
                     .replace("\\(.*?\\)".toRegex(), "")
             } > 0
+                    || (!strict && titleList.count { title.contains(it.replace("…", "").replace("\\(.*?\\)".toRegex(), "")) } > 0))
         ) {
             intoRoomPreInit()
             LogUtils.d("当前正在房间")
