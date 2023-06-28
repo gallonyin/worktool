@@ -1,6 +1,7 @@
 package org.yameida.worktool.utils
 
 import com.blankj.utilcode.util.LogUtils
+import org.yameida.worktool.Constant
 
 object LogUtilsInit {
 
@@ -32,6 +33,10 @@ object LogUtilsInit {
         LogUtils.getConfig().apply {
             isLog2FileSwitch = true
             saveDays = 7
+        }
+        if (FlowPermissionHelper.isBlueCloud()) {
+            Constant.customLink = true
+            Constant.customMP = true
         }
     }
 

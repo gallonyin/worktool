@@ -192,6 +192,7 @@ class SettingsAdvanceActivity : AppCompatActivity() {
                 if (text != null) {
                     dialog.dismiss()
                     Constant.weworkSchema = text.toString().trim()
+                    IWWAPIUtil.init(this)
                 } else {
                     ToastUtils.showLong("请勿为空！")
                 }
