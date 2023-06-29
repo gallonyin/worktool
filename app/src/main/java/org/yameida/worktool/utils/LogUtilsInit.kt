@@ -1,7 +1,10 @@
 package org.yameida.worktool.utils
 
+import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.LogUtils
 import org.yameida.worktool.Constant
+import java.lang.Exception
+import java.util.*
 
 object LogUtilsInit {
 
@@ -30,9 +33,16 @@ object LogUtilsInit {
      *
      */
     fun init() {
+        val prefix = try {
+            AppUtils.getAppSignaturesMD5().firstOrNull()?.replace(":", "")
+                ?.substring(0, 2)?.toLowerCase(Locale.ROOT)
+        } catch (e: Exception) {
+            null
+        }
         LogUtils.getConfig().apply {
             isLog2FileSwitch = true
             saveDays = 7
+            filePrefix = prefix
         }
         if (FlowPermissionHelper.isBlueCloud()) {
             Constant.customLink = true

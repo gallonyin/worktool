@@ -90,6 +90,7 @@
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
+            android:foregroundServiceType="dataSync"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
