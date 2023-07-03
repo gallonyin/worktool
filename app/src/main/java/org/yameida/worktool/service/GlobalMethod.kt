@@ -112,7 +112,7 @@ fun getRoot(): AccessibilityNodeInfo {
  * 获取前台窗口
  * @param ignoreCheck false 必须等待前台为企业微信 true 直接返回当前前台窗口
  */
-fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
+fun getRoot(ignoreCheck: Boolean, share: Boolean = false): AccessibilityNodeInfo {
     while (true) {
         val tempRoot = WeworkController.weworkService.rootInActiveWindow
         val root = WeworkController.weworkService.rootInActiveWindow
@@ -139,16 +139,19 @@ fun getRoot(ignoreCheck: Boolean): AccessibilityNodeInfo {
                         error("点击关闭应用ANR")
                     }
                 }
-                WeworkController.weworkService.currentPackage = root.packageName?.toString() ?: ""
-                if (System.currentTimeMillis() % 30 == 0L) {
-                    error("当前不在企业微信: ${root.packageName}")
-                    if (!FloatWindowHelper.isPause) {
-                        ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
-                        Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)
-                            ?.apply {
-                                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                Utils.getApp().startActivity(this)
-                            }
+                //app外场景禁止自动跳回(分享文件)
+                if (!share) {
+                    WeworkController.weworkService.currentPackage = root.packageName?.toString() ?: ""
+                    if (System.currentTimeMillis() % 30 == 0L) {
+                        error("当前不在企业微信: ${root.packageName}")
+                        if (!FloatWindowHelper.isPause) {
+                            ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
+                            Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)
+                                ?.apply {
+                                    this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    Utils.getApp().startActivity(this)
+                                }
+                        }
                     }
                 }
                 if (ignoreCheck) {

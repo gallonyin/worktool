@@ -434,11 +434,19 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(imageViewList[1])
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "以原文件分享", "用其他应用打开")
                     AccessibilityUtil.performClick(shareFileButton)
-                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true, share = true), "发送给同事")
                     sleep(Constant.POP_WINDOW_INTERVAL)
+                    if (shareToWorkButton == null) {
+                        LogUtils.e("未找到发送给同事: $objectName")
+                        if (retryCount > 0) {
+                            return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                        }
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
+                        return false
+                    }
                     AccessibilityUtil.performClick(shareToWorkButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
-                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                     LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
                     val time = System.currentTimeMillis()
                     var currentTime = time
@@ -448,7 +456,7 @@ object WeworkOperationImpl {
                             LogUtils.e("尝试手势点击！！！！！")
                             AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
                             sleep(Constant.CHANGE_PAGE_INTERVAL)
-                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                         } else {
                             break
                         }
@@ -682,11 +690,19 @@ object WeworkOperationImpl {
                     newFile.writeBytes(body.bytes())
                     LogUtils.i("文件存储本地成功 $filePath")
                     ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
-                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                    var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true, share = true), "发送给同事")
                     sleep(Constant.POP_WINDOW_INTERVAL)
+                    if (shareToWorkButton == null) {
+                        LogUtils.e("未找到发送给同事: $objectName")
+                        if (retryCount > 0) {
+                            return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                        }
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
+                        return false
+                    }
                     AccessibilityUtil.performClick(shareToWorkButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
-                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                    shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                     LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
                     val time = System.currentTimeMillis()
                     var currentTime = time
@@ -696,7 +712,7 @@ object WeworkOperationImpl {
                             LogUtils.e("尝试手势点击！！！！！")
                             AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
                             sleep(Constant.CHANGE_PAGE_INTERVAL)
-                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                            shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                         } else {
                             break
                         }
@@ -742,11 +758,19 @@ object WeworkOperationImpl {
                 newFile.writeBytes(EncodeUtils.base64Decode(fileBase64))
                 LogUtils.i("文件存储本地成功 $filePath")
                 ShareUtil.share("${if (fileType.isBlank()) "*" else fileType}/*", newFile)
-                var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true), "发送给同事")
+                var shareToWorkButton = AccessibilityUtil.findOneByText(getRoot(true, share = true), "发送给同事")
                 sleep(Constant.POP_WINDOW_INTERVAL)
+                if (shareToWorkButton == null) {
+                    LogUtils.e("未找到发送给同事: $objectName")
+                    if (retryCount > 0) {
+                        return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                    }
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
+                    return false
+                }
                 AccessibilityUtil.performClick(shareToWorkButton)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                 LogUtils.v("尝试发送给同事", shareToWorkButton == null, WeworkController.weworkService.currentPackage)
                 val time = System.currentTimeMillis()
                 var currentTime = time
@@ -756,7 +780,7 @@ object WeworkOperationImpl {
                         LogUtils.e("尝试手势点击！！！！！")
                         AccessibilityUtil.clickByNode(WeworkController.weworkService, shareToWorkButton)
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
-                        shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true), "发送给同事")
+                        shareToWorkButton = AccessibilityUtil.findOnceByText(getRoot(true, share = true), "发送给同事")
                     } else {
                         break
                     }

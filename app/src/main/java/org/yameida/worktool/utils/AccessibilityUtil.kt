@@ -640,7 +640,7 @@ object AccessibilityUtil {
             if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -693,7 +693,7 @@ object AccessibilityUtil {
             if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -765,7 +765,7 @@ object AccessibilityUtil {
             if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -830,7 +830,7 @@ object AccessibilityUtil {
             if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -891,7 +891,7 @@ object AccessibilityUtil {
             if (result != null) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -961,7 +961,7 @@ object AccessibilityUtil {
             if (result.size >= minSize) return result
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -1287,7 +1287,7 @@ object AccessibilityUtil {
             findOnceByText(node, *textList, exact = exact, desc = desc) ?: return true
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
@@ -1313,7 +1313,7 @@ object AccessibilityUtil {
             findOnceByClazz(node, *clazzList) ?: return true
             sleep(SHORT_INTERVAL)
             if (root) {
-                node = getRoot(true)
+                node = getRoot(true, share = true)
             } else {
                 node.refresh()
             }
