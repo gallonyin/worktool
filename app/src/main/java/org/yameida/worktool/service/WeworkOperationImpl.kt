@@ -695,7 +695,7 @@ object WeworkOperationImpl {
                     if (shareToWorkButton == null) {
                         LogUtils.e("未找到发送给同事: $objectName")
                         if (retryCount > 0) {
-                            return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                            return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                         }
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
                         return false
@@ -763,7 +763,7 @@ object WeworkOperationImpl {
                 if (shareToWorkButton == null) {
                     LogUtils.e("未找到发送给同事: $objectName")
                     if (retryCount > 0) {
-                        return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                        return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                     }
                     uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
                     return false
@@ -1823,6 +1823,7 @@ object WeworkOperationImpl {
                 val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
                 AccessibilityUtil.performClick(multiButton)
                 AccessibilityUtil.performClick(searchButton)
+                var isSelect = false
                 for (select in selectList) {
                     val needTrim = select.contains(Constant.regTrimTitle)
                     val trimTitle = select.replace(Constant.regTrimTitle, "")
@@ -1850,6 +1851,7 @@ object WeworkOperationImpl {
                                 val imageView =
                                     AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                 AccessibilityUtil.performClick(imageView)
+                                isSelect = true
                                 break
                             }
                         }
@@ -1861,6 +1863,11 @@ object WeworkOperationImpl {
                         error("未搜索到结果: $select")
                     }
                     sleep(Constant.POP_WINDOW_INTERVAL)
+                }
+                if (!isSelect) {
+                    LogUtils.e("未选择接收者")
+                    error("未选择接收者")
+                    return false
                 }
                 val confirmButton =
                     AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")

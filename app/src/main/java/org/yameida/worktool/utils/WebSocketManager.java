@@ -140,6 +140,7 @@ public class WebSocketManager {
         WebSocket s = new OkHttpClient().newWebSocket(new Request.Builder().url(url).build(), listener);
         if (s.send(WebSocketManager.HEARTBEAT)) {
             this.socket = s;
+            s.send("{\"td\":" + System.currentTimeMillis() + "}");
             return true;
         }
         return false;
@@ -157,6 +158,8 @@ public class WebSocketManager {
                 reConnect();
                 //重连后刷新连接时间
                 lastConnectedTime = System.currentTimeMillis();
+            } else {
+                socket.send("{\"td\":" + System.currentTimeMillis() + "}");
             }
             if (!Constant.INSTANCE.getEnableMediaProject()) {
                 if (System.currentTimeMillis() - lastConnectedTime > heartBeatRate * 3000 && !FloatWindowHelper.INSTANCE.isPause()) {
