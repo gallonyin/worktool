@@ -69,6 +69,7 @@ class SettingsActivity : AppCompatActivity() {
         })
         rl_reply_strategy.setOnClickListener { showReplyStrategyDialog() }
         rl_log.setOnClickListener { showLogDialog() }
+        rl_update.setOnClickListener { showUpdateDialog() }
         rl_donate.setOnClickListener { showDonateDialog() }
         rl_share.setOnClickListener { showShareDialog() }
         rl_advance.setOnClickListener { SettingsAdvanceActivity.enterActivity(this) }
@@ -136,6 +137,10 @@ class SettingsActivity : AppCompatActivity() {
         } else {
             ToastUtils.showLong("日志文件夹为空~")
         }
+    }
+
+    private fun showUpdateDialog() {
+        HttpUtil.checkUpdate(Constant.getMasterCheckUpdateUrl())
     }
 
     private fun showDonateDialog() {

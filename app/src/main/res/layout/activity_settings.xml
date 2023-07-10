@@ -474,6 +474,62 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/rl_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/setting_start_padding"
+                android:paddingTop="@dimen/setting_vertical_padding"
+                android:paddingEnd="@dimen/setting_end_padding"
+                android:paddingBottom="@dimen/setting_vertical_padding">
+
+                <ImageView
+                    android:id="@+id/iv_rec_update_"
+                    android:layout_width="@dimen/setting_start_image_width"
+                    android:layout_height="@dimen/setting_start_image_width"
+                    android:layout_centerVertical="true"
+                    android:scaleX="1.1"
+                    android:scaleY="1.1"
+                    android:src="@drawable/settings_directory" />
+
+                <TextView
+                    android:id="@+id/tv_select_update"
+                    android:layout_width="@dimen/setting_end_font_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_end_start_padding"
+                    android:textColor="@color/float_time_color"
+                    android:textSize="@dimen/setting_end_font_size"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/setting_start_padding"
+                    android:layout_toStartOf="@id/tv_select_update"
+                    android:layout_toEndOf="@id/iv_rec_update_"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="检查新版本"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/setting_start_font_size" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="WorkTool官方版本更新检查"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/setting_end_font_size" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/rl_donate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -20,8 +20,8 @@ object HttpUtil {
     /**
      * 检查更新
      */
-    fun checkUpdate() {
-        OkGo.get<String>(Constant.getCheckUpdateUrl())
+    fun checkUpdate(url: String? = null) {
+        OkGo.get<String>(url ?: Constant.getCheckUpdateUrl())
             .execute(object : StringCallback() {
                 override fun onSuccess(response: Response<String>) {
                     try {
