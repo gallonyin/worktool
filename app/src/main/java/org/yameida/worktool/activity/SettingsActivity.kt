@@ -130,7 +130,7 @@ class SettingsActivity : AppCompatActivity() {
                     ToastUtils.showLong(listFiles[which].name)
                     val currentLogFilePath = listFiles[which].absolutePath
                     FileUtils.copy(currentLogFilePath, "$currentLogFilePath.snapshot")
-                    ShareUtil.share("*", File("$currentLogFilePath.snapshot"), auto = false)
+                    ShareUtil.share("*/*", File("$currentLogFilePath.snapshot"), auto = false)
                 }
                 .create(R.style.QMUI_Dialog)
                 .show()
