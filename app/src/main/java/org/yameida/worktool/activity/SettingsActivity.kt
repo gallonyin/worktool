@@ -140,7 +140,22 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showUpdateDialog() {
-        HttpUtil.checkUpdate(Constant.getMasterCheckUpdateUrl())
+        if (Constant.getMasterCheckUpdateUrl() == Constant.getCheckUpdateUrl()) {
+            HttpUtil.checkUpdate()
+        } else {
+            QMUIDialog.CheckableDialogBuilder(this)
+                .setTitle("检查新版本")
+                .addItems(arrayOf("检查当前Host新版本", "检查WorkTool官方新版本")) { dialog, which ->
+                    dialog.dismiss()
+                    if (which == 0) {
+                        HttpUtil.checkUpdate()
+                    } else {
+                        HttpUtil.checkUpdate(Constant.getMasterCheckUpdateUrl())
+                    }
+                }
+                .create(R.style.QMUI_Dialog)
+                .show()
+        }
     }
 
     private fun showDonateDialog() {
