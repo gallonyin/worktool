@@ -73,6 +73,7 @@ class SettingsAdvanceActivity : AppCompatActivity() {
         ll_corp_param.visibility = if (Constant.customLink) View.VISIBLE else View.GONE
         rl_username.visibility = if (Constant.customMP) View.VISIBLE else View.GONE
         rl_qa_url.setOnClickListener { showQaUrlDialog() }
+        rl_corp_name.setOnClickListener { showCorpNameDialog() }
         rl_corp.setOnClickListener { showCorpIdDialog() }
         rl_agent.setOnClickListener { showAgentIdDialog() }
         rl_schema.setOnClickListener { showSchemaDialog() }
@@ -143,6 +144,24 @@ class SettingsAdvanceActivity : AppCompatActivity() {
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
+    }
+
+    private fun showCorpNameDialog() {
+        val builder = QMUIDialog.EditTextDialogBuilder(this)
+        builder.setTitle("企业名称")
+            .setDefaultText(Constant.weworkCorpName)
+            .setInputType(InputType.TYPE_CLASS_TEXT)
+            .addAction(getString(R.string.cancel)) { dialog, index -> dialog.dismiss() }
+            .addAction(getString(R.string.add)) { dialog, index ->
+                val text = builder.editText.text
+                if (text != null) {
+                    dialog.dismiss()
+                    Constant.weworkCorpName = text.toString().trim()
+                } else {
+                    ToastUtils.showLong("请勿为空！")
+                }
+            }
+            .create(R.style.QMUI_Dialog).show()
     }
 
     private fun showCorpIdDialog() {

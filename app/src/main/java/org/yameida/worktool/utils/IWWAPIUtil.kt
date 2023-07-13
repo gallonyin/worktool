@@ -24,8 +24,9 @@ object IWWAPIUtil {
 
     fun init(context: Context) {
         iwwapi = WWAPIFactory.createWWAPI(context)
+        iwwapi?.unregisterApp()
         val result = iwwapi?.registerApp(Constant.weworkSchema)
-        LogUtils.e("iwwapi.registerApp: $result")
+        LogUtils.i("iwwapi.registerApp: $result", Constant.weworkSchema)
     }
 
     fun sendLink(thumbUrl: String?, webpageUrl: String?, title: String?, description: String?): Boolean {

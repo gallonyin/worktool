@@ -22,25 +22,30 @@ object Constant {
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
     val transformation = "AES/CBC/PKCS7Padding"
-    var weworkCorpId: String
-        get() = SPUtils.getInstance().getString("weworkCorpId", "")
+    var weworkCorpName: String
+        get() = SPUtils.getInstance().getString("weworkCorpName", "")
         set(value) {
-            SPUtils.getInstance().put("weworkCorpId", value)
+            SPUtils.getInstance().put("weworkCorpName", value)
+        }
+    var weworkCorpId: String
+        get() = SPUtils.getInstance().getString(weworkCorpName + "weworkCorpId", "")
+        set(value) {
+            SPUtils.getInstance().put(weworkCorpName + "weworkCorpId", value)
         }
     var weworkAgentId: String
-        get() = SPUtils.getInstance().getString("weworkAgentId", "")
+        get() = SPUtils.getInstance().getString(weworkCorpName + "weworkAgentId", "")
         set(value) {
-            SPUtils.getInstance().put("weworkAgentId", value)
+            SPUtils.getInstance().put(weworkCorpName + "weworkAgentId", value)
         }
     var weworkSchema: String
-        get() = SPUtils.getInstance().getString("weworkSchema", "")
+        get() = SPUtils.getInstance().getString(weworkCorpName + "weworkSchema", "")
         set(value) {
-            SPUtils.getInstance().put("weworkSchema", value)
+            SPUtils.getInstance().put(weworkCorpName + "weworkSchema", value)
         }
     var weworkMP: String
-        get() = SPUtils.getInstance().getString("weworkMP", "")
+        get() = SPUtils.getInstance().getString(weworkCorpName + "weworkMP", "")
         set(value) {
-            SPUtils.getInstance().put("weworkMP", value)
+            SPUtils.getInstance().put(weworkCorpName + "weworkMP", value)
         }
     var encryptType: Int = SPUtils.getInstance().getInt("encryptType", 1)
     var autoReply: Int = SPUtils.getInstance().getInt("autoReply", 1)

@@ -1663,11 +1663,13 @@ object WeworkOperationImpl {
             .filter { it.childCount >= 2 }
         val listview = listviewList.firstOrNull()
         if (listview != null) {
-            val tvCorp = AccessibilityUtil.findOnceByText(listview, objectName, exact = true)
+            val tvCorp = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, listview, objectName, exact = true)
             if (tvCorp != null) {
                 LogUtils.d("找到目标企业: $objectName")
                 AccessibilityUtil.performClick(tvCorp)
                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime, listOf(objectName), listOf())
+                Constant.weworkCorpName = objectName
+                IWWAPIUtil.init(Utils.getApp())
                 goHome()
                 WeworkGetImpl.getMyInfo(message)
                 return true

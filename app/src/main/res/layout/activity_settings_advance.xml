@@ -240,7 +240,7 @@
                 android:paddingBottom="@dimen/setting_vertical_padding">
 
                 <TextView
-                    android:id="@+id/tv_select_fps"
+                    android:id="@+id/tv_select_qa_url"
                     android:layout_width="@dimen/setting_end_font_width"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
@@ -255,7 +255,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/setting_start_padding"
-                    android:layout_toStartOf="@id/tv_select_fps"
+                    android:layout_toStartOf="@id/tv_select_qa_url"
                     android:orientation="vertical">
 
                     <TextView
@@ -403,6 +403,51 @@
                     android:textColor="@color/float_time_color"
                     android:textSize="@dimen/setting_end_font_size"
                     android:textStyle="bold" />
+
+                <RelativeLayout
+                    android:id="@+id/rl_corp_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/setting_start_padding"
+                    android:paddingTop="@dimen/setting_vertical_padding"
+                    android:paddingEnd="@dimen/setting_end_padding"
+                    android:paddingBottom="@dimen/setting_vertical_padding">
+
+                    <TextView
+                        android:id="@+id/tv_select_corp_name"
+                        android:layout_width="@dimen/setting_end_font_width"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/setting_end_start_padding"
+                        android:textColor="@color/float_time_color"
+                        android:textSize="@dimen/setting_end_font_size"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/setting_start_padding"
+                        android:layout_toStartOf="@id/tv_select_corp_name"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="企业名称(单企业可不填)"
+                            android:textColor="@color/color_333333"
+                            android:textSize="@dimen/setting_start_font_size" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="在企业切换时自动切换参数"
+                            android:textColor="@color/color_999999"
+                            android:textSize="@dimen/setting_end_font_size" />
+
+                    </LinearLayout>
+                </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/rl_corp"
