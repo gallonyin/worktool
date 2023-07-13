@@ -179,6 +179,7 @@ class ListenActivity : AppCompatActivity() {
     private fun initData() {
         HttpUtil.checkUpdate()
         HttpUtil.getMyConfig(toast = false)
+        CacheUtil.autoDelete()
     }
 
     private fun initNotification() {
