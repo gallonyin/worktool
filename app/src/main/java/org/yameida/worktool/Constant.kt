@@ -47,7 +47,7 @@ object Constant {
         set(value) {
             SPUtils.getInstance().put(weworkCorpName + "weworkMP", value)
         }
-    var encryptType: Int = SPUtils.getInstance().getInt("encryptType", 1)
+    var encryptType: Int = SPUtils.getInstance().getInt("encryptType", 0)
     var autoReply: Int = SPUtils.getInstance().getInt("autoReply", 1)
     var groupStrict: Boolean
         get() = SPUtils.getInstance().getBoolean("groupStrict", false)

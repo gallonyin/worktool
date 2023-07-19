@@ -139,7 +139,7 @@ class ListenActivity : AppCompatActivity() {
                         if (riskRetry > 10) {
                             ToastUtils.showLong("再点${20 - riskRetry}次 允许本次运行")
                         } else {
-                            ToastUtils.showLong("新号请勿使用模拟器/云手机！")
+                            ToastUtils.showLong("环境监测异常，请勿使用本应用！")
                         }
                         if (++riskRetry > 20) {
                             SPUtils.getInstance().put("risk", false)

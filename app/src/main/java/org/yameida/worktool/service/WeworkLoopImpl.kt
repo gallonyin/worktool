@@ -80,8 +80,8 @@ object WeworkLoopImpl {
             return false
         }
         if (SPUtils.getInstance().getBoolean("risk", false)) {
-            LogUtils.e("新号请勿使用模拟器/云手机！")
-            ToastUtils.show("新号请勿使用模拟器/云手机！")
+            LogUtils.e("环境监测异常，请勿使用本应用！")
+            ToastUtils.show("环境监测异常，请勿使用本应用！")
             MyApplication.launchIntent()
             sleep(5000)
             return false
