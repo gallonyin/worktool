@@ -46,7 +46,14 @@ object WeworkLoopImpl {
                     continue
                 }
                 if (!mainLoopRunning) break
-                getChatroomList()
+                if (getChatroomList()) {
+                    LogUtils.d("进入点击进入聊天页: ")
+                    if (!getChatMessageList()) {
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        LogUtils.d("重试获取聊天列表: ")
+                        getChatMessageList()
+                    }
+                }
                 if (!mainLoopRunning) break
                 getFriendRequest()
                 if (!mainLoopRunning) break
