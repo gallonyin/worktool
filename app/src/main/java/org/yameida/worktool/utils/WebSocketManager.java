@@ -47,6 +47,7 @@ public class WebSocketManager {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         this.socket = client.newWebSocket(request, listener);
+        socket.send("{\"td\":" + System.currentTimeMillis() + "}");
         webSocketManager.put(url, this);
         task = heartCheckStart();
     }
@@ -158,7 +159,7 @@ public class WebSocketManager {
                 reConnect();
                 //重连后刷新连接时间
                 lastConnectedTime = System.currentTimeMillis();
-            } else {
+            } else if (System.currentTimeMillis() % 1000 == 0) {
                 socket.send("{\"td\":" + System.currentTimeMillis() + "}");
             }
             if (!Constant.INSTANCE.getEnableMediaProject()) {
