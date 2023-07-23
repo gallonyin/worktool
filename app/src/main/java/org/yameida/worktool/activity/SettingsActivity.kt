@@ -92,6 +92,7 @@ class SettingsActivity : AppCompatActivity() {
             freshOpenMain()
             if (PermissionHelper.isAccessibilitySettingOn()) {
                 WeworkController.weworkService.disableSelf()
+                freshOpenMain()
             } else {
                 if (Constant.robotId.isBlank()) {
                     ToastUtils.showLong("请先填写并保存链接号~")
