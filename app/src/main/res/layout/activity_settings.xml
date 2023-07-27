@@ -521,7 +521,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="WorkTool官方版本更新检查"
+                        android:text="版本更新检查"
                         android:textColor="@color/color_999999"
                         android:textSize="@dimen/setting_end_font_size" />
 
