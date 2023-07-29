@@ -458,7 +458,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="客户端日志上传"
+                        android:text="客户端日志"
                         android:textColor="@color/color_333333"
                         android:textSize="@dimen/setting_start_font_size" />
 
