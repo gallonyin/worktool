@@ -9,8 +9,8 @@ android {
         applicationId "org.yameida.worktool"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 26061
-        versionName "2.6.6"
+        versionCode 26071
+        versionName "2.6.7"
     }
 
     buildTypes {
