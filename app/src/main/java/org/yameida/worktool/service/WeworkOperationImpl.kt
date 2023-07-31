@@ -13,6 +13,7 @@ import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 
 /**
@@ -43,7 +44,7 @@ object WeworkOperationImpl {
         }
         val successList = arrayListOf<String>()
         val failList = arrayListOf<String>()
-        for (title in titleList) {
+        for (title in LinkedHashSet(titleList)) {
             var successFlag = true
             if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (sendChatMessage(receivedContent, at = at, atList = atList, title = title)) {
@@ -106,7 +107,7 @@ object WeworkOperationImpl {
         }
         val successList = arrayListOf<String>()
         val failList = arrayListOf<String>()
-        for (title in titleList) {
+        for (title in LinkedHashSet(titleList)) {
             if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (WeworkTextUtil.longClickMessageItem(
                         //聊天消息列表 1ListView 0RecycleView xViewGroup
@@ -179,7 +180,7 @@ object WeworkOperationImpl {
         extraText: String? = null
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        for (title in titleList) {
+        for (title in LinkedHashSet(titleList)) {
             if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (!receivedName.isNullOrEmpty()) {
                     if (WeworkTextUtil.longClickMessageItem(
@@ -873,7 +874,7 @@ object WeworkOperationImpl {
         textType: Int
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        for (title in titleList) {
+        for (title in LinkedHashSet(titleList)) {
             if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 if (WeworkTextUtil.longClickMyMessageItem(
                         //聊天消息列表 1ListView 0RecycleView xViewGroup
@@ -1117,7 +1118,7 @@ object WeworkOperationImpl {
             LogUtils.d("receivedName $receivedName textType $textType originalContent $originalContent")
             return relayMessage(message, titleList, receivedName, originalContent, textType, nameList, extraText)
         }
-        for (title in titleList) {
+        for (title in LinkedHashSet(titleList)) {
             if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
                 var hasOpenMulti = false
                 for (subMessageBean in messageList) {
@@ -1791,7 +1792,7 @@ object WeworkOperationImpl {
         textType: Int
     ): Boolean {
         val startTime = System.currentTimeMillis()
-        for (groupName in titleList) {
+        for (groupName in LinkedHashSet(titleList)) {
             if (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager()) {
                 val groupInfo = WeworkGetImpl.getGroupInfoDetail()
                 groupInfo.titleList = arrayListOf(groupName)
@@ -1831,7 +1832,7 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(multiButton)
                 AccessibilityUtil.performClick(searchButton)
                 var isSelect = false
-                for (select in selectList) {
+                for (select in LinkedHashSet(selectList)) {
                     val needTrim = select.contains(Constant.regTrimTitle)
                     val trimTitle = select.replace(Constant.regTrimTitle, "")
                     AccessibilityUtil.findTextInput(getRoot(), trimTitle)
@@ -2035,7 +2036,7 @@ object WeworkOperationImpl {
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
                     var count = 0
-                    for (select in selectList) {
+                    for (select in LinkedHashSet(selectList)) {
                         val needTrim = select.contains(Constant.regTrimTitle)
                         val trimTitle = select.replace(Constant.regTrimTitle, "")
                         AccessibilityUtil.performClick(multiButton)
@@ -2160,7 +2161,7 @@ object WeworkOperationImpl {
                 if (textViewList.size >= 2) {
                     val multiButton = textViewList.lastOrNull()
                     var count = 0
-                    for (select in removeList) {
+                    for (select in LinkedHashSet(removeList)) {
                         val needTrim = select.contains(Constant.regTrimTitle)
                         val trimTitle = select.replace(Constant.regTrimTitle, "")
                         AccessibilityUtil.performClick(multiButton)
@@ -2428,7 +2429,7 @@ object WeworkOperationImpl {
             }
             atList.removeIf { it.startsWith("#regex#") }
             LogUtils.v("atList: ${atList.joinToString()}")
-            atList.forEachIndexed { index, at ->
+            LinkedHashSet(atList).forEachIndexed { index, at ->
                 if (index == 0) {
                     AccessibilityUtil.findTextInput(getRoot(), "@")
                 } else {
