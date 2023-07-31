@@ -530,6 +530,17 @@ object WeworkController {
     }
 
     /**
+     * 删除联系人
+     * @see WeworkMessageBean.DELETE_CONTACT
+     * @param message#friend 待删除用户
+     */
+    @RequestMapping
+    fun deleteContact(message: WeworkMessageBean): Boolean {
+        LogUtils.d("deleteContact(): ${message.friend}")
+        return WeworkOperationImpl.deleteContact(message, message.friend)
+    }
+
+    /**
      * 获取群信息
      * @see WeworkMessageBean.GET_GROUP_INFO
      * @param message#selectList 群名列表 为空时去群管理页查询并返回群聊页

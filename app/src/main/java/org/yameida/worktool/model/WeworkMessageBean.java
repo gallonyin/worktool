@@ -44,6 +44,8 @@ public class WeworkMessageBean {
      * 合并转发 RELAY_MERGE_MESSAGE
      * 批量发送 SEND_MULTI_MESSAGE
      * 合并发送 SEND_MERGE_MESSAGE
+     * 扫一扫 SCAN_QR_CODE
+     * 删除联系人 DELETE_CONTACT
      * <p>
      * 非操作类型 300
      * 机器人普通日志记录 ROBOT_LOG
@@ -97,6 +99,7 @@ public class WeworkMessageBean {
     public static final int VOICE_CALL = 231;
     public static final int VIDEO_CALL = 232;
     public static final int SCAN_QR_CODE = 233;
+    public static final int DELETE_CONTACT = 234;
 
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;

@@ -193,6 +193,9 @@ object MyLooper {
             WeworkMessageBean.SCAN_QR_CODE -> {
                 WeworkController.scanQrCode(message)
             }
+            WeworkMessageBean.DELETE_CONTACT -> {
+                WeworkController.deleteContact(message)
+            }
             WeworkMessageBean.DISMISS_GROUP -> {
                 WeworkController.dismissGroup(message)
             }

@@ -1777,6 +1777,61 @@ object WeworkOperationImpl {
     }
 
     /**
+     * 删除联系人
+     * @see WeworkMessageBean.DELETE_CONTACT
+     * @param friend 待删除用户
+     */
+    fun deleteContact(message: WeworkMessageBean, friend: WeworkMessageBean.Friend): Boolean {
+        val startTime = System.currentTimeMillis()
+        if (friend.phone == null && friend.name != null) {
+            if (getFriendInfo(friend.name) && AccessibilityExtraUtil.loadingPage("ContactDetailBaseContentActivity")) {
+                val imageView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
+                val frontNode = AccessibilityUtil.findFrontNode(imageView?.parent)
+                val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+                if (textViewList.size >= 2) {
+                    val multiButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                    AccessibilityUtil.performClick(multiButton)
+                    if (AccessibilityExtraUtil.loadingPage("ContactDetailSettingActivity")) {
+                        val tvDelete = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "删除", exact = true)
+                        if (tvDelete != null) {
+                            AccessibilityUtil.performClick(tvDelete)
+                            if (AccessibilityUtil.findTextAndClick(getRoot(), "确认删除", exact = true)) {
+                                LogUtils.d("删除联系人成功: ${friend.name}")
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(friend.name), listOf())
+                                return true
+                            } else {
+                                LogUtils.e("未找到确认删除按钮: ${friend.name}")
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到确认删除按钮: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                                return false
+                            }
+                        } else {
+                            LogUtils.e("未找到删除按钮: ${friend.name}")
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到删除按钮: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                            return false
+                        }
+                    } else {
+                        LogUtils.e("进入个人信息详情页失败: ${friend.name}")
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "进入个人信息详情页失败: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                        return false
+                    }
+                } else {
+                    LogUtils.e("未找到更多按钮: ${friend.name}")
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到更多按钮: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                    return false
+                }
+            } else {
+                LogUtils.e("未找到用户: ${friend.name}")
+                uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "未找到用户: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                return false
+            }
+        } else {
+            LogUtils.e("数据异常: ${friend.name}")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "数据异常: ${friend.name}", startTime, listOf(), listOf(friend.name))
+            return false
+        }
+    }
+
+    /**
      * 展示群信息
      * @see WeworkMessageBean.SHOW_GROUP_INFO
      * @param titleList 待查询群名
@@ -2525,6 +2580,7 @@ object WeworkOperationImpl {
                     timeout = 2000,
                     root = false
                 )
+                var isSelect = false
                 if (selectListView != null && matchSelect != null) {
                     for (i in 0 until selectListView.childCount) {
                         val item = selectListView.getChild(i)
@@ -2534,12 +2590,14 @@ object WeworkOperationImpl {
                             item.refresh()
                             val imageView =
                                 AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
-                            AccessibilityUtil.performClick(imageView)
+                            AccessibilityUtil.clickByNode(WeworkController.weworkService, imageView)
+                            LogUtils.d("选择联系人")
+                            isSelect = true
                             break
                         }
                     }
                 }
-                if (matchSelect != null) {
+                if (isSelect) {
                     LogUtils.d("找到搜索结果: $title")
                     return true
                 } else {
