@@ -94,7 +94,7 @@ object HttpUtil {
                         SPUtils.getInstance().put("risk", false)
                         if (CheckRoot.isDeviceRooted()) {
                             val date = TimeUtils.string2Date(commonResult.data.createTime, "yyyy-MM-dd'T'HH:mm:ss")
-                            if (System.currentTimeMillis() - date.time < 7 * 68400 * 1000) {
+                            if (System.currentTimeMillis() - date.time < 15 * 68400 * 1000) {
                                 LogUtils.e("环境监测异常，请勿使用本应用！")
                                 ToastUtils.showLong("环境监测异常，请勿使用本应用！")
                                 SPUtils.getInstance().put("risk", true)

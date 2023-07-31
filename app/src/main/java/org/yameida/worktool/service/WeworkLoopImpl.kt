@@ -14,7 +14,6 @@ import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.observer.MultiFileObserver
 import org.yameida.worktool.service.WeworkController.mainLoopRunning
 import org.yameida.worktool.utils.*
-import org.yameida.worktool.utils.envcheck.CheckRoot
 import java.io.File
 import java.lang.Exception
 import java.lang.StringBuilder
@@ -48,6 +47,7 @@ object WeworkLoopImpl {
                 if (!mainLoopRunning) break
                 if (getChatroomList()) {
                     LogUtils.d("进入点击进入聊天页: ")
+                    AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                     if (!getChatMessageList()) {
                         sleep(Constant.POP_WINDOW_INTERVAL)
                         LogUtils.d("重试获取聊天列表: ")
@@ -78,8 +78,7 @@ object WeworkLoopImpl {
      * @return 通过检查 true 否则 false
      */
     private fun checkRealName(): Boolean {
-        if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)
-            && CheckRoot.isDeviceRooted()) {
+        if (!SPUtils.getInstance("myInfo").getBoolean("realName", true)) {
             LogUtils.e("账号实名前请先关闭WorkTool主功能！")
             ToastUtils.show("账号实名前请先关闭WorkTool主功能！")
             MyApplication.launchIntent()

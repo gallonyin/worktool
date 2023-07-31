@@ -224,7 +224,7 @@ object WeworkGetImpl {
                             LogUtils.v("info", info.toString())
                         }
                         if (tvList.size > 1) {
-                            if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)) {
+                            if (!SPUtils.getInstance("myInfo").getBoolean("realName", true)) {
                                 if (tvList[1].text?.toString() == "未认证" && tvList.size > 2) {
                                     log("企业未认证: $info")
                                     AccessibilityUtil.performClick(tvList[2])
@@ -291,7 +291,7 @@ object WeworkGetImpl {
                 }
             }
         }
-        if (!SPUtils.getInstance("myInfo").getBoolean("realName", false)) {
+        if (!SPUtils.getInstance("myInfo").getBoolean("realName", true)) {
             getRealName(myInfo.name)
         } else {
             LogUtils.d("已实名认证")
@@ -501,6 +501,7 @@ object WeworkGetImpl {
                     if (notRealName != null) {
                         LogUtils.d("未实名认证: $nickname")
                         error("未实名认证: $nickname")
+                        SPUtils.getInstance("myInfo").put("realName", false)
                     } else if (realName != null) {
                         LogUtils.d("实名认证: ${realName.text}")
                         log("实名认证: ${realName.text}")
