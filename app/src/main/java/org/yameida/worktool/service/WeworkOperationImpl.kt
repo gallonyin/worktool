@@ -420,6 +420,11 @@ object WeworkOperationImpl {
     ): Boolean {
         val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
+        if (!PermissionUtils.isGrantedDrawOverlays()) {
+            LogUtils.e("未打开悬浮窗权限")
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_PERMISSION, "未打开悬浮窗权限", startTime, listOf(), titleList)
+            return false
+        }
         goHomeTab("工作台")
         val node = AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "微盘", exact = true)
         if (node != null) {
@@ -2642,7 +2647,11 @@ object WeworkOperationImpl {
      */
     fun setFriendTags(tagList: List<String>): Boolean {
         val tagList = if (tagList.size > 5) tagList.subList(0, 5) else tagList
-        val tvTag = AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull()
+        var tvTag = AccessibilityUtil.findAllByText(getRoot(), "个人标签", exact = true).lastOrNull()
+        if (tvTag == null) {
+            AccessibilityUtil.scrollAndFindByText(WeworkController.weworkService, getRoot(), "个人标签")
+            tvTag = AccessibilityUtil.findAllByText(getRoot(), "个人标签", exact = true).lastOrNull()
+        }
         val oldTagList = arrayListOf<String>()
         val list = AccessibilityUtil.findBackNode(tvTag)
         if (list != null && list.childCount > 0) {
