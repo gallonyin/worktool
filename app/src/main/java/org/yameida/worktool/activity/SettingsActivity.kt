@@ -123,6 +123,9 @@ class SettingsActivity : AppCompatActivity() {
     private fun showLogDialog() {
         val logDir = Utils.getApp().getExternalFilesDir("log")
         if (logDir != null && logDir.exists()) {
+            logDir.listFiles()?.forEach {
+                if (it.name.endsWith(".snapshot")) it.delete()
+            }
             val listFiles = logDir.listFiles()
             QMUIDialog.CheckableDialogBuilder(this)
                 .setTitle("日志文件分享")
