@@ -107,7 +107,7 @@ object MyLooper {
                 } else {
                     WeworkController.mainLoopRunning = false
                     LogUtils.v("加入指令到执行队列", if (message.fileBase64.isNullOrEmpty()) GsonUtils.toJson(message) else message.type)
-                    val messageWhat = message.type * message.hashCode() + (System.currentTimeMillis() / 10000).toInt()
+                    val messageWhat = message.type * message.hashCode() / 1000 + text.length
                     getInstance().removeMessages(messageWhat)
                     getInstance().sendMessage(Message.obtain().apply {
                         what = messageWhat
