@@ -577,8 +577,10 @@ object WeworkOperationImpl {
         receivedContent: String,
         originalContent: String,
         fileUrl: String,
-        extraText: String? = null
+        extraText: String? = null,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
             if (relaySelectTarget(titleList, extraText)) {
@@ -586,7 +588,10 @@ object WeworkOperationImpl {
                 return true
             } else {
                 LogUtils.e("转发失败")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime, listOf(), titleList)
+                if (retryCount > 0) {
+                    return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败: $objectName", startTime, listOf(), titleList)
                 return false
             }
         } else {
@@ -840,8 +845,10 @@ object WeworkOperationImpl {
         receivedContent: String,
         originalContent: String,
         fileUrl: String,
-        extraText: String? = null
+        extraText: String? = null,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
             if (relaySelectTarget(titleList, extraText)) {
@@ -849,7 +856,10 @@ object WeworkOperationImpl {
                 return true
             } else {
                 LogUtils.e("转发失败")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败", startTime, listOf(), titleList)
+                if (retryCount > 0) {
+                    return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败: $objectName", startTime, listOf(), titleList)
                 return false
             }
         } else {
