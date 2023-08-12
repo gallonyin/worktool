@@ -133,6 +133,8 @@ object WeworkRoomUtil {
                     if (searchItem != null) {
                         intoRoomPreInit()
                         AccessibilityUtil.performClick(searchItem)
+                        val text = AccessibilityUtil.findAllOnceByClazz(searchItem.parent, Views.TextView).firstOrNull { it.text != null && !it.text.isNullOrBlank() }
+                        val title = text?.toString() ?: title
                         LogUtils.d("进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
