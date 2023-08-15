@@ -164,6 +164,7 @@ object WeworkLoopImpl {
         val roomType = WeworkRoomUtil.getRoomType()
         var titleList = WeworkRoomUtil.getRoomTitle()
         if (titleList.count { it.endsWith("…") } > 0) {
+            LogUtils.d("title too long... try get full name")
             if (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT) {
                 titleList = WeworkRoomUtil.getFriendName()
             } else if (Constant.fullGroupName

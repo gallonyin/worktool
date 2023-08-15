@@ -143,8 +143,10 @@ fun getRoot(ignoreCheck: Boolean, share: Boolean = false): AccessibilityNodeInfo
                 if (!share) {
                     WeworkController.weworkService.currentPackage = root.packageName?.toString() ?: ""
                     if (System.currentTimeMillis() % 30 == 0L) {
+                        LogUtils.e("当前不在企业微信: ${root.packageName}")
                         error("当前不在企业微信: ${root.packageName}")
                         if (!FloatWindowHelper.isPause) {
+                            LogUtils.e("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
                             ToastUtils.show("当前不在企业微信: ${root.packageName}\n尝试跳转到企业微信")
                             Utils.getApp().packageManager.getLaunchIntentForPackage(Constant.PACKAGE_NAMES)
                                 ?.apply {

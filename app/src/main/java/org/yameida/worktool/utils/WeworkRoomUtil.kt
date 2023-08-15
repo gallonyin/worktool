@@ -184,7 +184,7 @@ object WeworkRoomUtil {
      * @return true 成功进入好友详情页
      */
     fun intoFriendDetail(): Boolean {
-        if (AccessibilityUtil.findOneByText(getRoot(), "设置聊天背景") != null) {
+        if (AccessibilityUtil.findOnceByText(getRoot(), "设置聊天背景") != null) {
             return true
         }
         //同群详情列表
@@ -217,10 +217,13 @@ object WeworkRoomUtil {
                 for (textView in tvList) {
                     if (textView.text != null) {
                         titleList.add(textView.text.toString())
-                        backPress()
                     }
                 }
             }
+            backPress()
+            LogUtils.d("获取好友名称成功 ${titleList.joinToString()}")
+        } else {
+            LogUtils.e("获取好友名称失败")
         }
         return titleList
     }
@@ -251,7 +254,7 @@ object WeworkRoomUtil {
      */
     private fun checkRoom(title: String, strict: Boolean = false): Boolean {
         LogUtils.d("checkRoom(): $title")
-        val titleList = getRoomTitle(false)
+        val titleList = getRoomTitle(print = false)
         val roomType = getRoomType()
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
             && (titleList.count {
