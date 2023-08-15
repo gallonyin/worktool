@@ -129,6 +129,7 @@ class WeworkService : AccessibilityService() {
             val workVersion = SPUtils.getInstance().getString("workVersion", "")
             val deviceRooted = SPUtils.getInstance().getBoolean("deviceRooted", false)
             val hook = SPUtils.getInstance().getBoolean("hook", false)
+            LogUtils.i("连接建立: $robotId appVersion: $appVersion workVersion: $workVersion deviceRooted: $deviceRooted hook: $hook")
             log("连接建立: $robotId appVersion: $appVersion workVersion: $workVersion deviceRooted: $deviceRooted hook: $hook")
             LogUtils.i("设置自动跳转企业微信")
             sendBroadcast(true)
