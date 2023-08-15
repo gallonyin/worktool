@@ -159,12 +159,12 @@ object WeworkLoopImpl {
      * @param needInfer 是否需要推断@me并等待回复
      * @param timeout 在房间内等待回复的时长
      */
-    fun getChatMessageList(needInfer: Boolean = !Constant.pushImage, imageCheck: Boolean = true, timeout: Long = 5000): Boolean {
+    fun getChatMessageList(needInfer: Boolean = !Constant.pushImage, imageCheck: Boolean = true, timeout: Long = 5000, titleList: ArrayList<String>? = null): Boolean {
         if (Constant.autoReply == 0) return true
         val roomType = WeworkRoomUtil.getRoomType()
-        var titleList = WeworkRoomUtil.getRoomTitle()
+        var titleList = titleList ?: WeworkRoomUtil.getRoomTitle()
         if (titleList.count { it.endsWith("…") } > 0) {
-            LogUtils.d("title too long... try get full name")
+            LogUtils.d("title too long... try get full name titleList: ${titleList.joinToString()}")
             if (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT) {
                 titleList = WeworkRoomUtil.getFriendName()
             } else if (Constant.fullGroupName
@@ -312,7 +312,7 @@ object WeworkLoopImpl {
                                         sleep(Constant.POP_WINDOW_INTERVAL / 5)
                                         currentTime = System.currentTimeMillis()
                                     }
-                                    return getChatMessageList(needInfer = false)
+                                    return getChatMessageList(needInfer = false, titleList = titleList)
                                 }
                             }
                             2 -> {
@@ -322,7 +322,7 @@ object WeworkLoopImpl {
                                     sleep(Constant.POP_WINDOW_INTERVAL / 5)
                                     currentTime = System.currentTimeMillis()
                                 }
-                                return getChatMessageList(needInfer = false)
+                                return getChatMessageList(needInfer = false, titleList = titleList)
                             }
                             else -> return true
                         }
