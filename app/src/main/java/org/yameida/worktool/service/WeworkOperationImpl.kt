@@ -2055,7 +2055,10 @@ object WeworkOperationImpl {
             val textView = AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建")
                 ?: return false
             if (textView.text.contains("微信用户创建")) {
-                val button = AccessibilityUtil.findFrontNode(textView)
+                var button = AccessibilityUtil.findFrontNode(textView)
+                if (button?.className == Views.ImageView) {
+                    button = AccessibilityUtil.findFrontNode(button)
+                }
                 if (button != null) {
                     AccessibilityUtil.performClick(button)
                     AccessibilityUtil.findTextInput(getRoot(), groupName)
