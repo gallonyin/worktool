@@ -153,7 +153,13 @@ class ListenActivity : AppCompatActivity() {
                 }
             } else {
                 if (PermissionHelper.isAccessibilitySettingOn()) {
-                    WeworkController.weworkService.disableSelf()
+                    if (FlowPermissionHelper.isBlueCloud()) {
+                        sw_accessibility.isChecked = true
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        startActivity(intent)
+                    } else {
+                        WeworkController.weworkService.disableSelf()
+                    }
                 }
             }
         })

@@ -91,8 +91,13 @@ class SettingsActivity : AppCompatActivity() {
         bt_open_main.setOnClickListener {
             freshOpenMain()
             if (PermissionHelper.isAccessibilitySettingOn()) {
-                WeworkController.weworkService.disableSelf()
-                freshOpenMain()
+                if (FlowPermissionHelper.isBlueCloud()) {
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    startActivity(intent)
+                } else {
+                    WeworkController.weworkService.disableSelf()
+                    freshOpenMain()
+                }
             } else {
                 if (Constant.robotId.isBlank()) {
                     ToastUtils.showLong("请先填写并保存链接号~")
