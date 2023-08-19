@@ -200,6 +200,7 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.d("$title: 转发失败 $originalContent")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败 $originalContent", startTime, listOf(), titleList)
+                            goHome()
                             return false
                         }
                     } else {
@@ -224,6 +225,7 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.d("$title: 转发失败 $originalContent")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败 $originalContent", startTime, listOf(), titleList)
+                            goHome()
                             return false
                         }
                     } else {
@@ -476,9 +478,11 @@ object WeworkOperationImpl {
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
                         if (retryCount > 0) {
+                            goHome()
                             return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
                         }
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
+                        goHome()
                         return false
                     }
                 } else {
@@ -541,6 +545,7 @@ object WeworkOperationImpl {
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
+                        goHome()
                         return false
                     }
                 } else {
@@ -589,9 +594,11 @@ object WeworkOperationImpl {
             } else {
                 LogUtils.e("转发失败")
                 if (retryCount > 0) {
-                    return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                    goHome()
+                    return pushMicroprogram(message, titleList, objectName, receivedContent, originalContent, fileUrl, extraText, retryCount - 1)
                 }
                 uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败: $objectName", startTime, listOf(), titleList)
+                goHome()
                 return false
             }
         } else {
@@ -644,6 +651,7 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("微盘文件转发失败: $objectName")
                     uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "微盘文件转发失败: $objectName", startTime, listOf(), titleList)
+                    goHome()
                     return false
                 }
             } else {
@@ -737,9 +745,11 @@ object WeworkOperationImpl {
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
                         if (retryCount > 0) {
+                            goHome()
                             return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                         }
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "文件转发失败: $objectName", startTime, listOf(), titleList)
+                        goHome()
                         return false
                     }
                 } else {
@@ -805,9 +815,11 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
                     if (retryCount > 0) {
+                        goHome()
                         return pushFile(message, titleList, objectName, fileUrl, fileBase64, fileType, extraText, retryCount - 1)
                     }
                     uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "文件转发失败: $objectName", startTime, listOf(), titleList)
+                    goHome()
                     return false
                 }
             } else {
@@ -857,9 +869,11 @@ object WeworkOperationImpl {
             } else {
                 LogUtils.e("转发失败")
                 if (retryCount > 0) {
-                    return pushMicroDiskImage(message, titleList, objectName, extraText, retryCount - 1)
+                    goHome()
+                    return pushLink(message, titleList, objectName, receivedContent, originalContent, fileUrl, extraText, retryCount - 1)
                 }
                 uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "转发失败: $objectName", startTime, listOf(), titleList)
+                goHome()
                 return false
             }
         } else {
@@ -1085,6 +1099,7 @@ object WeworkOperationImpl {
                     } else {
                         LogUtils.e("$groupName: 转发失败")
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$groupName: 转发失败", startTime, listOf(), titleList)
+                        goHome()
                         return false
                     }
                 } else {
@@ -1217,6 +1232,7 @@ object WeworkOperationImpl {
                             } else {
                                 LogUtils.e("$title: 转发失败")
                                 uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败", startTime, listOf(), titleList)
+                                goHome()
                                 return false
                             }
                         } else {
@@ -1597,6 +1613,7 @@ object WeworkOperationImpl {
                             } else {
                                 LogUtils.e("未找到保存并发送按钮")
                                 uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到保存并发送按钮", startTime, listOf(), titleList)
+                                goHome()
                                 return false
                             }
                         } else {
