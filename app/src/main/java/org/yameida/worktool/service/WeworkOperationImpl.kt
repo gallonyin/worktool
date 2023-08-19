@@ -115,7 +115,7 @@ object WeworkOperationImpl {
                         textType,
                         receivedName,
                         originalContent,
-                        "回复"
+                        "回复", "引用"
                     )
                 ) {
                     LogUtils.v("开始回复")

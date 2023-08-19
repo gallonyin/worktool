@@ -10,6 +10,7 @@ import org.yameida.worktool.service.sleep
 import org.yameida.worktool.utils.AccessibilityUtil.findAllByClazz
 import org.yameida.worktool.utils.AccessibilityUtil.findAllOnceByClazz
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * 消息特征分析工具类
@@ -370,7 +371,7 @@ object WeworkTextUtil {
         replyTextType: Int,
         replyNick: String?,
         replyContent: String,
-        key: String
+        vararg key: String
     ): Boolean {
         if (node == null) return false
         for (i in 0 until node.childCount) {
@@ -387,7 +388,7 @@ object WeworkTextUtil {
                     if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
                         && (replyTextType == textTypeFromItem)) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, *key)
                     }
                     if ((replyTextType == WeworkMessageBean.TEXT_TYPE_FILE || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
                         && replyContent.contains("###")) {
@@ -395,13 +396,13 @@ object WeworkTextUtil {
                         if (AccessibilityUtil.findOnceByText(backNode, replyContentList[0]) != null
                             && AccessibilityUtil.findOnceByText(backNode, replyContentList[1]) != null) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, *key)
                         }
                     }
                     val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
                     if (textNode != null && replyContent.isNotEmpty()) {
                         LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, key)
+                        return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT, *key)
                     }
                 }
             }
@@ -413,7 +414,7 @@ object WeworkTextUtil {
                         if ((replyTextType == WeworkMessageBean.TEXT_TYPE_IMAGE)
                             && (replyTextType == textTypeFromItem)) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, *key)
                         }
                         if ((replyTextType == WeworkMessageBean.TEXT_TYPE_FILE || replyTextType == WeworkMessageBean.TEXT_TYPE_VIDEO)
                             && replyContent.contains("###")) {
@@ -421,13 +422,13 @@ object WeworkTextUtil {
                             if (AccessibilityUtil.findOnceByText(backNode, replyContentList[0]) != null
                                 && AccessibilityUtil.findOnceByText(backNode, replyContentList[1]) != null) {
                                 LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                                return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                                return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, *key)
                             }
                         }
                         val textNode = AccessibilityUtil.findOnceByText(backNode, replyContent)
                         if (textNode != null && replyContent.isNotEmpty()) {
                             LogUtils.d("nameList: $nameList\nreplyContent: $replyContent")
-                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, key)
+                            return longClickMessageItem(item, WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP, *key)
                         }
                     }
                 }
@@ -480,16 +481,16 @@ object WeworkTextUtil {
         return false
     }
 
-    private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, key: String): Boolean {
+    private fun longClickMessageItem(item: AccessibilityNodeInfo, roomType: Int, vararg key: String): Boolean {
         val backNode = getMessageListNode(item, roomType)
-        if (key == "单击") {
+        if ("单击" in key) {
             return AccessibilityUtil.clickByNode(WeworkController.weworkService, backNode)
         }
         AccessibilityUtil.performLongClickWithSon(backNode)
         sleep(Constant.POP_WINDOW_INTERVAL)
         val optionRvList = findAllByClazz(getRoot(), Views.RecyclerView, Views.ViewGroup)
         for (optionRv in optionRvList) {
-            val keyTv = AccessibilityUtil.findOnceByText(optionRv, key, exact = true)
+            val keyTv = AccessibilityUtil.findOnceByText(optionRv, *key, exact = true)
             if (keyTv != null) {
                 AccessibilityUtil.performClick(keyTv)
                 return true
