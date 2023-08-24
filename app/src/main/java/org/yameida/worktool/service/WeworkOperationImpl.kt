@@ -590,6 +590,7 @@ object WeworkOperationImpl {
         if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
             if (relaySelectTarget(titleList, extraText)) {
                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                goHome()
                 return true
             } else {
                 LogUtils.e("转发失败")
@@ -865,6 +866,7 @@ object WeworkOperationImpl {
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
             if (relaySelectTarget(titleList, extraText)) {
                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                goHome()
                 return true
             } else {
                 LogUtils.e("转发失败")
