@@ -122,7 +122,7 @@ object WeworkRoomUtil {
                 val searchResult = AccessibilityUtil.findAllByTextRegex(
                     selectListView,
                     regex,
-                    timeout = 2000,
+                    timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                     root = false
                 )
                 if (searchResult.isNotEmpty()) {

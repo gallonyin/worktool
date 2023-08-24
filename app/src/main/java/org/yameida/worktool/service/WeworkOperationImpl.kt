@@ -1417,7 +1417,7 @@ object WeworkOperationImpl {
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
-                            timeout = 2000,
+                            timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                             root = false
                         )
                         if (selectListView != null && matchSelect != null) {
@@ -1531,7 +1531,7 @@ object WeworkOperationImpl {
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
-                            timeout = 2000,
+                            timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                             root = false
                         )
                         if (selectListView != null && matchSelect != null) {
@@ -1930,7 +1930,7 @@ object WeworkOperationImpl {
                     val matchSelect = AccessibilityUtil.findOneByTextRegex(
                         selectListView,
                         regex,
-                        timeout = 2000,
+                        timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                         root = false
                     )
                     if (selectListView != null && matchSelect != null) {
@@ -2138,7 +2138,7 @@ object WeworkOperationImpl {
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
-                            timeout = 2000,
+                            timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                             root = false
                         )
                         if (selectListView != null && (matchSelect != null || reverseRegexTitle.matches(Constant.regMail))) {
@@ -2263,7 +2263,7 @@ object WeworkOperationImpl {
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
                             selectListView,
                             regex,
-                            timeout = 2000,
+                            timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                             root = false
                         )
                         if (selectListView != null && matchSelect != null) {
@@ -2609,7 +2609,7 @@ object WeworkOperationImpl {
                 val matchSelect = AccessibilityUtil.findOneByTextRegex(
                     selectListView,
                     regex,
-                    timeout = 2000,
+                    timeout = Constant.CHANGE_PAGE_INTERVAL * 3,
                     root = false
                 )
                 var isSelect = false
