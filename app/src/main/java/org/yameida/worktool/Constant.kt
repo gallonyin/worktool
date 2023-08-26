@@ -4,7 +4,8 @@ import com.blankj.utilcode.util.SPUtils
 
 object Constant {
 
-    val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10", "4.0.12", "4.0.16", "4.0.18", "4.0.19", "4.0.20", "4.1.0", "4.1.2", "4.1.3", "4.1.6", "4.1.7")
+    val AVAILABLE_VERSION = arrayListOf("4.0.2", "4.0.6", "4.0.8", "4.0.10", "4.0.12", "4.0.16", "4.0.18", "4.0.19", "4.0.20", "4.1.0", "4.1.2", "4.1.3", "4.1.6", "4.1.7", "4.1.8", "4.1.9")
+    val AVAILABLE_VERSION_MAP = mapOf(Pair("4.0.2", 40002), Pair("4.0.6", 40006), Pair("4.0.8", 40008), Pair("4.0.10", 40010), Pair("4.0.12", 40012), Pair("4.0.16", 40016), Pair("4.0.18", 40018), Pair("4.0.19", 40019), Pair("4.0.20", 40020), Pair("4.1.0", 40100), Pair("4.1.2", 40102), Pair("4.1.3", 40103), Pair("4.1.6", 40106), Pair("4.1.7", 40107), Pair("4.1.8", 40108), Pair("4.1.9", 40109))
     const val PACKAGE_NAMES = "com.tencent.wework"
     const val WEWORK_NOTIFY = "wework_notify"
     const val BASE_LONG_INTERVAL = 5000L
@@ -15,6 +16,7 @@ object Constant {
     var POP_WINDOW_INTERVAL = BASE_POP_WINDOW_INTERVAL
     private const val DEFAULT_HOST = "wss://worktool.asrtts.cn"
 
+    var version = Int.MAX_VALUE
     var myName = ""
     //    var regTrimTitle = "(…$)|(-.*$)|(\\(.*?\\)$)".toRegex()
     var regMail = "\\S+@\\S+\\.\\S+".toRegex()

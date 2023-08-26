@@ -114,6 +114,7 @@ class ListenActivity : AppCompatActivity() {
                 LogUtils.i("当前企业微信版本已适配: $workVersionName")
                 val tip = "$workVersionName   已适配，可放心使用~"
                 tv_work_version.text = tip
+                Constant.version = Constant.AVAILABLE_VERSION_MAP[workVersionName] ?: Int.MAX_VALUE
             }
             else -> {
                 LogUtils.e("当前企业微信版本未兼容: $workVersionName")
@@ -121,6 +122,7 @@ class ListenActivity : AppCompatActivity() {
                 tv_work_version.text = tip
             }
         }
+        LogUtils.i("Constant.version: ${Constant.version}")
         SPUtils.getInstance().put("appVersion", version)
         SPUtils.getInstance().put("workVersion", workVersionName)
         SPUtils.getInstance().put("deviceRooted", deviceRooted)

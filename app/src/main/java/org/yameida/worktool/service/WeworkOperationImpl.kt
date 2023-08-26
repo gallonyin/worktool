@@ -2751,15 +2751,10 @@ object WeworkOperationImpl {
                 return true
             }
             //添加联系人
-            val imageView =
-                AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
+            val imageView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ImageView)
             if (imageView != null) {
-                val textViewList = AccessibilityUtil.findAllOnceByClazz(
-                    imageView.parent,
-                    Views.TextView
-                )
-                val filter =
-                    textViewList.filter { it.text != null && it.text.toString() != "微信" }
+                val textViewList = AccessibilityUtil.findAllOnceByClazz(imageView.parent, Views.TextView)
+                val filter = textViewList.filter { it.text != null && it.text.toString() != "微信" }
                 if (filter.isNotEmpty()) {
                     val tvNick = filter[0]
                     LogUtils.d("好友昵称或备注名: ${tvNick.text}")
@@ -2800,14 +2795,20 @@ object WeworkOperationImpl {
             //不存在的标签先添加
             for (tag in tagList) {
                 if (!oldTagList.contains(tag)) {
-                    AccessibilityUtil.findOneByText(getRoot(), "个人标签")
-                    sleep(Constant.POP_WINDOW_INTERVAL)
-                    val tempList = AccessibilityUtil.findBackNode(
-                        AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull())
-                    if (tempList != null && tempList.childCount > 0) {
-                        AccessibilityUtil.performClick(tempList.getChild(0))
+                    if (Constant.version >= 40108) {
+                        AccessibilityUtil.findTextAndClick(getRoot(), "    十    ")
                         AccessibilityUtil.findTextInput(getRoot(), tag)
                         AccessibilityUtil.findTextAndClick(getRoot(), "确定")
+                    } else {
+                        AccessibilityUtil.findOneByText(getRoot(), "个人标签")
+                        sleep(Constant.POP_WINDOW_INTERVAL)
+                        val tempList = AccessibilityUtil.findBackNode(
+                            AccessibilityUtil.findAllByText(getRoot(), "个人标签").lastOrNull())
+                        if (tempList != null && tempList.childCount > 0) {
+                            AccessibilityUtil.performClick(tempList.getChild(0))
+                            AccessibilityUtil.findTextInput(getRoot(), tag)
+                            AccessibilityUtil.findTextAndClick(getRoot(), "确定")
+                        }
                     }
                 }
             }
@@ -2831,13 +2832,14 @@ object WeworkOperationImpl {
                 }
                 list.refresh()
             }
-            if (AccessibilityUtil.findTextAndClick(getRoot(), "确定")) {
+            if (AccessibilityUtil.findTextAndClick(getRoot(), "确定", "保存", exact = true)) {
                 sleep(Constant.POP_WINDOW_INTERVAL)
                 //可能有两次确定 另一次为添加新tag
-                val textNode = AccessibilityUtil.findOneByText(getRoot(), "确定", "个人信息")
-                if (textNode?.text?.toString() == "确定") {
+                val textNode = AccessibilityUtil.findOneByText(getRoot(), "确定", "保存", "个人信息", exact = true)
+                if (textNode?.text?.toString() in arrayOf("确定", "保存")) {
                     AccessibilityUtil.performClick(textNode)
                 }
+                LogUtils.d("设置标签完成")
                 return true
             }
         }
