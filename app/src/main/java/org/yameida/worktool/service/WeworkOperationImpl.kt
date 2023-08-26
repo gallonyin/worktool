@@ -2176,6 +2176,9 @@ object WeworkOperationImpl {
                                         flag = true
                                         count += 1
                                     }
+                                    if (select.contains(" ")) {
+                                        break
+                                    }
                                 }
                             }
                             if (!flag) {
