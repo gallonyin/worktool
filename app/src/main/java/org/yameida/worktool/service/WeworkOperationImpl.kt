@@ -1005,19 +1005,29 @@ object WeworkOperationImpl {
         weworkMessageList: List<WeworkMessageBean>,
         nameList: List<String>,
         extraText: String? = null,
-        key: String
+        key: String,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         val groupName = "消息转发专用群"
         val titleList = arrayListOf(groupName)
         message.titleList = titleList
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
             if (!createGroup()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName))
+                LogUtils.e("创建群失败")
+                if (retryCount > 0) {
+                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), nameList)
                 return false
             }
             if (!groupRename(groupName)) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), listOf(groupName))
+                LogUtils.e("创建群成功 群改名失败")
+                if (retryCount > 0) {
+                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), nameList)
                 return false
             }
         }
@@ -1061,15 +1071,19 @@ object WeworkOperationImpl {
                 LogUtils.d("多选成功")
             } else {
                 LogUtils.e("$groupName: 多选失败")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $startTime", startTime, listOf(), titleList)
+                if (retryCount > 0) {
+                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $startTime", startTime, listOf(), nameList)
                 return false
             }
             //聊天消息列表 1ListView 0RecycleView xViewGroup
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
             if (list != null) {
-                val childCount = list.childCount
+                var childCount = list.childCount
                 LogUtils.v("消息条数: $childCount")
                 var start = false
+                var first = true
                 for (i in 0 until list.childCount) {
                     val item = list.getChild(i)
                     if (item != null && item.childCount > 0) {
@@ -1084,39 +1098,97 @@ object WeworkOperationImpl {
                             }
                         }
                         if (start) {
-                            AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
-                            LogUtils.d("单击成功")
-                            sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                            if (Constant.version >= 40108) {
+                                if (AccessibilityUtil.findOnceByClazz(item, Views.CheckBox)?.isChecked == first) {
+                                    AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                                    LogUtils.d("单击成功")
+                                    sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                                }
+                                first = false
+                            } else {
+                                AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                                LogUtils.d("单击成功")
+                                sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                            }
                         }
                     }
                 }
+                list.refresh()
+                childCount = list.childCount
+                LogUtils.d("开始二次校验转发条目")
+                LogUtils.v("消息条数: $childCount")
+                start = false
+                first = true
+                for (i in 0 until list.childCount) {
+                    val item = list.getChild(i)
+                    if (item != null && item.childCount > 0) {
+                        if (!start) {
+                            val parseChatMessageItem = WeworkLoopImpl.parseChatMessageItem(
+                                item,
+                                titleList,
+                                WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP
+                            )
+                            if (parseChatMessageItem.itemMessageList.find { it.feature == 2 && it.text?.toString() == startTime.toString() } != null) {
+                                start = true
+                            }
+                        }
+                        if (start) {
+                            if (Constant.version >= 40108) {
+                                if (AccessibilityUtil.findOnceByClazz(item, Views.CheckBox)?.isChecked == first) {
+                                    AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                                    LogUtils.d("单击成功")
+                                    sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                                }
+                                first = false
+                            } else {
+                                AccessibilityUtil.clickByNode(WeworkController.weworkService, item)
+                                LogUtils.d("单击成功")
+                                sleep(Constant.POP_WINDOW_INTERVAL / 2)
+                            }
+                        }
+                    }
+                }
+                LogUtils.d("完成二次校验转发条目")
             }
             val bottomList = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
             if (AccessibilityUtil.performClickWithSon(bottomList)) {
                 if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                     if (relaySelectTarget(nameList, extraText)) {
                         LogUtils.d("$groupName: 转发成功")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, titleList, listOf())
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, nameList, listOf())
                         return true
                     } else {
                         LogUtils.e("$groupName: 转发失败")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$groupName: 转发失败", startTime, listOf(), titleList)
+                        if (retryCount > 0) {
+                            goHome()
+                            return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                        }
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$groupName: 转发失败", startTime, listOf(), nameList)
                         goHome()
                         return false
                     }
                 } else {
                     LogUtils.e("未找到逐条转发按钮")
-                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), titleList)
+                    if (retryCount > 0) {
+                        return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                    }
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), nameList)
                     return false
                 }
             } else {
                 LogUtils.e("未找到转发按钮")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), titleList)
+                if (retryCount > 0) {
+                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), nameList)
                 return false
             }
         } else {
             LogUtils.d("$groupName: 转发失败 未找到房间")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$groupName: 转发失败 未找到房间", startTime, listOf(), titleList)
+            if (retryCount > 0) {
+                return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+            }
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$groupName: 转发失败 未找到房间", startTime, listOf(), nameList)
             return false
         }
     }
@@ -1130,12 +1202,17 @@ object WeworkOperationImpl {
         messageList: List<WeworkMessageBean.SubMessageBean>,
         nameList: List<String>,
         extraText: String? = null,
-        key: String
+        key: String,
+        maxRetryCount: Int? = null
     ): Boolean {
+        val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (messageList.isEmpty()) {
             LogUtils.e("转发内容为空")
-            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发内容为空", startTime, listOf(), titleList)
+            if (retryCount > 0) {
+                return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+            }
+            uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发内容为空", startTime, listOf(), nameList)
             return false
         } else if (messageList.size == 1) {
             val subMessageBean = messageList.first()
@@ -1168,7 +1245,10 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), titleList)
+                                if (retryCount > 0) {
+                                    return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                                }
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), nameList)
                                 return false
                             }
                         } else {
@@ -1184,7 +1264,10 @@ object WeworkOperationImpl {
                                 hasOpenMulti = true
                             } else {
                                 LogUtils.e("$title: 多选失败")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), titleList)
+                                if (retryCount > 0) {
+                                    return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                                }
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $originalContent", startTime, listOf(), nameList)
                                 return false
                             }
                         }
@@ -1229,33 +1312,49 @@ object WeworkOperationImpl {
                         if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                             if (relaySelectTarget(nameList, extraText)) {
                                 LogUtils.d("$title: 转发成功")
-                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, nameList, listOf())
                                 return true
                             } else {
                                 LogUtils.e("$title: 转发失败")
-                                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败", startTime, listOf(), titleList)
+                                if (retryCount > 0) {
+                                    goHome()
+                                    return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                                }
+                                uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$title: 转发失败", startTime, listOf(), nameList)
                                 goHome()
                                 return false
                             }
                         } else {
                             LogUtils.e("未找到逐条转发按钮")
-                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), titleList)
+                            if (retryCount > 0) {
+                                return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                            }
+                            uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), nameList)
                             return false
                         }
                     } else {
                         LogUtils.e("未找到转发按钮")
-                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), titleList)
+                        if (retryCount > 0) {
+                            return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                        }
+                        uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), nameList)
                         return false
                     }
                 }
             } else {
                 LogUtils.d("$title: 转发失败 未找到房间")
-                uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$title: 转发失败 未找到房间", startTime, listOf(), titleList)
+                if (retryCount > 0) {
+                    return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+                }
+                uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$title: 转发失败 未找到房间", startTime, listOf(), nameList)
                 return false
             }
         }
         LogUtils.d("转发失败 未找到房间名")
-        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发失败 未找到房间名", startTime, listOf(), titleList)
+        if (retryCount > 0) {
+            return relayMultiMessage(message, titleList, messageList, nameList, extraText, key, retryCount - 1)
+        }
+        uploadCommandResult(message, ExecCallbackBean.ERROR_ILLEGAL_DATA, "转发失败 未找到房间名", startTime, listOf(), nameList)
         return false
     }
 

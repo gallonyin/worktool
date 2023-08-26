@@ -14,4 +14,5 @@ public class Views {
     public static String LinearLayout = "android.widget.LinearLayout";
     public static String ProgressBar = "android.widget.ProgressBar";
     public static String ScrollView = "android.widget.ScrollView";
+    public static String CheckBox = "android.widget.CheckBox";
 }
