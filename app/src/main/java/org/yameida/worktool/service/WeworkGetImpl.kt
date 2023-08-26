@@ -208,6 +208,7 @@ object WeworkGetImpl {
             val newFirstTv = AccessibilityUtil.findOneByClazz(getRoot(), Views.TextView)
             val nickname = newFirstTv?.text?.toString()
             if (nickname != null) {
+                LogUtils.d("找到我的昵称")
                 log("找到我的昵称")
                 var corp: String? = null
                 val info = StringBuilder()
@@ -518,6 +519,14 @@ object WeworkGetImpl {
      */
     private fun getRealName(nickname: String) {
         if (AccessibilityExtraUtil.loadingPage("SettingMineInfoActivity")) {
+            val external = AccessibilityUtil.findOnceByText(getRoot(), "对外信息", "对外显示")
+            val tvExternal = AccessibilityUtil.findAllOnceByClazz(external?.parent, Views.TextView).firstOrNull { it.text != null && it.text.toString().contains("＠") }
+            val split = tvExternal?.text?.toString()?.split("＠")
+            if (split != null) {
+                val externalName = split[0]
+                LogUtils.d("对外显示名: $externalName")
+                log("对外显示名: $externalName")
+            }
             if (AccessibilityUtil.findTextAndClick(getRoot(), "姓名", exact = true)) {
                 val realNameFlag = AccessibilityUtil.findOneByText(getRoot(), "实名认证", exact = true)
                 if (realNameFlag != null) {
