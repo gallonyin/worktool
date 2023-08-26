@@ -2100,7 +2100,9 @@ object WeworkOperationImpl {
     ): Boolean {
         if (selectList.isNullOrEmpty()) return true
         if (WeworkRoomUtil.intoGroupManager()) {
-            val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
+            AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL)
+                ?: return false
+            val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
                 val tvEmptySize = AccessibilityUtil.findAllOnceByClazz(gridView, Views.TextView)
                     .filter { it.text == null }.size
@@ -2108,12 +2110,30 @@ object WeworkOperationImpl {
                 if (tvEmptySize == 0) {
                     return true
                 } else if (tvEmptySize == 1 || tvEmptySize == 2) {
+                    LogUtils.d("点击拉人按钮")
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - tvEmptySize))
                 }
             } else {
-                LogUtils.e("未找到添加成员按钮")
-                error("未找到添加成员按钮")
-                return false
+                val recyclerViewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView)
+                if (recyclerViewList.size >= 2 && recyclerViewList[1].childCount >= 2) {
+                    val rvList = recyclerViewList[1]
+                    var ivEmptySize = 0
+                    for (i in 0 until rvList.childCount) {
+                        if (rvList.getChild(i).childCount == 1) {
+                            ivEmptySize++
+                        }
+                    }
+                    if (ivEmptySize == 0) {
+                        return true
+                    } else if (ivEmptySize == 1 || ivEmptySize == 2) {
+                        LogUtils.d("点击拉人按钮")
+                        AccessibilityUtil.performClick(rvList.getChild(rvList.childCount - ivEmptySize))
+                    }
+                } else {
+                    LogUtils.e("未找到添加成员按钮")
+                    error("未找到添加成员按钮")
+                    return false
+                }
             }
             //群详情列表
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
@@ -2223,7 +2243,10 @@ object WeworkOperationImpl {
     private fun groupRemoveMember(removeList: List<String>?): Boolean {
         if (removeList.isNullOrEmpty()) return true
         if (WeworkRoomUtil.intoGroupManager()) {
-            val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
+            AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL)
+                ?: return false
+            var ivEmptySize = 0
+            val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
                 val tvEmptySize = AccessibilityUtil.findAllOnceByClazz(gridView, Views.TextView)
                     .filter { it.text == null }.size
@@ -2233,12 +2256,31 @@ object WeworkOperationImpl {
                     error("未找到踢人按钮")
                     return true
                 } else if (tvEmptySize == 2) {
+                    LogUtils.d("点击踢人按钮")
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
                 }
             } else {
-                LogUtils.e("未找到删除成员按钮")
-                error("未找到删除成员按钮")
-                return false
+                val recyclerViewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView)
+                if (recyclerViewList.size >= 2 && recyclerViewList[1].childCount >= 2) {
+                    val rvList = recyclerViewList[1]
+                    for (i in 0 until rvList.childCount) {
+                        if (rvList.getChild(i).childCount == 1) {
+                            ivEmptySize++
+                        }
+                    }
+                    if (ivEmptySize <= 1) {
+                        LogUtils.e("未找到踢人按钮")
+                        error("未找到踢人按钮")
+                        return true
+                    } else if (ivEmptySize == 2) {
+                        LogUtils.d("点击踢人按钮")
+                        AccessibilityUtil.performClick(rvList.getChild(rvList.childCount - 1))
+                    }
+                } else {
+                    LogUtils.e("未找到删除成员按钮")
+                    error("未找到删除成员按钮")
+                    return false
+                }
             }
             //群详情列表
             val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
@@ -2246,7 +2288,7 @@ object WeworkOperationImpl {
                 val frontNode = AccessibilityUtil.findFrontNode(list, 2)
                 val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
                 if (textViewList.size >= 2) {
-                    val multiButton = textViewList.lastOrNull()
+                    val multiButton = if (ivEmptySize == 0) textViewList.lastOrNull() else textViewList[textViewList.size - 2]
                     var count = 0
                     for (select in LinkedHashSet(removeList)) {
                         val needTrim = select.contains(Constant.regTrimTitle)

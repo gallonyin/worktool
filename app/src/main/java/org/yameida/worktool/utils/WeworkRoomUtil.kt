@@ -184,7 +184,7 @@ object WeworkRoomUtil {
      * @return true 成功进入好友详情页
      */
     fun intoFriendDetail(): Boolean {
-        if (AccessibilityUtil.findOnceByText(getRoot(), "设置聊天背景") != null) {
+        if (AccessibilityUtil.findOneByText(getRoot(), "设置聊天背景", timeout = Constant.CHANGE_PAGE_INTERVAL) != null) {
             return true
         }
         //同群详情列表
@@ -211,12 +211,29 @@ object WeworkRoomUtil {
     fun getFriendName(): ArrayList<String> {
         val titleList = arrayListOf<String>()
         if (intoFriendDetail()) {
-            val gridView = findOneByClazz(getRoot(), Views.GridView)
+            if (AccessibilityUtil.findOneByText(getRoot(), "设置聊天背景", timeout = Constant.CHANGE_PAGE_INTERVAL) != null) {
+                LogUtils.e("获取好友名称失败 校验未进入好友详情页")
+                return titleList
+            }
+            val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
+                LogUtils.i("获取好友名称 使用GridView")
                 val tvList = findAllOnceByClazz(gridView.getChild(0), Views.TextView)
                 for (textView in tvList) {
                     if (textView.text != null) {
                         titleList.add(textView.text.toString())
+                    }
+                }
+            } else {
+                LogUtils.i("获取好友名称 使用RecyclerView")
+                val recyclerViewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView)
+                if (recyclerViewList.size >= 2 && recyclerViewList[1].childCount >= 2) {
+                    val rvList = recyclerViewList[1]
+                    val tvList = findAllOnceByClazz(rvList.getChild(0), Views.TextView)
+                    for (textView in tvList) {
+                        if (textView.text != null) {
+                            titleList.add(textView.text.toString())
+                        }
                     }
                 }
             }

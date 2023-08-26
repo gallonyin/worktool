@@ -554,7 +554,6 @@ object WeworkController {
     /**
      * 获取好友信息
      * @see WeworkMessageBean.GET_FRIEND_INFO
-     * TODO
      * @param message#selectList 好友名列表
      */
     @RequestMapping

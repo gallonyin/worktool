@@ -18,6 +18,7 @@ object WeworkGetImpl {
 
     /**
      * 获取群信息
+     * @see WeworkMessageBean.GET_GROUP_INFO
      * @param selectList 群名列表 为空时去群管理页查询并返回群聊页
      */
     fun getGroupInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
@@ -32,6 +33,7 @@ object WeworkGetImpl {
 
     /**
      * 获取好友信息
+     * @see WeworkMessageBean.GET_FRIEND_INFO
      * @param selectList 好友名列表
      */
     fun getFriendInfo(message: WeworkMessageBean, selectList: List<String>): Boolean {
@@ -340,14 +342,15 @@ object WeworkGetImpl {
             val count = tvCount.text.toString().replace("人", "")
             weworkMessageBean.groupNumber = count.toIntOrNull()
         }
-        val gridView = AccessibilityUtil.findOneByClazz(getRoot(), Views.GridView)
+        val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
         if (gridView != null && gridView.childCount >= 2) {
+            LogUtils.i("获取群成员 使用GridView")
             val tvOwnerName = AccessibilityUtil.findOnceByClazz(gridView.getChild(0), Views.TextView)
             if (tvOwnerName != null && tvOwnerName.text != null) {
                 LogUtils.d("群主: " + tvOwnerName.text)
                 weworkMessageBean.groupOwner = tvOwnerName.text.toString()
             }
-            if (weworkMessageBean.groupNumber ?: 0 <= 8) {
+            if ((weworkMessageBean.groupNumber ?: 0) <= 8) {
                 val set = linkedSetOf<String>()
                 for (i in 0 until gridView.childCount) {
                     val item = gridView.getChild(i)
@@ -357,6 +360,28 @@ object WeworkGetImpl {
                 }
                 LogUtils.d("群成员: ${set.joinToString()}")
                 weworkMessageBean.nameList = set.toList()
+            }
+        } else {
+            LogUtils.i("获取群成员 使用RecyclerView")
+            val recyclerViewList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.RecyclerView)
+            if (recyclerViewList.size >= 2 && recyclerViewList[1].childCount >= 2) {
+                val rvList = recyclerViewList[1]
+                val tvOwnerName = AccessibilityUtil.findOnceByClazz(rvList.getChild(0), Views.TextView)
+                if (tvOwnerName != null && tvOwnerName.text != null) {
+                    LogUtils.d("群主: " + tvOwnerName.text)
+                    weworkMessageBean.groupOwner = tvOwnerName.text.toString()
+                }
+                if ((weworkMessageBean.groupNumber ?: 0) <= 8) {
+                    val set = linkedSetOf<String>()
+                    for (i in 0 until rvList.childCount) {
+                        val item = rvList.getChild(i)
+                        val name = AccessibilityUtil.findOnceByClazz(item, Views.TextView)?.text?.toString()
+                            ?: continue
+                        set.add(name)
+                    }
+                    LogUtils.d("群成员: ${set.joinToString()}")
+                    weworkMessageBean.nameList = set.toList()
+                }
             }
         }
         val tvAnnouncementFlag = AccessibilityUtil.findOnceByText(getRoot(), "群公告", exact = true)
