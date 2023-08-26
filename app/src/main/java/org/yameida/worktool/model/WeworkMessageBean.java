@@ -152,6 +152,8 @@ public class WeworkMessageBean {
      * 群收集表类型 TEXT_TYPE_COLLECTION
      * 接收带回复引用文本类型 TEXT_TYPE_REPLY
      * 内部群通知机器人类型 TEXT_TYPE_NOTIFY_ROBOT
+     * 视频号视频类型 TEXT_TYPE_CHANNELS_VIDEO
+     * 视频号直播类型 TEXT_TYPE_CHANNELS_LIVE
      */
     public static final int TEXT_TYPE = 0;
     public static final int TEXT_TYPE_UNKNOWN = 0;
@@ -171,6 +173,8 @@ public class WeworkMessageBean {
     public static final int TEXT_TYPE_COLLECTION = 14;
     public static final int TEXT_TYPE_REPLY = 15;
     public static final int TEXT_TYPE_NOTIFY_ROBOT = 16;
+    public static final int TEXT_TYPE_CHANNELS_VIDEO = 17;
+    public static final int TEXT_TYPE_CHANNELS_LIVE = 18;
 
     //消息id(解析指令时同步)
     public String messageId;

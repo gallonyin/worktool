@@ -225,7 +225,9 @@ object WeworkTextUtil {
             tvCount == 0 && ivCount == 1 -> WeworkMessageBean.TEXT_TYPE_IMAGE
             tvCount == 2 && ivCount == 2 -> {
                 val parent = tvList[0].parent
-                if (parent != null && parent.childCount > 3) {
+                if ((tvList[0].text?.toString() ?: "").matches("直播中".toRegex())) {
+                    WeworkMessageBean.TEXT_TYPE_CHANNELS_LIVE
+                } else if (parent != null && parent.childCount > 3) {
                     WeworkMessageBean.TEXT_TYPE_VIDEO
                 } else {
                     WeworkMessageBean.TEXT_TYPE_OFFICE
@@ -260,6 +262,7 @@ object WeworkTextUtil {
             }
             tvCount == 3 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_REPLY
             tvCount == 0 && ivCount == 0 -> WeworkMessageBean.TEXT_TYPE_NOTIFY_ROBOT
+            tvCount == 1 && ivCount == 3 -> WeworkMessageBean.TEXT_TYPE_CHANNELS_VIDEO
             else -> WeworkMessageBean.TEXT_TYPE_UNKNOWN
         }
     }
