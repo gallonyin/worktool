@@ -1035,6 +1035,7 @@ object WeworkOperationImpl {
         sendMessage(message, message.titleList, startTime.toString())
         for (weworkMessage in weworkMessageList) {
             weworkMessage.titleList = message.titleList
+            weworkMessage.messageId = message.messageId
             when (weworkMessage.type) {
                 WeworkMessageBean.SEND_MESSAGE -> {
                     WeworkController.sendMessage(weworkMessage)
