@@ -104,6 +104,11 @@ object Constant {
     var oldDevice: Boolean
         get() = SPUtils.getInstance().getBoolean("oldDevice", false)
         set(value) = SPUtils.getInstance().put("oldDevice", value)
+    var duplicationFilter: Boolean
+        get() = SPUtils.getInstance().getBoolean("apiDuplicationFilter", true)
+        set(value) {
+            SPUtils.getInstance().put("apiDuplicationFilter", value)
+        }
 
     fun getWsUrl() = "$host/webserver/wework/$robotId"
 

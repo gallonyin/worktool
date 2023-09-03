@@ -100,15 +100,18 @@ object MyLooper {
                         object : TypeToken<ArrayList<WeworkMessageBean>>() {}.type
                     )
             }
+            val list = if (Constant.duplicationFilter) LinkedHashSet(messageList.list).toList() else messageList.list
             //去重处理 丢弃之前的重复指令 丢弃之前的获取新消息指令
-            for (message in LinkedHashSet(messageList.list)) {
+            for (message in list) {
                 if (message.type == WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE) {
                     WeworkController.enableLoopRunning = true
                 } else {
                     WeworkController.mainLoopRunning = false
                     LogUtils.v("加入指令到执行队列", if (message.fileBase64.isNullOrEmpty()) GsonUtils.toJson(message) else message.type)
                     val messageWhat = message.type * message.hashCode() / 1000 + text.length
-                    getInstance().removeMessages(messageWhat)
+                    if (Constant.duplicationFilter) {
+                        getInstance().removeMessages(messageWhat)
+                    }
                     getInstance().sendMessage(Message.obtain().apply {
                         what = messageWhat
                         obj = message.apply {
