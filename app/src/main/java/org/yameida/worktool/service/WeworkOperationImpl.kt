@@ -1010,6 +1010,13 @@ object WeworkOperationImpl {
     ): Boolean {
         val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
+        if (extraText == "单点发送") {
+            LogUtils.d("单点发送")
+            for (title in nameList) {
+                singleSendMultiMessage(message, weworkMessageList, startTime, title)
+            }
+            return true
+        }
         val groupName = "消息转发专用群"
         val titleList = arrayListOf(groupName)
         message.titleList = titleList
@@ -1060,6 +1067,71 @@ object WeworkOperationImpl {
                 }
             }
         }
+        val maxLength = 9
+        for (chunkedNameList in nameList.chunked(maxLength)) {
+            subSendMultiMessage(message, startTime, groupName, chunkedNameList, extraText, key)
+        }
+        return true
+    }
+
+    /**
+     * 批量发送 合并发送 子任务-单点发送
+     */
+    private fun singleSendMultiMessage(
+        message: WeworkMessageBean,
+        weworkMessageList: List<WeworkMessageBean>,
+        startTime: Long,
+        title: String
+    ): Boolean {
+        val titleList = arrayListOf(title)
+        if (WeworkRoomUtil.intoRoom(title) || WeworkRoomUtil.intoRoom(title, fastIn = false)) {
+            for (weworkMessage in weworkMessageList) {
+                weworkMessage.titleList = titleList
+                weworkMessage.messageId = message.messageId
+                when (weworkMessage.type) {
+                    WeworkMessageBean.SEND_MESSAGE -> {
+                        WeworkController.sendMessage(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_MICRO_DISK_IMAGE -> {
+                        WeworkController.pushMicroDiskImage(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_MICRO_DISK_FILE -> {
+                        WeworkController.pushMicroDiskFile(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_MICROPROGRAM -> {
+                        WeworkController.pushMicroprogram(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_OFFICE -> {
+                        WeworkController.pushOffice(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_FILE -> {
+                        WeworkController.pushFile(weworkMessage)
+                    }
+                    WeworkMessageBean.PUSH_LINK -> {
+                        WeworkController.pushLink(weworkMessage)
+                    }
+                }
+            }
+            return true
+        }
+        uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$title: 单点发送失败 未找到房间", startTime, listOf(), titleList)
+        return false
+    }
+
+    /**
+     * 批量发送 合并发送 子任务-转发
+     */
+    private fun subSendMultiMessage(
+        message: WeworkMessageBean,
+        startTime: Long,
+        groupName: String,
+        nameList: List<String>,
+        extraText: String? = null,
+        key: String,
+        maxRetryCount: Int? = null
+    ): Boolean {
+        val retryCount = maxRetryCount ?: 2
+        val titleList = arrayListOf(groupName)
         if (WeworkRoomUtil.intoRoom(groupName) || WeworkRoomUtil.intoRoom(groupName, fastIn = false)) {
             if (WeworkTextUtil.longClickMyMessageItem(
                     //聊天消息列表 1ListView 0RecycleView xViewGroup
@@ -1073,7 +1145,7 @@ object WeworkOperationImpl {
             } else {
                 LogUtils.e("$groupName: 多选失败")
                 if (retryCount > 0) {
-                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                    return subSendMultiMessage(message, startTime, groupName, nameList, extraText, key, retryCount - 1)
                 }
                 uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "多选失败 $startTime", startTime, listOf(), nameList)
                 return false
@@ -1162,7 +1234,7 @@ object WeworkOperationImpl {
                         LogUtils.e("$groupName: 转发失败")
                         if (retryCount > 0) {
                             goHome()
-                            return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                            return subSendMultiMessage(message, startTime, groupName, nameList, extraText, key, retryCount - 1)
                         }
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "$groupName: 转发失败", startTime, listOf(), nameList)
                         goHome()
@@ -1171,7 +1243,7 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未找到逐条转发按钮")
                     if (retryCount > 0) {
-                        return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                        return subSendMultiMessage(message, startTime, groupName, nameList, extraText, key, retryCount - 1)
                     }
                     uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到逐条转发按钮", startTime, listOf(), nameList)
                     return false
@@ -1179,7 +1251,7 @@ object WeworkOperationImpl {
             } else {
                 LogUtils.e("未找到转发按钮")
                 if (retryCount > 0) {
-                    return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                    return subSendMultiMessage(message, startTime, groupName, nameList, extraText, key, retryCount - 1)
                 }
                 uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未找到转发按钮", startTime, listOf(), nameList)
                 return false
@@ -1187,7 +1259,7 @@ object WeworkOperationImpl {
         } else {
             LogUtils.d("$groupName: 转发失败 未找到房间")
             if (retryCount > 0) {
-                return sendMultiMessage(message, weworkMessageList, nameList, extraText, key, retryCount - 1)
+                return subSendMultiMessage(message, startTime, groupName, nameList, extraText, key, retryCount - 1)
             }
             uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "$groupName: 转发失败 未找到房间", startTime, listOf(), nameList)
             return false
