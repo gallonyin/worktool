@@ -242,6 +242,7 @@ object WeworkGetImpl {
                     }
                 }
                 Constant.myName = nickname
+                Constant.myCorp = corp ?: ""
                 LogUtils.d("我的昵称: ${Constant.myName}")
                 val weworkMessageBean = WeworkMessageBean()
                 weworkMessageBean.type = WeworkMessageBean.GET_MY_INFO
@@ -285,6 +286,7 @@ object WeworkGetImpl {
                 }
                 if (firstText == "所在企业" && myInfo.corporation == null) {
                     myInfo.corporation = textViewList[1].text?.toString() ?: ""
+                    Constant.myCorp = myInfo.corporation
                 }
                 if (firstText == "手机" && myInfo.phone == null) {
                     myInfo.phone = textViewList[1].text?.toString() ?: ""

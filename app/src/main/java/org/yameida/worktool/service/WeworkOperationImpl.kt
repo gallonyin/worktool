@@ -1790,6 +1790,11 @@ object WeworkOperationImpl {
     fun switchCorp(message: WeworkMessageBean, objectName: String): Boolean {
         val startTime = System.currentTimeMillis()
         goHomeTab("消息")
+        if (Constant.myCorp == objectName) {
+            LogUtils.d("当前已在目标企业: $objectName")
+            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime, listOf(objectName), listOf())
+            return true
+        }
         val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
             .firstOrNull { it.text == null }
         AccessibilityUtil.performClick(firstTv, retry = false)

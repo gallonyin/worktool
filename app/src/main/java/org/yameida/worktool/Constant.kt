@@ -18,6 +18,7 @@ object Constant {
 
     var version = Int.MAX_VALUE
     var myName = ""
+    var myCorp = ""
     //    var regTrimTitle = "(…$)|(-.*$)|(\\(.*?\\)$)".toRegex()
     var regMail = "\\S+@\\S+\\.\\S+".toRegex()
     var regTrimTitle = "(…$)".toRegex()
