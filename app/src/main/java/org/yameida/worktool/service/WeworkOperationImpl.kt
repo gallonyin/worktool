@@ -1864,8 +1864,10 @@ object WeworkOperationImpl {
         Constant.duplicationFilter = false
         if (Constant.myCorp == objectName) {
             LogUtils.d("当前已在目标企业: $objectName")
-            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业成功: $objectName", startTime, listOf(objectName), listOf())
+            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "当前已在目标企业: $objectName", startTime, listOf(objectName), listOf())
             return true
+        } else {
+            Constant.myCorp = ""
         }
         goHomeTab("消息")
         val firstTv = AccessibilityUtil.findAllByClazz(getRoot(), Views.TextView)
@@ -1884,7 +1886,14 @@ object WeworkOperationImpl {
                 Constant.weworkCorpName = objectName
                 IWWAPIUtil.init(Utils.getApp())
                 goHome()
+                sleep(Constant.LONG_INTERVAL)
                 WeworkGetImpl.getMyInfo(message)
+                if (Constant.myCorp != objectName) {
+                    Constant.myCorp = ""
+                    uploadCommandResult(message, ExecCallbackBean.ERROR_TARGET, "切换企业校验失败: $objectName", startTime, listOf(), listOf(objectName))
+                } else {
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "切换企业校验成功: $objectName", startTime, listOf(objectName), listOf())
+                }
                 return true
             } else {
                 LogUtils.e("未找到目标企业: $objectName")
