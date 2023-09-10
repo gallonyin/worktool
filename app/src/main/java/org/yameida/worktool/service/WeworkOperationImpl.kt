@@ -196,6 +196,7 @@ object WeworkOperationImpl {
                         if (relaySelectTarget(nameList, extraText)) {
                             LogUtils.d("$title: 转发成功")
                             uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            goHome()
                             return true
                         } else {
                             LogUtils.d("$title: 转发失败 $originalContent")
@@ -221,6 +222,7 @@ object WeworkOperationImpl {
                         if (relaySelectTarget(nameList, extraText)) {
                             LogUtils.d("$title: 转发成功")
                             uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            goHome()
                             return true
                         } else {
                             LogUtils.d("$title: 转发失败 $originalContent")
@@ -485,6 +487,7 @@ object WeworkOperationImpl {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
@@ -552,6 +555,7 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(shareFileButton)
                     if (relaySelectTarget(titleList, extraText)) {
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
                         return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
@@ -659,6 +663,7 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(shareFileButton)
                 if (relaySelectTarget(titleList, extraText)) {
                     uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    goHome()
                     return true
                 } else {
                     LogUtils.e("微盘文件转发失败: $objectName")
@@ -764,6 +769,7 @@ object WeworkOperationImpl {
                         val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                         AccessibilityUtil.performClick(stayButton)
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
                         return true
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
@@ -845,6 +851,7 @@ object WeworkOperationImpl {
                     val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
                     AccessibilityUtil.performClick(stayButton)
                     uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    goHome()
                     return true
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
@@ -1262,6 +1269,7 @@ object WeworkOperationImpl {
                     if (relaySelectTarget(nameList, extraText)) {
                         LogUtils.d("$groupName: 转发成功")
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, nameList, listOf())
+                        goHome()
                         return true
                     } else {
                         LogUtils.e("$groupName: 转发失败")
@@ -1419,6 +1427,7 @@ object WeworkOperationImpl {
                             if (relaySelectTarget(nameList, extraText)) {
                                 LogUtils.d("$title: 转发成功")
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, nameList, listOf())
+                                goHome()
                                 return true
                             } else {
                                 LogUtils.e("$title: 转发失败")
@@ -1816,6 +1825,7 @@ object WeworkOperationImpl {
                             LogUtils.e("添加参与人成功")
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天", "保存并建群发送")) {
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                                goHome()
                                 return true
                             } else {
                                 LogUtils.e("未找到保存并发送按钮")
