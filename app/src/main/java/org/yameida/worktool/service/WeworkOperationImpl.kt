@@ -2286,7 +2286,7 @@ object WeworkOperationImpl {
         if (WeworkRoomUtil.intoGroupManager()) {
             val textView = AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建")
                 ?: return false
-            if (textView.text.contains("微信用户创建")) {
+            if (textView.text?.toString()?.contains("微信用户创建") == true) {
                 var button = AccessibilityUtil.findFrontNode(textView)
                 if (button?.className == Views.ImageView) {
                     button = AccessibilityUtil.findFrontNode(button)
@@ -3087,7 +3087,7 @@ object WeworkOperationImpl {
             (WeworkRoomUtil.intoRoom(groupName) && WeworkRoomUtil.intoGroupManager())) {
             val tvList = AccessibilityUtil.findAllOnceByClazz(getRoot(), Views.TextView)
             tvList.forEachIndexed { index, tv ->
-                if (tv.text != null && tv.text.contains("微信用户创建")) {
+                if (tv.text?.toString()?.contains("微信用户创建") == true) {
                     if (index + 1 < tvList.size) {
                         val tvQr = tvList[index + 1]
                         AccessibilityUtil.performClick(tvQr)

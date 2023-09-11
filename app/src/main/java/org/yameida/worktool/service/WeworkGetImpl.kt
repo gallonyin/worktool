@@ -316,8 +316,11 @@ object WeworkGetImpl {
         val weworkMessageBean = WeworkMessageBean()
         weworkMessageBean.type = WeworkMessageBean.GET_GROUP_INFO
         val tvManagerFlag = AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = 2000)
-        if (tvManagerFlag != null && tvManagerFlag.text.contains("微信用户创建")) {
-            val button = AccessibilityUtil.findFrontNode(tvManagerFlag)
+        if (tvManagerFlag?.text?.toString()?.contains("微信用户创建") == true) {
+            var button = AccessibilityUtil.findFrontNode(tvManagerFlag)
+            if (button?.className == Views.ImageView) {
+                button = AccessibilityUtil.findFrontNode(button)
+            }
             val tvGroupName = AccessibilityUtil.findOnceByClazz(button, Views.TextView)
             if (tvGroupName != null && tvGroupName.text != null) {
                 LogUtils.d("群名: " + tvGroupName.text)
