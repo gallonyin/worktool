@@ -103,7 +103,10 @@ object MyLooper {
             val list = if (Constant.duplicationFilter) LinkedHashSet(messageList.list).toList() else messageList.list
             //去重处理 丢弃之前的重复指令 丢弃之前的获取新消息指令
             for (message in list) {
-                if (message.type == WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE) {
+                if (message.type == WeworkMessageBean.ROBOT_QUEUE_CLEAR) {
+                    getInstance().removeCallbacksAndMessages(null)
+                    LogUtils.i("清空全部待执行指令")
+                } else if (message.type == WeworkMessageBean.LOOP_RECEIVE_NEW_MESSAGE) {
                     WeworkController.enableLoopRunning = true
                 } else {
                     WeworkController.mainLoopRunning = false

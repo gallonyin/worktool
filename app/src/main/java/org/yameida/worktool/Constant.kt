@@ -25,6 +25,8 @@ object Constant {
     var key = "9876543210abcdef".toByteArray()
     var iv = "0123456789abcdef".toByteArray()
     val transformation = "AES/CBC/PKCS7Padding"
+    val wssRegex = "^wss".toRegex()
+    val wsRegex = "^ws".toRegex()
     var weworkCorpName: String
         get() = SPUtils.getInstance().getString("weworkCorpName", "")
         set(value) {
@@ -125,6 +127,6 @@ object Constant {
 
     fun getPushLocalFileUrl() = "${getBaseUrl()}/fileUpload/upload?robotId=$robotId"
 
-    private fun getBaseUrl() = host.replace("wss", "https").replace("ws", "http")
+    private fun getBaseUrl() = host.replace(wssRegex, "https").replace(wsRegex, "http")
 
 }

@@ -104,6 +104,7 @@ public class WeworkMessageBean {
     public static final int ROBOT_LOG = 301;
     public static final int ROBOT_ERROR_LOG = 302;
     public static final int ROBOT_CONTROLLER_TEST = 303;
+    public static final int ROBOT_QUEUE_CLEAR = 304;
 
     public static final int GET_GROUP_INFO = 501;
     public static final int GET_FRIEND_INFO = 502;
