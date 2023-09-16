@@ -2456,6 +2456,7 @@ object WeworkOperationImpl {
                                 error("拉人失败 找不到: $select")
                             }
                         }
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
                         if (textView != null && textView.text.isNullOrBlank()) {
                             AccessibilityUtil.performClick(textView)
@@ -2468,7 +2469,6 @@ object WeworkOperationImpl {
                             selectResult.failList.add(select)
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
-                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
                             LogUtils.e("企微: 无搜索结果: $noResult")
                             if (Constant.groupStrict) return selectResult
                         }
@@ -2606,6 +2606,7 @@ object WeworkOperationImpl {
                                 }
                             }
                         }
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
                         if (textView != null && textView.text.isNullOrBlank()) {
                             AccessibilityUtil.performClick(textView)
@@ -2618,14 +2619,14 @@ object WeworkOperationImpl {
                             selectResult.failList.add(select)
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
-                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
                             LogUtils.e("企微: 无搜索结果: $noResult")
                             //待踢人已经不在群里的不算失败
 //                            if (Constant.groupStrict) return false
                         }
                     }
                     if (count == 0) {
-                        while (AccessibilityUtil.findOnceByText(getRoot(), "全部群成员", "微信用户创建") == null && !isAtHome()) {
+                        var retry = 3
+                        while (retry-- > 0 && WeworkController.weworkService.currentClass == "com.tencent.wework.choosecontact.controller.CommonChooseListActivity") {
                             backPress()
                         }
                         LogUtils.d("移出0人")

@@ -170,24 +170,37 @@ fun getRoot(ignoreCheck: Boolean, share: Boolean = false): AccessibilityNodeInfo
  */
 fun backPress() {
     val clazz = WeworkController.weworkService.currentClass
-    val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
+    val root = getRoot()
+    val textView = AccessibilityUtil.findOnceByClazz(root, Views.TextView)
     if (textView != null && textView.text.isNullOrBlank() && AccessibilityUtil.performClick(textView, retry = false)) {
         LogUtils.v("找到回退按钮")
     } else {
-        val ivButton = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ImageView)
+        if (AccessibilityUtil.findOnceByText(root, "移出成员") != null) {
+            val list = AccessibilityUtil.findOneByClazz(root, Views.RecyclerView, Views.ListView)
+            if (list != null) {
+                val frontNode = AccessibilityUtil.findFrontNode(list)
+                val textViewList = AccessibilityUtil.findAllOnceByClazz(frontNode, Views.TextView)
+                if (textViewList.size >= 2) {
+                    val closeButton: AccessibilityNodeInfo = textViewList[textViewList.size - 1]
+                    AccessibilityUtil.performClick(closeButton)
+                }
+            }
+            return
+        }
+        val ivButton = AccessibilityUtil.findOnceByClazz(root, Views.ImageView)
         if (ivButton != null && ivButton.isClickable && AccessibilityUtil.findFrontNode(ivButton) == null) {
             LogUtils.d("未找到回退按钮 点击第一个IV按钮")
             AccessibilityUtil.performClick(ivButton, retry = false)
         } else {
             LogUtils.d("未找到回退按钮 点击第一个BT按钮")
-            val button = AccessibilityUtil.findOnceByClazz(getRoot(), Views.Button)
+            val button = AccessibilityUtil.findOnceByClazz(root, Views.Button)
             if (button != null && button.childCount > 0) {
                 AccessibilityUtil.performClick(button.getChild(0), retry = false)
             } else if (button != null) {
                 AccessibilityUtil.performClick(button, retry = false)
             } else {
                 LogUtils.d("未找到BT按钮")
-                val confirm = AccessibilityUtil.findOnceByText(getRoot(), "不保存", "确定", "我知道了", "暂不进入", "不用了", "取消", "暂不", "关闭", "退出", "留在企业微信", exact = true)
+                val confirm = AccessibilityUtil.findOnceByText(root, "不保存", "确定", "我知道了", "暂不进入", "不用了", "取消", "暂不", "关闭", "退出", "留在企业微信", exact = true)
                 if (confirm != null) {
                     LogUtils.d("尝试点击确定/我知道了/暂不进入")
                     AccessibilityUtil.performClick(confirm)
