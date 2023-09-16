@@ -484,19 +484,11 @@ object WeworkOperationImpl {
                         return false
                     }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                        if (titleList.size > 1) {
-                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
-                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                            goHome()
-                            return true
-                        } else {
-                            val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                            AccessibilityUtil.performClick(stayButton)
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                            goHome()
-                            return true
-                        }
+                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
+                        return true
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
                         if (retryCount > 0) {
@@ -774,19 +766,11 @@ object WeworkOperationImpl {
                         return false
                     }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                        if (titleList.size > 1) {
-                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
-                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                            goHome()
-                            return true
-                        } else {
-                            val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                            AccessibilityUtil.performClick(stayButton)
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                            goHome()
-                            return true
-                        }
+                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
+                        return true
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
                         if (retryCount > 0) {
@@ -864,19 +848,11 @@ object WeworkOperationImpl {
                     return false
                 }
                 if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                    if (titleList.size > 1) {
-                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
-                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                        goHome()
-                        return true
-                    } else {
-                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                        AccessibilityUtil.performClick(stayButton)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                        goHome()
-                        return true
-                    }
+                    AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                    AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    goHome()
+                    return true
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
                     if (retryCount > 0) {
@@ -1665,8 +1641,7 @@ object WeworkOperationImpl {
                                 //过滤异常好友
                                 if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                                     item.refresh()
-                                    val imageView =
-                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                     AccessibilityUtil.performClick(imageView)
                                     break
                                 }
@@ -1710,6 +1685,8 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: ${friend.name}")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            LogUtils.e("企微: 无搜索结果: $noResult")
                             return false
                         }
                     } else {
@@ -1779,8 +1756,7 @@ object WeworkOperationImpl {
                                 //过滤异常好友
                                 if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                                     item.refresh()
-                                    val imageView =
-                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                     AccessibilityUtil.performClick(imageView)
                                     break
                                 }
@@ -1790,6 +1766,8 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: ${friend.name}")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            LogUtils.e("企微: 无搜索结果: $noResult")
                             return false
                         }
                     } else {
@@ -2194,8 +2172,7 @@ object WeworkOperationImpl {
                             //过滤已退出的群聊
                             if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                                 item.refresh()
-                                val imageView =
-                                    AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                 AccessibilityUtil.performClick(imageView)
                                 isSelect = true
                                 break
@@ -2207,6 +2184,8 @@ object WeworkOperationImpl {
                     } else {
                         LogUtils.e("未搜索到结果: $select")
                         error("未搜索到结果: $select")
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                        LogUtils.e("企微: 无搜索结果: $noResult")
                     }
                     sleep(Constant.POP_WINDOW_INTERVAL)
                 }
@@ -2422,8 +2401,7 @@ object WeworkOperationImpl {
                                 if ((matchSelect == null && item.className == Views.RelativeLayout)
                                     || AccessibilityUtil.findOnceByTextRegex(item, regex) != null) {
                                     item.refresh()
-                                    val imageView =
-                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                     if (imageView != null && !imageView.isEnabled) {
                                         flag = true
                                     } else if (AccessibilityUtil.performClick(imageView)) {
@@ -2450,6 +2428,8 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            LogUtils.e("企微: 无搜索结果: $noResult")
                             if (Constant.groupStrict) return false
                         }
                     }
@@ -2571,8 +2551,7 @@ object WeworkOperationImpl {
                                 val searchResult = AccessibilityUtil.findOnceByTextRegex(item, regex)
                                 if (searchResult != null) {
                                     item.refresh()
-                                    val imageView =
-                                        AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                                    val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                                     if (AccessibilityUtil.performClick(imageView)) {
                                         count += 1
                                     }
@@ -2589,6 +2568,8 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            LogUtils.e("企微: 无搜索结果: $noResult")
                             //待踢人已经不在群里的不算失败
 //                            if (Constant.groupStrict) return false
                         }
@@ -2919,8 +2900,7 @@ object WeworkOperationImpl {
                         //过滤异常好友
                         if (searchResult?.parent != null && searchResult.parent.childCount < 3) {
                             item.refresh()
-                            val imageView =
-                                AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
+                            val imageView = AccessibilityUtil.findOneByClazz(item, Views.ImageView, root = false)
                             AccessibilityUtil.clickByNode(WeworkController.weworkService, imageView)
                             LogUtils.d("选择联系人")
                             isSelect = true
@@ -2934,6 +2914,8 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未搜索到结果: $title")
                     error("未搜索到结果: $title")
+                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                    LogUtils.e("企微: 无搜索结果: $noResult")
                 }
             } else {
                 LogUtils.e("ActionBar获取失败: $title")

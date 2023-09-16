@@ -144,6 +144,8 @@ object WeworkRoomUtil {
                     }
                 } else {
                     LogUtils.e("未搜索到结果")
+                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                    LogUtils.e("企微: 无搜索结果: $noResult")
                 }
             } else {
                 LogUtils.e("未找到搜索按钮")
