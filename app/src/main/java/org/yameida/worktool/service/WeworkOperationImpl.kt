@@ -8,6 +8,7 @@ import com.github.yoojia.qrcode.qrcode.QRCodeDecoder
 import com.blankj.utilcode.util.*
 import com.lzy.okgo.OkGo
 import org.yameida.worktool.model.ExecCallbackBean
+import org.yameida.worktool.model.operation.RelaySelectResult
 import org.yameida.worktool.utils.*
 import java.io.File
 import java.lang.Exception
@@ -193,9 +194,10 @@ object WeworkOperationImpl {
                         )
                     ) {
                         LogUtils.d("开始转发")
-                        if (relaySelectTarget(nameList, extraText)) {
+                        val relaySelectResult = relaySelectTarget(nameList, extraText)
+                        if (relaySelectResult.result) {
                             LogUtils.d("$title: 转发成功")
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                             goHome()
                             return true
                         } else {
@@ -219,9 +221,10 @@ object WeworkOperationImpl {
                         )
                     ) {
                         LogUtils.d("开始转发")
-                        if (relaySelectTarget(nameList, extraText)) {
+                        val relaySelectResult = relaySelectTarget(nameList, extraText)
+                        if (relaySelectResult.result) {
                             LogUtils.d("$title: 转发成功")
-                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, titleList, listOf())
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                             goHome()
                             return true
                         } else {
@@ -483,10 +486,11 @@ object WeworkOperationImpl {
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
                         return false
                     }
-                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
+                    val relaySelectResult = relaySelectTarget(titleList, extraText, timeout = 10000)
+                    if (relaySelectResult.result) {
                         AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
                         AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
                         return true
                     } else {
@@ -553,8 +557,9 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(imageViewList[1])
                     val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                     AccessibilityUtil.performClick(shareFileButton)
-                    if (relaySelectTarget(titleList, extraText)) {
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    val relaySelectResult = relaySelectTarget(titleList, extraText)
+                    if (relaySelectResult.result) {
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
                         return true
                     } else {
@@ -603,8 +608,9 @@ object WeworkOperationImpl {
         val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
-            if (relaySelectTarget(titleList, extraText)) {
-                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+            val relaySelectResult = relaySelectTarget(titleList, extraText)
+            if (relaySelectResult.result) {
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                 goHome()
                 return true
             } else {
@@ -661,8 +667,9 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(imageViewList[1])
                 val shareFileButton = AccessibilityUtil.findOneByDesc(getRoot(), "转发")
                 AccessibilityUtil.performClick(shareFileButton)
-                if (relaySelectTarget(titleList, extraText)) {
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                val relaySelectResult = relaySelectTarget(titleList, extraText)
+                if (relaySelectResult.result) {
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                     goHome()
                     return true
                 } else {
@@ -765,10 +772,11 @@ object WeworkOperationImpl {
                         uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
                         return false
                     }
-                    if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
+                    val relaySelectResult = relaySelectTarget(titleList, extraText, timeout = 10000)
+                    if (relaySelectResult.result) {
                         AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
                         AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
                         return true
                     } else {
@@ -847,10 +855,11 @@ object WeworkOperationImpl {
                     uploadCommandResult(message, ExecCallbackBean.ERROR_RELAY, "未找到发送给同事: $objectName", startTime, listOf(), titleList)
                     return false
                 }
-                if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
+                val relaySelectResult = relaySelectTarget(titleList, extraText, timeout = 10000)
+                if (relaySelectResult.result) {
                     AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
                     AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                     goHome()
                     return true
                 } else {
@@ -904,8 +913,9 @@ object WeworkOperationImpl {
         val retryCount = maxRetryCount ?: 2
         val startTime = System.currentTimeMillis()
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
-            if (relaySelectTarget(titleList, extraText)) {
-                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+            val relaySelectResult = relaySelectTarget(titleList, extraText)
+            if (relaySelectResult.result) {
+                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                 goHome()
                 return true
             } else {
@@ -1266,9 +1276,10 @@ object WeworkOperationImpl {
             val bottomList = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
             if (AccessibilityUtil.performClickWithSon(bottomList)) {
                 if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
-                    if (relaySelectTarget(nameList, extraText)) {
+                    val relaySelectResult = relaySelectTarget(nameList, extraText)
+                    if (relaySelectResult.result) {
                         LogUtils.d("$groupName: 转发成功")
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, nameList, listOf())
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
                         return true
                     } else {
@@ -1424,9 +1435,10 @@ object WeworkOperationImpl {
                     val bottomList = AccessibilityUtil.findOnceByClazz(getRoot(), Views.ViewGroup, minChildCount = 4)
                     if (AccessibilityUtil.performClickWithSon(bottomList)) {
                         if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
-                            if (relaySelectTarget(nameList, extraText)) {
+                            val relaySelectResult = relaySelectTarget(nameList, extraText)
+                            if (relaySelectResult.result) {
                                 LogUtils.d("$title: 转发成功")
-                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, nameList, listOf())
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                                 goHome()
                                 return true
                             } else {
@@ -1823,10 +1835,11 @@ object WeworkOperationImpl {
                         AccessibilityUtil.performClick(addButton)
                         AccessibilityUtil.findTextInput(getRoot(), receivedContent)
                         AccessibilityUtil.findTextAndClick(getRoot(), "参与人")
-                        if (relaySelectTarget(titleList, needSend = false)) {
+                        val relaySelectResult = relaySelectTarget(titleList, needSend = false)
+                        if (relaySelectResult.result) {
                             LogUtils.e("添加参与人成功")
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天", "保存并建群发送")) {
-                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                                uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                                 goHome()
                                 return true
                             } else {
@@ -2131,11 +2144,12 @@ object WeworkOperationImpl {
      * selectList 昵称或群名列表
      * extraText 转发是否附加一条文本
      */
-    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): Boolean {
+    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): RelaySelectResult {
+        val relaySelectResult = RelaySelectResult()
         if (AccessibilityUtil.findOneByText(getRoot(), "选择联系人", "选择参与人", exact = true, timeout = timeout) == null) {
             LogUtils.e("未找到选择联系人/选择参与人")
             error("未找到选择联系人/选择参与人")
-            return false
+            return relaySelectResult
         }
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
@@ -2180,8 +2194,10 @@ object WeworkOperationImpl {
                         }
                     }
                     if (matchSelect != null) {
+                        relaySelectResult.successList.add(select)
                         LogUtils.d("找到搜索结果: $select")
                     } else {
+                        relaySelectResult.failList.add(select)
                         LogUtils.e("未搜索到结果: $select")
                         error("未搜索到结果: $select")
                         val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
@@ -2192,7 +2208,7 @@ object WeworkOperationImpl {
                 if (!isSelect) {
                     LogUtils.e("未选择接收者")
                     error("未选择接收者")
-                    return false
+                    return relaySelectResult
                 }
                 val confirmButton =
                     AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
@@ -2200,7 +2216,8 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(confirmButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
                     if (!needSend) {
-                        return true
+                        relaySelectResult.result = true
+                        return relaySelectResult
                     }
                     if (!extraText.isNullOrBlank()) {
                         LogUtils.d("extraText: $extraText")
@@ -2209,25 +2226,26 @@ object WeworkOperationImpl {
                     val sendButton = AccessibilityUtil.findOneByTextRegex(getRoot(), "^发送(\\(.*?\\))?\$")
                     if (sendButton != null) {
                         AccessibilityUtil.performClick(sendButton)
-                        return true
+                        relaySelectResult.result = true
+                        return relaySelectResult
                     }
                     LogUtils.e("未发现发送按钮")
                     error("未发现发送按钮")
-                    return false
+                    return relaySelectResult
                 } else {
                     LogUtils.e("未发现确认按钮")
                     error("未发现确认按钮")
-                    return false
+                    return relaySelectResult
                 }
             } else {
                 LogUtils.e("未发现搜索和多选按钮")
                 error("未发现搜索和多选按钮")
-                return false
+                return relaySelectResult
             }
         }
         LogUtils.e("未知错误")
         error("未知错误")
-        return false
+        return relaySelectResult
     }
 
     /**
