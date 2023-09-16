@@ -484,11 +484,19 @@ object WeworkOperationImpl {
                         return false
                     }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                        AccessibilityUtil.performClick(stayButton)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                        goHome()
-                        return true
+                        if (titleList.size > 1) {
+                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
+                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                            goHome()
+                            return true
+                        } else {
+                            val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                            AccessibilityUtil.performClick(stayButton)
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                            goHome()
+                            return true
+                        }
                     } else {
                         LogUtils.e("微盘文件转发失败: $objectName")
                         if (retryCount > 0) {
@@ -766,11 +774,19 @@ object WeworkOperationImpl {
                         return false
                     }
                     if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                        AccessibilityUtil.performClick(stayButton)
-                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                        goHome()
-                        return true
+                        if (titleList.size > 1) {
+                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
+                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                            goHome()
+                            return true
+                        } else {
+                            val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                            AccessibilityUtil.performClick(stayButton)
+                            uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                            goHome()
+                            return true
+                        }
                     } else {
                         LogUtils.e("文件转发失败: $objectName")
                         if (retryCount > 0) {
@@ -848,11 +864,19 @@ object WeworkOperationImpl {
                     return false
                 }
                 if (relaySelectTarget(titleList, extraText, timeout = 10000)) {
-                    val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
-                    AccessibilityUtil.performClick(stayButton)
-                    uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
-                    goHome()
-                    return true
+                    if (titleList.size > 1) {
+                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity")
+                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
+                        return true
+                    } else {
+                        val stayButton = AccessibilityUtil.findOneByText(getRoot(), "留在企业微信")
+                        AccessibilityUtil.performClick(stayButton)
+                        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, titleList, listOf())
+                        goHome()
+                        return true
+                    }
                 } else {
                     LogUtils.e("文件转发失败: $objectName")
                     if (retryCount > 0) {
