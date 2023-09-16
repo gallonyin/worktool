@@ -23,7 +23,10 @@ data class ExecCallbackBean(
     var successList: List<String>? = null,
 
     //失败名单
-    var failList: List<String>? = null
+    var failList: List<String>? = null,
+
+    //附加信息
+    var metaJson: String? = null
 
 ) : WeworkMessageBean() {
     companion object {

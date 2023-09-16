@@ -222,13 +222,13 @@ fun backPress() {
 /**
  * 上传执行指令结果
  */
-fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason: String, startTime: Long, successList: List<String> = listOf(), failList: List<String> = listOf()) {
+fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason: String, startTime: Long, successList: List<String> = listOf(), failList: List<String> = listOf(), metaJson: String? = null) {
     if ((message.fileBase64?.length ?: 0) > 100) {
         message.fileBase64 = message.fileBase64.substring(0, 100)
     }
     WeworkController.weworkService.webSocketManager.send(
         WeworkMessageListBean(
-            ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0, successList, failList),
+            ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0, successList, failList, metaJson),
             WeworkMessageListBean.SOCKET_TYPE_RAW_CONFIRM,
             messageId = message.messageId,
             meta = message.meta

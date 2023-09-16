@@ -8,12 +8,13 @@ import com.github.yoojia.qrcode.qrcode.QRCodeDecoder
 import com.blankj.utilcode.util.*
 import com.lzy.okgo.OkGo
 import org.yameida.worktool.model.ExecCallbackBean
-import org.yameida.worktool.model.operation.RelaySelectResult
+import org.yameida.worktool.model.operation.SelectResult
 import org.yameida.worktool.utils.*
 import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashSet
 
 
@@ -269,45 +270,49 @@ object WeworkOperationImpl {
         groupTemplate: String?
     ): Boolean {
         val startTime = System.currentTimeMillis()
+        val metaJson = hashMapOf<String, ArrayList<String>>()
         if (!WeworkRoomUtil.isGroupExists(groupName)) {
             if (!beforeCreateGroupCheck()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName))
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
                 return false
             }
             if (!createGroup()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName))
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP, "创建群失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
                 return false
             }
             if (createGroupLimit()) {
-                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName))
+                uploadCommandResult(message, ExecCallbackBean.ERROR_CREATE_GROUP_LIMIT, "建群达到上限", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
                 return false
             } else {
                 LogUtils.v("未发现建群达到上限")
             }
         }
         if (!groupRename(groupName)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "创建群成功 群改名失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
-        if (!groupAddMember(selectList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName))
+        val addSelectResult = groupAddMember(selectList)
+        metaJson["addSelectSuccessList"] = addSelectResult.successList
+        metaJson["addSelectFailList"] = addSelectResult.failList
+        if (!addSelectResult.result) {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "创建群成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupChangeAnnouncement(groupAnnouncement)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "创建群成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "创建群成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupChangeRemark(groupRemark)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupTemplate(groupTemplate)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "创建群成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         saveToContract()
         getGroupQrcode(groupName, groupRemark)
-        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf(), metaJson = GsonUtils.toJson(metaJson))
         return true
     }
 
@@ -336,37 +341,44 @@ object WeworkOperationImpl {
         removeList: List<String>?
     ): Boolean {
         val startTime = System.currentTimeMillis()
+        val metaJson = hashMapOf<String, ArrayList<String>>()
         if (!WeworkRoomUtil.intoRoom(groupName, fastIn = false)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_INTO_ROOM, "进入房间失败 $groupName", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupRename(newGroupName)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "进入房间成功 群改名失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_RENAME, "进入房间成功 群改名失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
-        if (!groupAddMember(selectList, showMessageHistory == true)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName))
+        val addSelectResult = groupAddMember(selectList, showMessageHistory == true)
+        metaJson["addSelectSuccessList"] = addSelectResult.successList
+        metaJson["addSelectFailList"] = addSelectResult.failList
+        if (!addSelectResult.result) {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_ADD_MEMBER, "进入房间成功 群改名成功 群拉人失败: ${selectList?.joinToString()}", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
-        if (!groupRemoveMember(removeList)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败: ${removeList?.joinToString()}", startTime, listOf(), listOf(groupName))
+        val removeSelectResult = groupRemoveMember(removeList)
+        metaJson["removeSelectSuccessList"] = removeSelectResult.successList
+        metaJson["removeSelectFailList"] = removeSelectResult.failList
+        if (!removeSelectResult.result) {
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_REMOVE_MEMBER, "进入房间成功 群改名成功 群拉人成功 群踢人失败: ${removeList?.joinToString()}", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupChangeAnnouncement(newGroupAnnouncement)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "进入房间成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_ANNOUNCEMENT, "进入房间成功 群改名成功 群拉人成功 群公告失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupChangeRemark(groupRemark)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_CHANGE_REMARK, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         if (!groupTemplate(groupTemplate)) {
-            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName))
+            uploadCommandResult(message, ExecCallbackBean.ERROR_GROUP_TEMPLATE, "进入房间成功 群改名成功 群拉人成功 群公告成功 群备注成功 群模板失败", startTime, listOf(), listOf(groupName), metaJson = GsonUtils.toJson(metaJson))
             return false
         }
         saveToContract()
         getGroupQrcode(groupName, groupRemark)
-        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf())
+        uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, listOf(groupName), listOf(), metaJson = GsonUtils.toJson(metaJson))
         return true
     }
 
@@ -2146,12 +2158,12 @@ object WeworkOperationImpl {
      * selectList 昵称或群名列表
      * extraText 转发是否附加一条文本
      */
-    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): RelaySelectResult {
-        val relaySelectResult = RelaySelectResult()
+    private fun relaySelectTarget(selectList: List<String>, extraText: String? = null, needSend: Boolean = true, timeout: Long = 5000): SelectResult {
+        val selectResult = SelectResult()
         if (AccessibilityUtil.findOneByText(getRoot(), "选择联系人", "选择参与人", exact = true, timeout = timeout) == null) {
             LogUtils.e("未找到选择联系人/选择参与人")
             error("未找到选择联系人/选择参与人")
-            return relaySelectResult
+            return selectResult
         }
         //聊天消息列表 1ListView 0RecycleView xViewGroup
         val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
@@ -2196,10 +2208,10 @@ object WeworkOperationImpl {
                         }
                     }
                     if (matchSelect != null) {
-                        relaySelectResult.successList.add(select)
+                        selectResult.successList.add(select)
                         LogUtils.d("找到搜索结果: $select")
                     } else {
-                        relaySelectResult.failList.add(select)
+                        selectResult.failList.add(select)
                         LogUtils.e("未搜索到结果: $select")
                         error("未搜索到结果: $select")
                         val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
@@ -2210,7 +2222,7 @@ object WeworkOperationImpl {
                 if (!isSelect) {
                     LogUtils.e("未选择接收者")
                     error("未选择接收者")
-                    return relaySelectResult
+                    return selectResult
                 }
                 val confirmButton =
                     AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
@@ -2218,8 +2230,8 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(confirmButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
                     if (!needSend) {
-                        relaySelectResult.result = true
-                        return relaySelectResult
+                        selectResult.result = true
+                        return selectResult
                     }
                     if (!extraText.isNullOrBlank()) {
                         LogUtils.d("extraText: $extraText")
@@ -2228,26 +2240,26 @@ object WeworkOperationImpl {
                     val sendButton = AccessibilityUtil.findOneByTextRegex(getRoot(), "^发送(\\(.*?\\))?\$")
                     if (sendButton != null) {
                         AccessibilityUtil.performClick(sendButton)
-                        relaySelectResult.result = true
-                        return relaySelectResult
+                        selectResult.result = true
+                        return selectResult
                     }
                     LogUtils.e("未发现发送按钮")
                     error("未发现发送按钮")
-                    return relaySelectResult
+                    return selectResult
                 } else {
                     LogUtils.e("未发现确认按钮")
                     error("未发现确认按钮")
-                    return relaySelectResult
+                    return selectResult
                 }
             } else {
                 LogUtils.e("未发现搜索和多选按钮")
                 error("未发现搜索和多选按钮")
-                return relaySelectResult
+                return selectResult
             }
         }
         LogUtils.e("未知错误")
         error("未知错误")
-        return relaySelectResult
+        return selectResult
     }
 
     /**
@@ -2350,18 +2362,23 @@ object WeworkOperationImpl {
     private fun groupAddMember(
         selectList: List<String>?,
         showMessageHistory: Boolean = false
-    ): Boolean {
-        if (selectList.isNullOrEmpty()) return true
+    ): SelectResult {
+        val selectResult = SelectResult()
+        if (selectList.isNullOrEmpty()) {
+            selectResult.result = true
+            return selectResult
+        }
         if (WeworkRoomUtil.intoGroupManager()) {
             AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL)
-                ?: return false
+                ?: return selectResult
             val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
                 val tvEmptySize = AccessibilityUtil.findAllOnceByClazz(gridView, Views.TextView)
                     .filter { it.text == null }.size
                 LogUtils.v("tvEmptySize: $tvEmptySize")
                 if (tvEmptySize == 0) {
-                    return true
+                    selectResult.result = true
+                    return selectResult
                 } else if (tvEmptySize == 1 || tvEmptySize == 2) {
                     LogUtils.d("点击拉人按钮")
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - tvEmptySize))
@@ -2377,7 +2394,8 @@ object WeworkOperationImpl {
                         }
                     }
                     if (ivEmptySize == 0) {
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     } else if (ivEmptySize == 1 || ivEmptySize == 2) {
                         LogUtils.d("点击拉人按钮")
                         AccessibilityUtil.performClick(rvList.getChild(rvList.childCount - ivEmptySize))
@@ -2385,7 +2403,7 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未找到添加成员按钮")
                     error("未找到添加成员按钮")
-                    return false
+                    return selectResult
                 }
             }
             //群详情列表
@@ -2444,13 +2462,15 @@ object WeworkOperationImpl {
                             sleep(Constant.POP_WINDOW_INTERVAL)
                         }
                         if (matchSelect != null) {
+                            selectResult.successList.add(select)
                             LogUtils.d("找到搜索结果: $select")
                         } else {
+                            selectResult.failList.add(select)
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
                             val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
                             LogUtils.e("企微: 无搜索结果: $noResult")
-                            if (Constant.groupStrict) return false
+                            if (Constant.groupStrict) return selectResult
                         }
                     }
                     if (count == 0) {
@@ -2458,7 +2478,8 @@ object WeworkOperationImpl {
                             backPress()
                         }
                         LogUtils.d("拉入0人")
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     }
                     if (showMessageHistory) {
                         AccessibilityUtil.findTextAndClick(getRoot(), "聊天记录")
@@ -2471,37 +2492,42 @@ object WeworkOperationImpl {
                             AccessibilityUtil.findTextAndClick(getRoot(), "邀请", exact = true)
                             log("群邀请: ${selectList.joinToString()}")
                         }
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     } else {
                         LogUtils.e("未发现确认按钮")
                         error("未发现确认按钮")
-                        return false
+                        return selectResult
                     }
                 } else {
                     LogUtils.e("未找到搜索按钮")
                     error("未找到搜索按钮")
-                    return false
+                    return selectResult
                 }
             } else {
                 LogUtils.e("未找到成员列表")
                 error("未找到成员列表")
-                return false
+                return selectResult
             }
         } else {
             LogUtils.e("进入群详情失败")
             error("进入群详情失败")
-            return false
+            return selectResult
         }
     }
 
     /**
      * 移除群成员/踢人
      */
-    private fun groupRemoveMember(removeList: List<String>?): Boolean {
-        if (removeList.isNullOrEmpty()) return true
+    private fun groupRemoveMember(removeList: List<String>?): SelectResult {
+        val selectResult = SelectResult()
+        if (removeList.isNullOrEmpty()) {
+            selectResult.result = true
+            return selectResult
+        }
         if (WeworkRoomUtil.intoGroupManager()) {
             AccessibilityUtil.findOneByText(getRoot(), "全部群成员", "微信用户创建", timeout = Constant.CHANGE_PAGE_INTERVAL)
-                ?: return false
+                ?: return selectResult
             var ivEmptySize = 0
             val gridView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.GridView)
             if (gridView != null && gridView.childCount >= 2) {
@@ -2511,7 +2537,8 @@ object WeworkOperationImpl {
                 if (tvEmptySize <= 1) {
                     LogUtils.e("未找到踢人按钮")
                     error("未找到踢人按钮")
-                    return true
+                    selectResult.result = true
+                    return selectResult
                 } else if (tvEmptySize == 2) {
                     LogUtils.d("点击踢人按钮")
                     AccessibilityUtil.performClick(gridView.getChild(gridView.childCount - 1))
@@ -2528,7 +2555,8 @@ object WeworkOperationImpl {
                     if (ivEmptySize <= 1) {
                         LogUtils.e("未找到踢人按钮")
                         error("未找到踢人按钮")
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     } else if (ivEmptySize == 2) {
                         LogUtils.d("点击踢人按钮")
                         AccessibilityUtil.performClick(rvList.getChild(rvList.childCount - 1))
@@ -2536,7 +2564,7 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未找到删除成员按钮")
                     error("未找到删除成员按钮")
-                    return false
+                    return selectResult
                 }
             }
             //群详情列表
@@ -2584,8 +2612,10 @@ object WeworkOperationImpl {
                             sleep(Constant.POP_WINDOW_INTERVAL)
                         }
                         if (matchSelect != null) {
+                            selectResult.successList.add(select)
                             LogUtils.d("找到搜索结果: $select")
                         } else {
+                            selectResult.failList.add(select)
                             LogUtils.e("未搜索到结果: $select")
                             error("未搜索到结果: $select")
                             val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
@@ -2599,32 +2629,34 @@ object WeworkOperationImpl {
                             backPress()
                         }
                         LogUtils.d("移出0人")
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     }
                     val confirmButton =
                         AccessibilityUtil.findOneByText(getRoot(), "移出(")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
-                        return true
+                        selectResult.result = true
+                        return selectResult
                     } else {
                         LogUtils.e("未发现移出按钮")
                         error("未发现移出按钮")
-                        return false
+                        return selectResult
                     }
                 } else {
                     LogUtils.e("未找到搜索按钮")
                     error("未找到搜索按钮")
-                    return false
+                    return selectResult
                 }
             } else {
                 LogUtils.e("未找到成员列表")
                 error("未找到成员列表")
-                return false
+                return selectResult
             }
         } else {
             LogUtils.e("进入群详情失败")
             error("进入群详情失败")
-            return false
+            return selectResult
         }
     }
 

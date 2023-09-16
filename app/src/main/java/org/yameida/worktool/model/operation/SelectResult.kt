@@ -1,6 +1,6 @@
 package org.yameida.worktool.model.operation
 
-class RelaySelectResult {
+class SelectResult {
 
     var successList = arrayListOf<String>()
 
