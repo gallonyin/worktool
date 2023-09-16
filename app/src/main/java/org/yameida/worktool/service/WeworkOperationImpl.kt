@@ -1093,6 +1093,7 @@ object WeworkOperationImpl {
         for (weworkMessage in weworkMessageList) {
             weworkMessage.titleList = message.titleList
             weworkMessage.messageId = message.messageId
+            weworkMessage.meta = message.meta
             when (weworkMessage.type) {
                 WeworkMessageBean.SEND_MESSAGE -> {
                     WeworkController.sendMessage(weworkMessage)
@@ -1138,6 +1139,7 @@ object WeworkOperationImpl {
             for (weworkMessage in weworkMessageList) {
                 weworkMessage.titleList = titleList
                 weworkMessage.messageId = message.messageId
+                weworkMessage.meta = message.meta
                 when (weworkMessage.type) {
                     WeworkMessageBean.SEND_MESSAGE -> {
                         WeworkController.sendMessage(weworkMessage)

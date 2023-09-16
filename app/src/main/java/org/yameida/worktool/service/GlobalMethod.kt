@@ -230,7 +230,8 @@ fun uploadCommandResult(message: WeworkMessageBean, errorCode: Int, errorReason:
         WeworkMessageListBean(
             ExecCallbackBean(GsonUtils.toJson(message), errorCode, errorReason, startTime, (System.currentTimeMillis() - startTime) / 1000.0, successList, failList),
             WeworkMessageListBean.SOCKET_TYPE_RAW_CONFIRM,
-            messageId = message.messageId
+            messageId = message.messageId,
+            meta = message.meta
         ), true
     )
     if (errorCode != 0) {

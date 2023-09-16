@@ -179,6 +179,8 @@ public class WeworkMessageBean {
 
     //消息id(解析指令时同步)
     public String messageId;
+    //meta自定义信息(解析指令时同步)
+    public String meta;
     //api类型(解析指令时同步) 0=后台消息 1=API指令调用
     public Integer apiSend;
 

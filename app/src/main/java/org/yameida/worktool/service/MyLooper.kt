@@ -119,6 +119,7 @@ object MyLooper {
                         what = messageWhat
                         obj = message.apply {
                             messageId = messageList.messageId
+                            meta = messageList.meta
                             apiSend = messageList.apiSend
                         }
                     })

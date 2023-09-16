@@ -28,6 +28,8 @@ class WeworkMessageListBean<T> {
     //消息id
     var messageId = TimeUtils.date2String(Date()).replace(" ", "#") + "#" + UUID.randomUUID()
 
+    var meta: String? = null
+
     //api类型 0=后台消息 1=API指令调用
     var apiSend: Int? = null
 
@@ -40,7 +42,7 @@ class WeworkMessageListBean<T> {
     //消息加密 0不加密 1AES
     var encryptType = Constant.encryptType
 
-    constructor(weworkMessageBean: T, type: Int, messageId: String? = null) {
+    constructor(weworkMessageBean: T, type: Int, messageId: String? = null, meta: String? = null) {
         if (encryptType == 0) {
             list.add(weworkMessageBean)
         } else if (encryptType == 1) {
@@ -53,6 +55,7 @@ class WeworkMessageListBean<T> {
         }
         this.socketType = type
         if (messageId != null) this.messageId = messageId
+        if (meta != null) this.meta = meta
     }
 
     constructor(messageId: String, type: Int) {
