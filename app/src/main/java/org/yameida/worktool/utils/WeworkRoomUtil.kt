@@ -134,7 +134,7 @@ object WeworkRoomUtil {
                         intoRoomPreInit()
                         AccessibilityUtil.performClick(searchItem)
                         val text = AccessibilityUtil.findAllOnceByClazz(searchItem.parent, Views.TextView).firstOrNull { it.text != null && !it.text.isNullOrBlank() }
-                        val title = text?.toString() ?: title
+                        val title = text?.text?.toString() ?: title
                         LogUtils.d("进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                         sleep(Constant.CHANGE_PAGE_INTERVAL)
@@ -274,13 +274,14 @@ object WeworkRoomUtil {
     private fun checkRoom(title: String, strict: Boolean = false): Boolean {
         LogUtils.d("checkRoom(): $title")
         val titleList = getRoomTitle(print = false)
+        if (titleList.isEmpty()) {
+            return false
+        }
         val roomType = getRoomType()
+        val dealTitle = title.replace("…", "").replace("\\(.*?\\)".toRegex(), "")
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && (titleList.count {
-                it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") == title.replace("…", "")
-                    .replace("\\(.*?\\)".toRegex(), "")
-            } > 0
-                    || (!strict && titleList.count { title.contains(it.replace("…", "").replace("\\(.*?\\)".toRegex(), "")) } > 0))
+            && (titleList.count { dealTitle == it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") } > 0
+                    || (!strict && titleList.count { dealTitle.contains(it.replace("…", "").replace("\\(.*?\\)".toRegex(), "")) } > 0))
         ) {
             intoRoomPreInit()
             LogUtils.d("当前正在房间")
