@@ -46,7 +46,7 @@ object WeworkLoopImpl {
                 }
                 if (!mainLoopRunning) break
                 if (getChatroomList()) {
-                    LogUtils.d("进入点击进入聊天页: ")
+                    LogUtils.d("点击进入聊天页: ")
                     AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
                     if (!getChatMessageList()) {
                         sleep(Constant.POP_WINDOW_INTERVAL)

@@ -75,6 +75,8 @@ fun goHomeTab(title: String): Boolean {
                 if (AccessibilityUtil.findOnceByText(getRoot(), "手机号登录", exact = true) != null) {
                     LogUtils.e("登录前请先关闭WorkTool主功能！")
                     ToastUtils.show("登录前请先关闭WorkTool主功能！")
+                    WeworkController.weworkService.disableSelf()
+                    WeworkController.weworkService.webSocketManager.close(1000, "wework logout")
                     MyApplication.launchIntent()
                     sleep(5000)
                 }
