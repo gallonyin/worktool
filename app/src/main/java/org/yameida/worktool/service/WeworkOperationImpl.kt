@@ -1651,7 +1651,7 @@ object WeworkOperationImpl {
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                         val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                                (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                                (if (needTrim) ".*?" else Constant.suffixString)
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -1766,7 +1766,7 @@ object WeworkOperationImpl {
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                         val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                                (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                                (if (needTrim) ".*?" else Constant.suffixString)
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -2184,7 +2184,7 @@ object WeworkOperationImpl {
                     val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2)
                     val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                     val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                            (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                            (if (needTrim) ".*?" else Constant.suffixString)
                     val regex2 = ".*?\\($reverseRegexTitle\\)$"
                     val regex = "($regex1)|($regex2)"
                     val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -2225,7 +2225,7 @@ object WeworkOperationImpl {
                     return selectResult
                 }
                 val confirmButton =
-                    AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
+                    AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(\\d+\\))?\$")
                 if (confirmButton != null) {
                     AccessibilityUtil.performClick(confirmButton)
                     sleep(Constant.POP_WINDOW_INTERVAL)
@@ -2237,7 +2237,7 @@ object WeworkOperationImpl {
                         LogUtils.d("extraText: $extraText")
                         AccessibilityUtil.findTextInput(getRoot(), extraText)
                     }
-                    val sendButton = AccessibilityUtil.findOneByTextRegex(getRoot(), "^发送(\\(.*?\\))?\$")
+                    val sendButton = AccessibilityUtil.findOneByTextRegex(getRoot(), "^发送(\\(\\d+\\))?\$")
                     if (sendButton != null) {
                         AccessibilityUtil.performClick(sendButton)
                         selectResult.result = true
@@ -2423,7 +2423,7 @@ object WeworkOperationImpl {
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.TextView)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                         val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                                (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                                (if (needTrim) ".*?" else Constant.suffixString)
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -2485,7 +2485,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextAndClick(getRoot(), "聊天记录")
                     }
                     val confirmButton =
-                        AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(.*?\\))?\$")
+                        AccessibilityUtil.findOneByTextRegex(getRoot(), "^确定(\\(\\d+\\))?\$")
                     if (confirmButton != null) {
                         AccessibilityUtil.performClick(confirmButton)
                         if (AccessibilityExtraUtil.loadingPage("CustomDialog", timeout = Constant.POP_WINDOW_INTERVAL)) {
@@ -2584,7 +2584,7 @@ object WeworkOperationImpl {
                         val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView, Views.RecyclerView, Views.ViewGroup, minChildCount = 2, firstChildClazz = Views.RelativeLayout)
                         val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                         val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                                (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                                (if (needTrim) ".*?" else Constant.suffixString)
                         val regex2 = ".*?\\($reverseRegexTitle\\)$"
                         val regex = "($regex1)|($regex2)"
                         val matchSelect = AccessibilityUtil.findOneByTextRegex(
@@ -2936,7 +2936,7 @@ object WeworkOperationImpl {
                 val selectListView = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                 val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                        (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                        (if (needTrim) ".*?" else Constant.suffixString)
                 val regex2 = ".*?\\($reverseRegexTitle\\)$"
                 val regex = "($regex1)|($regex2)"
                 val matchSelect = AccessibilityUtil.findOneByTextRegex(

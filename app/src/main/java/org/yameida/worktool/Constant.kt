@@ -27,6 +27,9 @@ object Constant {
     val transformation = "AES/CBC/PKCS7Padding"
     val wssRegex = "^wss".toRegex()
     val wsRegex = "^ws".toRegex()
+    val suffixString = "(-.*)?(…)?(\\(\\d+\\))?$"
+    val suffixRegex = "(-.*)?(…)?(\\(\\d+\\))?$"
+    val digitalRegex = "\\(\\d+\\)\$".toRegex()
     var weworkCorpName: String
         get() = SPUtils.getInstance().getString("weworkCorpName", "")
         set(value) {

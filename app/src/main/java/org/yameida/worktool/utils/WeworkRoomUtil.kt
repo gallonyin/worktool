@@ -62,8 +62,8 @@ object WeworkRoomUtil {
             for (textView in textViewList) {
                 if (!textView.text.isNullOrBlank()) {
                     val text = textView.text.toString()
-                    titleList.add(text.replace("\\(\\d+\\)$".toRegex(), ""))
-                    if (noCut && text.contains("\\(\\d+\\)$".toRegex())) {
+                    titleList.add(text.replace(Constant.digitalRegex, ""))
+                    if (noCut && text.contains(Constant.digitalRegex)) {
                             titleList.add(text)
                     }
                 }
@@ -92,7 +92,7 @@ object WeworkRoomUtil {
                         AccessibilityUtil.performClick(item)
                         LogUtils.d("快捷进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
-                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        AccessibilityExtraUtil.loadingPage("ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity", timeout = Constant.CHANGE_PAGE_INTERVAL)
                         return checkRoom(title, strict = false)
                     }
                 }
@@ -116,7 +116,7 @@ object WeworkRoomUtil {
                 val selectListView = findOneByClazz(getRoot(), Views.ListView)
                 val reverseRegexTitle = RegexHelper.reverseRegexTitle(trimTitle)
                 val regex1 = (if (Constant.friendRemarkStrict) "^$reverseRegexTitle" else "^(微信昵称:)|((企业)?邮箱:)?$reverseRegexTitle") +
-                        (if (needTrim) ".*?" else "(-.*)?(…)?(\\(.*?\\))?$")
+                        (if (needTrim) ".*?" else Constant.suffixString)
                 val regex2 = ".*?\\($reverseRegexTitle\\)$"
                 val regex = "($regex1)|($regex2)"
                 val searchResult = AccessibilityUtil.findAllByTextRegex(
@@ -137,7 +137,7 @@ object WeworkRoomUtil {
                         val title = text?.text?.toString() ?: title
                         LogUtils.d("进入房间: $title")
                         AccessibilityUtil.waitForPageMissing("WwMainActivity", "GlobalSearchActivity")
-                        sleep(Constant.CHANGE_PAGE_INTERVAL)
+                        AccessibilityExtraUtil.loadingPage("ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity", timeout = Constant.CHANGE_PAGE_INTERVAL)
                         return checkRoom(title, strict = false)
                     } else {
                         LogUtils.e("搜索到已退出群聊")
@@ -278,10 +278,11 @@ object WeworkRoomUtil {
             return false
         }
         val roomType = getRoomType()
-        val dealTitle = title.replace("…", "").replace("\\(.*?\\)".toRegex(), "")
+        val dealTitle = title.replace(Constant.suffixRegex, "")
+        LogUtils.v("dealTitle: $dealTitle", "titleList: ${titleList.joinToString()}")
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && (titleList.count { dealTitle == it.replace("…", "").replace("\\(.*?\\)".toRegex(), "") } > 0
-                    || (!strict && titleList.count { dealTitle.contains(it.replace("…", "").replace("\\(.*?\\)".toRegex(), "")) } > 0))
+            && (titleList.count { dealTitle == it.replace(Constant.suffixRegex, "") } > 0
+                    || (!strict && titleList.count { dealTitle.contains(it.replace(Constant.suffixRegex, "")) } > 0))
         ) {
             intoRoomPreInit()
             LogUtils.d("当前正在房间")
@@ -295,7 +296,7 @@ object WeworkRoomUtil {
      * 群名最后有(\d)显示群人数
      */
     private fun isGroupChat(roomTitle: ArrayList<String>): Boolean {
-        return roomTitle.size > 1 && roomTitle[1].contains("\\(\\d+\\)$".toRegex())
+        return roomTitle.size > 1 && roomTitle[1].contains(Constant.digitalRegex)
     }
 
     /**
