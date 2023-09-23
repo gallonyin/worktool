@@ -29,13 +29,13 @@ object AccessibilityExtraUtil {
         var currentTime = startTime
         while (currentTime - startTime <= timeout) {
             if (service.currentClass in clazzList || service.currentClass.split(".").last() in clazzList) {
-                Log.v(tag, "loadingPage: $clazzList")
+                Log.v(tag, "loadingPage: ${clazzList.joinToString()}")
                 return true
             }
             sleep(SHORT_INTERVAL)
             currentTime = System.currentTimeMillis()
         }
-        Log.e(tag, "loadingPage: not found: $clazzList current: ${service.currentClass}")
+        Log.e(tag, "loadingPage: not found: ${clazzList.joinToString()} current: ${service.currentClass}")
         return false
     }
 

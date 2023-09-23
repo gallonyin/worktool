@@ -15,4 +15,5 @@ public class Views {
     public static String ProgressBar = "android.widget.ProgressBar";
     public static String ScrollView = "android.widget.ScrollView";
     public static String CheckBox = "android.widget.CheckBox";
+    public static String FrameLayout = "android.widget.FrameLayout";
 }

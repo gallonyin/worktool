@@ -346,6 +346,37 @@ object WeworkLoopImpl {
                 }
             }
         } else {
+            if (titleList.size > 0) {
+                val title = titleList[0]
+                if (title == "群发助手") {
+                    LogUtils.d("使用功能: 群发助手")
+                    val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
+                    if (list != null) {
+                        val childCount = list.childCount
+                        for (i in 0 until list.childCount) {
+                            val item = list.getChild(childCount - 1 - i)
+                            if (item != null && item.childCount > 0) {
+                                LogUtils.d("点击群发")
+                                AccessibilityUtil.printNodeClazzTree(item)
+                                AccessibilityUtil.clickByNode(WeworkController.weworkService, AccessibilityUtil.findOnceByClazz(item, Views.FrameLayout))
+                                if (AccessibilityExtraUtil.loadingPage("EnterpriseCustomerEnterpriseMassMessageDetailActivity")) {
+                                    AccessibilityUtil.findOneByText(getRoot(), "发送")
+                                    if (AccessibilityUtil.findOnceByText(getRoot(), "已发送", exact = true) != null) {
+                                        LogUtils.d("该条群发已发送")
+                                        backPress()
+                                    } else {
+                                        if (AccessibilityUtil.findTextAndClick(getRoot(), "发送", exact = true)) {
+                                            LogUtils.d("发送该条群发")
+                                            AccessibilityUtil.findOneByText(getRoot(), "已发送", exact = true)
+                                        }
+                                        backPress()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             LogUtils.v("退出非聊天房间 ${WeworkController.weworkService.currentClass}")
         }
         return false
