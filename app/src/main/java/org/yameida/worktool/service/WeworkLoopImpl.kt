@@ -169,7 +169,7 @@ object WeworkLoopImpl {
                 titleList = WeworkRoomUtil.getFriendName()
             } else if (Constant.fullGroupName
                 && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
-                titleList = WeworkRoomUtil.getGroupName()
+                titleList = WeworkRoomUtil.getFullGroupTitle()
             }
         }
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN && titleList.size > 0) {

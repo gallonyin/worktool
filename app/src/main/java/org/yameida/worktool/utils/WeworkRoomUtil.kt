@@ -249,13 +249,16 @@ object WeworkRoomUtil {
 
     /**
      * 获取当前群名并返回房间
-     * 解决title为对方正在输入中问题
+     * 如果有群备注则列表先插入群备注
      * @return name 单聊对方姓名
      */
-    fun getGroupName(): ArrayList<String> {
+    fun getFullGroupTitle(): ArrayList<String> {
         val titleList = arrayListOf<String>()
         if (intoGroupManager()) {
             val groupInfo = WeworkGetImpl.getGroupInfoDetail()
+            if (!groupInfo.groupRemark.isNullOrEmpty()) {
+                titleList.add(groupInfo.groupRemark)
+            }
             titleList.add(groupInfo.groupName)
         }
         return titleList
