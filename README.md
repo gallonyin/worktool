@@ -19,7 +19,7 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 
 ## 兼容版本（重要）
 
-⏬ 经过测试验证的版本：企业微信 4.0.2 至 4.1.7 (7月20日上架)、企业微信政务版
+⏬ 经过测试验证的版本：企业微信 4.0.2 至 4.1.9、企业微信政务版
 
 ⚠️ 建议使用 WorkTool 已兼容的最新企业微信版本
 
@@ -60,9 +60,10 @@ Apache License, Version 2.0
 
 #  联系方式
 
-- ⭐️ 官网: http://wt.asrtts.cn/
+- ⭐️ 官网: http://wt.asrtts.cn/ 
+- ⭐️ 合作申请: https://admin.worktool.asrtts.cn/form/consult
 - 💻 Email: gallonyin@163.com
-- 👍🏻 QQ群: 624700547, 618222245（问题反馈/合作申请）
+- 👍🏻 QQ群: 872359043、612832531（问题反馈）
 - ❓ 如果遇到问题欢迎在群里提问或提交issue。
 - 🤗 WorkTool志愿者开发群: 716217439
 
