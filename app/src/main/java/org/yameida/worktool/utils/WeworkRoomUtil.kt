@@ -276,11 +276,20 @@ object WeworkRoomUtil {
      */
     private fun checkRoom(title: String, strict: Boolean = false): Boolean {
         LogUtils.d("checkRoom(): $title")
-        val titleList = getRoomTitle(print = false)
+        var titleList = getRoomTitle(print = false)
         if (titleList.isEmpty()) {
             return false
         }
         val roomType = getRoomType()
+        if (strict && titleList.count { it.endsWith("…") } > 0) {
+            LogUtils.d("title too long... try get full name titleList: ${titleList.joinToString()}")
+            if (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT) {
+                titleList = getFriendName()
+            } else if (Constant.fullGroupName
+                && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
+                titleList = getFullGroupTitle()
+            }
+        }
         val dealTitle = title.replace(Constant.suffixRegex, "")
         LogUtils.v("dealTitle: $dealTitle", "titleList: ${titleList.joinToString()}")
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
