@@ -2799,8 +2799,24 @@ object WeworkOperationImpl {
     /**
      * 发送消息+@at
      */
-    private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false, title: String? = null): Boolean {
+    private fun sendChatMessage(text: String, at: String? = null, atList: List<String>? = null, reply: Boolean? = false, title: String): Boolean {
         val roomType = WeworkRoomUtil.getRoomType()
+        var titleList = arrayListOf(title) ?: WeworkRoomUtil.getRoomTitle()
+        if (titleList.count { it.endsWith("…") } > 0) {
+            LogUtils.d("title too long... try get full name titleList: ${titleList.joinToString()}")
+            if (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_CONTACT || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_CONTACT) {
+                titleList = WeworkRoomUtil.getFriendName()
+            } else if (Constant.fullGroupName
+                && (roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP)) {
+                titleList = WeworkRoomUtil.getFullGroupTitle()
+            }
+        }
+        AccessibilityExtraUtil.loadingPage("ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+        if (roomType == WeworkMessageBean.ROOM_TYPE_UNKNOWN || titleList.size == 0) {
+            LogUtils.e("非聊天房间 无法发送消息")
+            error("非聊天房间 无法发送消息")
+            return false
+        }
         val voiceFlag = AccessibilityUtil.findOnceByText(getRoot(), "按住 说话", "按住说话", exact = true)
         if (voiceFlag != null) {
             AccessibilityUtil.performClickWithSon(AccessibilityUtil.findFrontNode(voiceFlag))
@@ -2892,7 +2908,7 @@ object WeworkOperationImpl {
         LogUtils.v("atFailed: $atFailed")
         val content = if (atFailed) "@${atList?.joinToString()} $text" else text
         val append = (reply == true) || (!atList.isNullOrEmpty() && !atFailed)
-        WeworkLoopImpl.getChatMessageList(needInfer = false, imageCheck = false, sendMessageBefore = true)
+        WeworkLoopImpl.getChatMessageList(needInfer = false, imageCheck = false, titleList = titleList)
         if (AccessibilityUtil.findTextInput(getRoot(), content, append = append)) {
             AccessibilityUtil.findOneByText(getRoot(), "发送", exact = true, timeout = 2000)
             val sendButton = AccessibilityUtil.findAllByClazz(getRoot(), Views.Button)
@@ -2902,7 +2918,8 @@ object WeworkOperationImpl {
                 log("发送消息: \n$content")
                 AccessibilityUtil.performClick(sendButton)
                 sleep(Constant.POP_WINDOW_INTERVAL)
-                WeworkLoopImpl.getChatMessageList(needInfer = false)
+                WeworkLoopImpl.getChatMessageList(needInfer = false, titleList = titleList)
+                goHome()
                 return true
             } else {
                 LogUtils.e("未找到发送按钮")

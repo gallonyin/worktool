@@ -275,7 +275,7 @@ object WeworkRoomUtil {
      * 检查当前房间
      */
     private fun checkRoom(title: String, strict: Boolean = false): Boolean {
-        LogUtils.d("checkRoom(): $title")
+        LogUtils.d("checkRoom(): $title strict: $strict")
         var titleList = getRoomTitle(print = false)
         if (titleList.isEmpty()) {
             return false
@@ -291,10 +291,10 @@ object WeworkRoomUtil {
             }
         }
         val dealTitle = title.replace(Constant.suffixRegex, "")
-        LogUtils.v("dealTitle: $dealTitle", "titleList: ${titleList.joinToString()}")
+        LogUtils.d("dealTitle: $dealTitle", "titleList: ${titleList.joinToString()}")
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
             && (titleList.count { dealTitle == it.replace(Constant.suffixRegex, "") } > 0
-                    || (!strict && titleList.count { dealTitle.contains(it.replace(Constant.suffixRegex, "")) } > 0))
+                    || ((!strict || !Constant.fullGroupName) && titleList.count { dealTitle.contains(it.replace(Constant.suffixRegex, "")) } > 0))
         ) {
             intoRoomPreInit()
             LogUtils.d("当前正在房间")

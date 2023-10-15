@@ -28,7 +28,7 @@ object Constant {
     val wssRegex = "^wss".toRegex()
     val wsRegex = "^ws".toRegex()
     val suffixString = "(-.*)?(…)?(\\(\\d+\\))?$"
-    val suffixRegex = "(-.*)?(…)?(\\(\\d+\\))?$"
+    val suffixRegex = "(-.*)?(…)?(\\(\\d+\\))?$".toRegex()
     val digitalRegex = "\\(\\d+\\)\$".toRegex()
     var weworkCorpName: String
         get() = SPUtils.getInstance().getString("weworkCorpName", "")
