@@ -350,6 +350,7 @@ object WeworkLoopImpl {
                 val title = titleList[0]
                 if (title == "群发助手") {
                     LogUtils.d("使用功能: 群发助手")
+                    Constant.lastUseMultiSender = System.currentTimeMillis()
                     val list = AccessibilityUtil.findOneByClazz(getRoot(), Views.ListView)
                     if (list != null) {
                         var findDayFlag = false
@@ -557,6 +558,9 @@ object WeworkLoopImpl {
                     }
                 }
             }
+        } else if (Constant.lastUseMultiSender > 0L && System.currentTimeMillis() - Constant.lastUseMultiSender > 300 * 1000) {
+            LogUtils.d("重新检测群发助手")
+            WeworkRoomUtil.intoRoom("群发助手")
         }
         return false
     }
