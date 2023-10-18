@@ -1711,7 +1711,7 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: ${friend.name}")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
-                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                             LogUtils.e("企微: 无搜索结果: $noResult")
                             return false
                         }
@@ -1792,7 +1792,7 @@ object WeworkOperationImpl {
                         } else {
                             LogUtils.e("未搜索到结果: ${friend.name}")
                             uploadCommandResult(message, ExecCallbackBean.ERROR_BUTTON, "未搜索到结果: ${friend.name}", startTime, listOf(), listOf(friend.name))
-                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                            val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                             LogUtils.e("企微: 无搜索结果: $noResult")
                             return false
                         }
@@ -2214,7 +2214,7 @@ object WeworkOperationImpl {
                         selectResult.failList.add(select)
                         LogUtils.e("未搜索到结果: $select")
                         error("未搜索到结果: $select")
-                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                         LogUtils.e("企微: 无搜索结果: $noResult")
                     }
                     sleep(Constant.POP_WINDOW_INTERVAL)
@@ -2456,7 +2456,7 @@ object WeworkOperationImpl {
                                 error("拉人失败 找不到: $select")
                             }
                         }
-                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
                         if (textView != null && textView.text.isNullOrBlank()) {
                             AccessibilityUtil.performClick(textView)
@@ -2606,7 +2606,7 @@ object WeworkOperationImpl {
                                 }
                             }
                         }
-                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                        val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                         val textView = AccessibilityUtil.findOnceByClazz(getRoot(), Views.TextView)
                         if (textView != null && textView.text.isNullOrBlank()) {
                             AccessibilityUtil.performClick(textView)
@@ -2984,7 +2984,7 @@ object WeworkOperationImpl {
                 } else {
                     LogUtils.e("未搜索到结果: $title")
                     error("未搜索到结果: $title")
-                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                     LogUtils.e("企微: 无搜索结果: $noResult")
                 }
             } else {

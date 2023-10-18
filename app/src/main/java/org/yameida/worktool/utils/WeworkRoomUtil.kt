@@ -144,7 +144,7 @@ object WeworkRoomUtil {
                     }
                 } else {
                     LogUtils.e("未搜索到结果")
-                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", exact = true) != null
+                    val noResult = AccessibilityUtil.findOnceByText(getRoot(), "无搜索结果", "暂无搜索结果", exact = true) != null
                     LogUtils.e("企微: 无搜索结果: $noResult")
                 }
             } else {
