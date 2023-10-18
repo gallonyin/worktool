@@ -10,7 +10,7 @@
 <img src="https://github.com/gallonyin/worktool/blob/master/images/send_message.gif"  height="500" width="280">
 注：动图为机器人自动运行
 更多演示看这里
-https://www.apifox.cn/apidoc/project-1035094/doc-840833
+https://worktool.apifox.cn/doc-840833
 
 
 <img src="https://github.com/gallonyin/worktool/blob/master/images/chatgpt.png"  height="500" width="360">
@@ -30,11 +30,11 @@ https://www.apifox.cn/apidoc/project-1035094/doc-840833
 1. 准备一台无人使用的可联网安卓手机（本APP兼容99%安卓机型 系统要求>=Android7.0）
 2. 手机登录企业微信（账号需要提前实名认证，不然很多功能无法正常使用）
 3. 建议提前给该企业微信账号开通"工作台"-"客户群"权限（如无需外部群创建和管理可不开启）
-4. 自助申请一个[机器人链接号(点击这里)](https://wt.asrtts.cn/regist.html)，您也可以加入QQ群向管理员咨询如何操作。
+4. 自助申请一个[机器人链接号(点击这里)](https://admin.worktool.asrtts.cn/register)，您也可以加入QQ群向管理员咨询如何操作。
 5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)
 6. 打开WorkTool APP，按照APP提示保存链接号，开启主功能，并打开到企业微信界面，不要关闭屏幕即可。
 
-如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://www.apifox.cn/apidoc/project-1035094/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://www.apifox.cn/apidoc/project-1035094/api-22587884)提交您的机器人id和回调接口地址
+如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://worktool.apifox.cn/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://worktool.apifox.cn/api-22587884)提交您的机器人id和回调接口地址
 
 ## 文档
 
@@ -60,7 +60,7 @@ Apache License, Version 2.0
 
 #  联系方式
 
-- ⭐️ 官网: http://wt.asrtts.cn/ 
+- ⭐️ 官网: https://worktool.ymdyes.cn/
 - ⭐️ 合作申请: https://admin.worktool.asrtts.cn/form/consult
 - 💻 Email: gallonyin@163.com
 - 👍🏻 QQ群: 872359043、612832531（问题反馈）
