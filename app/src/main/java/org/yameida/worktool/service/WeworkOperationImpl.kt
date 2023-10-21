@@ -197,6 +197,8 @@ object WeworkOperationImpl {
                         LogUtils.d("开始转发")
                         val relaySelectResult = relaySelectTarget(nameList, extraText)
                         if (relaySelectResult.result) {
+                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                             LogUtils.d("$title: 转发成功")
                             uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                             goHome()
@@ -224,6 +226,8 @@ object WeworkOperationImpl {
                         LogUtils.d("开始转发")
                         val relaySelectResult = relaySelectTarget(nameList, extraText)
                         if (relaySelectResult.result) {
+                            AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                            AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                             LogUtils.d("$title: 转发成功")
                             uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                             goHome()
@@ -571,6 +575,8 @@ object WeworkOperationImpl {
                     AccessibilityUtil.performClick(shareFileButton)
                     val relaySelectResult = relaySelectTarget(titleList, extraText)
                     if (relaySelectResult.result) {
+                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
                         return true
@@ -622,6 +628,8 @@ object WeworkOperationImpl {
         if (IWWAPIUtil.sendMicroProgram(fileUrl, originalContent, objectName, receivedContent)) {
             val relaySelectResult = relaySelectTarget(titleList, extraText)
             if (relaySelectResult.result) {
+                AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                 goHome()
                 return true
@@ -681,6 +689,8 @@ object WeworkOperationImpl {
                 AccessibilityUtil.performClick(shareFileButton)
                 val relaySelectResult = relaySelectTarget(titleList, extraText)
                 if (relaySelectResult.result) {
+                    AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                    AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                     uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                     goHome()
                     return true
@@ -927,6 +937,8 @@ object WeworkOperationImpl {
         if (IWWAPIUtil.sendLink(fileUrl, originalContent, objectName, receivedContent)) {
             val relaySelectResult = relaySelectTarget(titleList, extraText)
             if (relaySelectResult.result) {
+                AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                 goHome()
                 return true
@@ -1292,6 +1304,8 @@ object WeworkOperationImpl {
                 if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                     val relaySelectResult = relaySelectTarget(nameList, extraText)
                     if (relaySelectResult.result) {
+                        AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                        AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                         LogUtils.d("$groupName: 转发成功")
                         uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$groupName: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                         goHome()
@@ -1451,6 +1465,8 @@ object WeworkOperationImpl {
                         if (AccessibilityUtil.findTextAndClick(getRoot(), key)) {
                             val relaySelectResult = relaySelectTarget(nameList, extraText)
                             if (relaySelectResult.result) {
+                                AccessibilityExtraUtil.loadingPage("CommonSelectActivity", "ExternalGroupMessageListActivity", "ExternalWechatUserMessageListActivity", "MessageListActivity")
+                                AccessibilityUtil.waitForPageMissing("CommonSelectActivity")
                                 LogUtils.d("$title: 转发成功")
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "$title: 转发成功", startTime, relaySelectResult.successList, relaySelectResult.failList)
                                 goHome()
@@ -1851,7 +1867,7 @@ object WeworkOperationImpl {
                         AccessibilityUtil.findTextAndClick(getRoot(), "参与人")
                         val relaySelectResult = relaySelectTarget(titleList, needSend = false)
                         if (relaySelectResult.result) {
-                            LogUtils.e("添加参与人成功")
+                            LogUtils.d("添加参与人成功")
                             if (AccessibilityUtil.findTextAndClick(getRoot(), "保存并发送到聊天", "保存并建群发送")) {
                                 uploadCommandResult(message, ExecCallbackBean.SUCCESS, "", startTime, relaySelectResult.successList, relaySelectResult.failList)
                                 goHome()
