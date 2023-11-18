@@ -30,7 +30,7 @@ https://worktool.apifox.cn/doc-840833
 1. 准备一台无人使用的可联网安卓手机（本APP兼容99%安卓机型 系统要求>=Android7.0）
 2. 手机登录企业微信（账号需要提前实名认证，不然很多功能无法正常使用）
 3. 建议提前给该企业微信账号开通"工作台"-"客户群"权限（如无需外部群创建和管理可不开启）
-4. 自助申请一个[机器人链接号(点击这里)](https://admin.worktool.asrtts.cn/register)，您也可以加入QQ群向管理员咨询如何操作。
+4. 自助申请一个[机器人链接号(点击这里)](https://admin.worktool.ymdyes.cn/register)，您也可以加入QQ群向管理员咨询如何操作。
 5. 在这台手机上安装[WorkTool APP安装包(点击下载)](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)
 6. 打开WorkTool APP，按照APP提示保存链接号，开启主功能，并打开到企业微信界面，不要关闭屏幕即可。
 
@@ -61,9 +61,9 @@ Apache License, Version 2.0
 #  联系方式
 
 - ⭐️ 官网: https://worktool.ymdyes.cn/
-- ⭐️ 合作申请: https://admin.worktool.asrtts.cn/form/consult
+- ⭐️ 合作申请: https://admin.worktool.ymdyes.cn/form/consult
 - 💻 Email: gallonyin@163.com
-- 👍🏻 QQ群: 872359043、612832531（问题反馈）
+- 👍🏻 QQ群: 492831452、612832531（问题反馈）
 - ❓ 如果遇到问题欢迎在群里提问或提交issue。
 - 🤗 WorkTool志愿者开发群: 716217439
 
@@ -159,4 +159,5 @@ v1.0 2022-05-27 首次可用版本更新
 
 如果觉得还不错，请作者喝杯咖啡吧 ☺
 
-![](https://cdn.asrtts.cn/static/image/%E5%BE%AE%E4%BF%A1%E6%89%93%E8%B5%8F.png)
+<img src="https://cdn.asrtts.cn/static/image/%E5%BE%AE%E4%BF%A1%E6%89%93%E8%B5%8F.png"  height="379" width="351">
+
