@@ -14,6 +14,7 @@ import org.yameida.worktool.model.ExecCallbackBean
 import org.yameida.worktool.model.WeworkMessageBean
 import org.yameida.worktool.model.WeworkMessageListBean
 import org.yameida.worktool.utils.FloatWindowHelper
+import org.yameida.worktool.utils.StringFeatureUtil
 import java.nio.charset.StandardCharsets
 import java.util.LinkedHashSet
 import kotlin.concurrent.thread
@@ -111,7 +112,7 @@ object MyLooper {
                 } else {
                     WeworkController.mainLoopRunning = false
                     LogUtils.v("加入指令到执行队列", if (message.fileBase64.isNullOrEmpty()) GsonUtils.toJson(message) else message.type)
-                    val messageWhat = message.type * message.hashCode() / 1000 + text.length
+                    val messageWhat = StringFeatureUtil.generateFeatureValue(text)
                     if (Constant.duplicationFilter) {
                         getInstance().removeMessages(messageWhat)
                     }
