@@ -70,6 +70,11 @@ class SettingsAdvanceActivity : AppCompatActivity() {
             Constant.oldDevice = isChecked
             updateOldDeviceConfig()
         })
+        sw_auto_pass_friend_request.isChecked = Constant.autoPassFriendRequest
+        sw_auto_pass_friend_request.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            LogUtils.i("sw_auto_pass_friend_request onCheckedChanged: $isChecked")
+            Constant.autoPassFriendRequest = isChecked
+        })
         ll_corp_param.visibility = if (Constant.customLink) View.VISIBLE else View.GONE
         rl_username.visibility = if (Constant.customMP) View.VISIBLE else View.GONE
         rl_qa_url.setOnClickListener { showQaUrlDialog() }

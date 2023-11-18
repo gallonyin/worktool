@@ -99,6 +99,7 @@ object WeworkLoopImpl {
      * 读取通讯录好友请求
      */
     private fun getFriendRequest(): Boolean {
+        if (!Constant.autoPassFriendRequest) return true
         val list = AccessibilityUtil.findAllOnceByText(getRoot(), "通讯录", exact = true)
         for (item in list) {
             val childCount = item.parent?.parent?.parent?.childCount
