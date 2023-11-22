@@ -24,7 +24,7 @@ object WeworkController {
      */
     @RequestMapping
     fun consoleToast(message: ExecCallbackBean): Boolean {
-        LogUtils.d("REQUEST consoleToast(): ${message.errorCode} ${message.errorReason}")
+        LogUtils.d("REQUEST consoleToast(): ${message.messageId} ${message.errorCode} ${message.errorReason}")
         return WeworkInteractionImpl.consoleToast(message, message.errorCode, message.errorReason)
     }
 
@@ -60,7 +60,7 @@ object WeworkController {
      */
     @RequestMapping
     fun sendMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST sendMessage(): ${message.titleList} ${message.receivedContent} ${message.at} ${message.atList?.joinToString()}")
+        LogUtils.d("REQUEST sendMessage(): ${message.messageId} ${message.titleList} ${message.receivedContent} ${message.at} ${message.atList?.joinToString()}")
         return WeworkOperationImpl.sendMessage(message, message.titleList, message.receivedContent, message.at, message.atList)
     }
 
@@ -76,7 +76,7 @@ object WeworkController {
      */
     @RequestMapping
     fun replyMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST replyMessage(): ${message.receivedName} ${message.originalContent} ${message.textType} ${message.receivedContent}")
+        LogUtils.d("REQUEST replyMessage(): ${message.messageId} ${message.receivedName} ${message.originalContent} ${message.textType} ${message.receivedContent}")
         return WeworkOperationImpl.replyMessage(
             message,
             message.titleList,
@@ -100,7 +100,7 @@ object WeworkController {
      */
     @RequestMapping
     fun relayMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST relayMessage(): ${message.titleList} ${message.receivedName} ${message.originalContent} ${message.textType} ${message.nameList} ${message.extraText}")
+        LogUtils.d("REQUEST relayMessage(): ${message.messageId} ${message.titleList} ${message.receivedName} ${message.originalContent} ${message.textType} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.relayMessage(
             message,
             message.titleList,
@@ -124,7 +124,7 @@ object WeworkController {
      */
     @RequestMapping
     fun initGroup(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST initGroup(): ${message.groupName} ${message.selectList} ${message.groupAnnouncement} ${message.groupRemark} ${message.groupTemplate}")
+        LogUtils.d("REQUEST initGroup(): ${message.messageId} ${message.groupName} ${message.selectList} ${message.groupAnnouncement} ${message.groupRemark} ${message.groupTemplate}")
         return WeworkOperationImpl.initGroup(
             message,
             message.groupName,
@@ -160,7 +160,7 @@ object WeworkController {
      */
     @RequestMapping
     fun updateGroup(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST updateGroup(): ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList} ${message.groupRemark} ${message.groupTemplate}")
+        LogUtils.d("REQUEST updateGroup(): ${message.messageId} ${message.groupName} ${message.newGroupName} ${message.newGroupAnnouncement} ${message.selectList} ${message.showMessageHistory} ${message.removeList} ${message.groupRemark} ${message.groupTemplate}")
         return WeworkOperationImpl.updateGroup(
             message,
             message.groupName,
@@ -181,7 +181,7 @@ object WeworkController {
      */
     @RequestMapping
     fun dismissGroup(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST dismissGroup(): ${message.groupName}")
+        LogUtils.d("REQUEST dismissGroup(): ${message.messageId} ${message.groupName}")
         return WeworkOperationImpl.dismissGroup(
             message,
             message.groupName
@@ -196,7 +196,7 @@ object WeworkController {
      */
     @RequestMapping
     fun addFriendByGroup(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST addFriendByGroup(): ${message.groupName} ${message.friend}")
+        LogUtils.d("REQUEST addFriendByGroup(): ${message.messageId} ${message.groupName} ${message.friend}")
         return WeworkOperationImpl.addFriendByGroup(
             message,
             message.groupName,
@@ -212,7 +212,7 @@ object WeworkController {
      */
     @RequestMapping
     fun modifyGroupMemberInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST modifyGroupMemberInfo(): ${message.groupName} ${message.friend}")
+        LogUtils.d("REQUEST modifyGroupMemberInfo(): ${message.messageId} ${message.groupName} ${message.friend}")
         return WeworkOperationImpl.modifyGroupMemberInfo(
             message,
             message.groupName,
@@ -228,7 +228,7 @@ object WeworkController {
      */
     @RequestMapping
     fun addNeedDeal(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST addNeedDeal(): ${message.titleList} ${message.receivedContent}")
+        LogUtils.d("REQUEST addNeedDeal(): ${message.messageId} ${message.titleList} ${message.receivedContent}")
         return WeworkOperationImpl.addNeedDeal(
             message,
             message.titleList,
@@ -242,7 +242,7 @@ object WeworkController {
      */
     @RequestMapping
     fun clockIn(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST clockIn(): ")
+        LogUtils.d("REQUEST clockIn(): ${message.messageId}")
         return WeworkOperationImpl.clockIn(message)
     }
 
@@ -253,7 +253,7 @@ object WeworkController {
      */
     @RequestMapping
     fun switchCorp(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST switchCorp(): ${message.objectName}")
+        LogUtils.d("REQUEST switchCorp(): ${message.messageId} ${message.objectName}")
         return WeworkOperationImpl.switchCorp(message, message.objectName)
     }
 
@@ -266,7 +266,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushMicroDiskImage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushMicroDiskImage(): ${message.titleList} ${message.objectName} ${message.extraText}")
+        LogUtils.d("REQUEST pushMicroDiskImage(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.extraText}")
         return WeworkOperationImpl.pushMicroDiskImage(
             message,
             message.titleList,
@@ -284,7 +284,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushMicroDiskFile(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushMicroDiskFile(): ${message.titleList} ${message.objectName} ${message.extraText}")
+        LogUtils.d("REQUEST pushMicroDiskFile(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.extraText}")
         return WeworkOperationImpl.pushMicroDiskFile(
             message,
             message.titleList,
@@ -305,7 +305,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushMicroprogram(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushMicroprogram(): ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
+        LogUtils.d("REQUEST pushMicroprogram(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
         return WeworkOperationImpl.pushMicroprogram(
             message,
             message.titleList,
@@ -327,7 +327,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushOffice(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushOffice(): ${message.titleList} ${message.objectName} ${message.extraText}")
+        LogUtils.d("REQUEST pushOffice(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.extraText}")
         return WeworkOperationImpl.pushOffice(
             message,
             message.titleList,
@@ -348,7 +348,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushFile(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushFile(): ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileBase64?.substring(0, 100)} ${message.fileType} ${message.extraText}")
+        LogUtils.d("REQUEST pushFile(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.fileUrl} ${message.fileBase64?.substring(0, 100)} ${message.fileType} ${message.extraText}")
         return WeworkOperationImpl.pushFile(
             message,
             message.titleList,
@@ -373,7 +373,7 @@ object WeworkController {
      */
     @RequestMapping
     fun pushLink(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST pushLink(): ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
+        LogUtils.d("REQUEST pushLink(): ${message.messageId} ${message.titleList} ${message.objectName} ${message.receivedContent} ${message.originalContent} ${message.fileUrl} ${message.extraText}")
         return WeworkOperationImpl.pushLink(
             message,
             message.titleList,
@@ -395,7 +395,7 @@ object WeworkController {
      */
     @RequestMapping
     fun recallMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST recallMessage(): ${message.titleList} ${message.originalContent} ${message.textType}")
+        LogUtils.d("REQUEST recallMessage(): ${message.messageId} ${message.titleList} ${message.originalContent} ${message.textType}")
         return WeworkOperationImpl.recallMessage(
             message,
             message.titleList,
@@ -415,7 +415,7 @@ object WeworkController {
      */
     @RequestMapping
     fun relayMultiMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST relayMultiMessage(): ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
+        LogUtils.d("REQUEST relayMultiMessage(): ${message.messageId} ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.relayMultiMessage(
             message,
             message.titleList,
@@ -436,7 +436,7 @@ object WeworkController {
      */
     @RequestMapping
     fun relayMergeMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST relayMergeMessage(): ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
+        LogUtils.d("REQUEST relayMergeMessage(): ${message.messageId} ${message.titleList} ${message.messageList} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.relayMergeMessage(
             message,
             message.titleList,
@@ -455,7 +455,7 @@ object WeworkController {
      */
     @RequestMapping
     fun sendMultiMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST sendMultiMessage(): ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
+        LogUtils.d("REQUEST sendMultiMessage(): ${message.messageId} ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.sendMultiMessage(
             message,
             message.weworkMessageList,
@@ -473,7 +473,7 @@ object WeworkController {
      */
     @RequestMapping
     fun sendMergeMessage(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST sendMergeMessage(): ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
+        LogUtils.d("REQUEST sendMergeMessage(): ${message.messageId} ${message.weworkMessageList} ${message.nameList} ${message.extraText}")
         return WeworkOperationImpl.sendMergeMessage(
             message,
             message.weworkMessageList,
@@ -489,7 +489,7 @@ object WeworkController {
      */
     @RequestMapping
     fun addFriendByPhone(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST addFriendByPhone(): ${message.friend}")
+        LogUtils.d("REQUEST addFriendByPhone(): ${message.messageId} ${message.friend}")
         return WeworkOperationImpl.addFriendByPhone(message, message.friend)
     }
 
@@ -503,7 +503,7 @@ object WeworkController {
      */
     @RequestMapping
     fun showGroupInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST showGroupInfo(): ${message.titleList} ${message.receivedName} ${message.originalContent} ${message.textType}")
+        LogUtils.d("REQUEST showGroupInfo(): ${message.messageId} ${message.titleList} ${message.receivedName} ${message.originalContent} ${message.textType}")
         return WeworkOperationImpl.showGroupInfo(
             message,
             message.titleList,
@@ -521,7 +521,7 @@ object WeworkController {
      */
     @RequestMapping
     fun scanQrCode(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST scanQrCode(): ${message.fileUrl} ${message.fileBase64?.substring(0, 100)}")
+        LogUtils.d("REQUEST scanQrCode(): ${message.messageId} ${message.fileUrl} ${message.fileBase64?.substring(0, 100)}")
         return WeworkOperationImpl.scanQrCode(
             message,
             message.fileUrl,
@@ -536,7 +536,7 @@ object WeworkController {
      */
     @RequestMapping
     fun deleteContact(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST deleteContact(): ${message.friend}")
+        LogUtils.d("REQUEST deleteContact(): ${message.messageId} ${message.friend}")
         return WeworkOperationImpl.deleteContact(message, message.friend)
     }
 
@@ -547,7 +547,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getGroupInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getGroupInfo(): ${message.selectList}")
+        LogUtils.d("REQUEST getGroupInfo(): ${message.messageId} ${message.selectList}")
         return WeworkGetImpl.getGroupInfo(message, message.selectList)
     }
 
@@ -558,7 +558,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getFriendInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getFriendInfo(): ${message.selectList}")
+        LogUtils.d("REQUEST getFriendInfo(): ${message.messageId} ${message.selectList}")
         return WeworkGetImpl.getFriendInfo(message, message.selectList)
     }
 
@@ -568,7 +568,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getAllFriendInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getAllFriendInfo():")
+        LogUtils.d("REQUEST getAllFriendInfo(): ${message.messageId}")
         return WeworkGetImpl.getAllFriendInfo(message)
     }
 
@@ -578,7 +578,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getAllGroupInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getAllGroupInfo():")
+        LogUtils.d("REQUEST getAllGroupInfo(): ${message.messageId}")
         return WeworkGetImpl.getAllGroupInfo(message)
     }
 
@@ -589,7 +589,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getLocalFile(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getLocalFile(): ${message.fileUrl}")
+        LogUtils.d("REQUEST getLocalFile(): ${message.messageId} ${message.fileUrl}")
         return WeworkGetImpl.getLocalFile(message, message.fileUrl)
     }
 
@@ -599,7 +599,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getMyInfo(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getMyInfo():")
+        LogUtils.d("REQUEST getMyInfo(): ${message.messageId}")
         return WeworkGetImpl.getMyInfo(message)
     }
 
@@ -609,7 +609,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getRecentList(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getRecentList():")
+        LogUtils.d("REQUEST getRecentList(): ${message.messageId}")
         return WeworkGetImpl.getRecentList(message)
     }
 
@@ -619,7 +619,7 @@ object WeworkController {
      */
     @RequestMapping
     fun getCorpList(message: WeworkMessageBean): Boolean {
-        LogUtils.d("REQUEST getCorpList():")
+        LogUtils.d("REQUEST getCorpList(): ${message.messageId}")
         return WeworkGetImpl.getCorpList(message)
     }
 
