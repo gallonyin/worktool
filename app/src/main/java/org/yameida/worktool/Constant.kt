@@ -30,6 +30,7 @@ object Constant {
     val wsRegex = "^ws".toRegex()
     val suffixString = "(-.*)?(…)?(\\(\\d+\\))?$"
     val suffixRegex = "(-.*)?(…)?(\\(\\d+\\))?$".toRegex()
+    val groupSuffixRegex = "(…)?(\\(\\d+\\))?$".toRegex()
     val digitalRegex = "\\(\\d+\\)\$".toRegex()
     var weworkCorpName: String
         get() = SPUtils.getInstance().getString("weworkCorpName", "")

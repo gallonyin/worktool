@@ -290,11 +290,16 @@ object WeworkRoomUtil {
                 titleList = getFullGroupTitle()
             }
         }
-        val dealTitle = title.replace(Constant.suffixRegex, "")
+        val suffixRegex = if (roomType == WeworkMessageBean.ROOM_TYPE_EXTERNAL_GROUP || roomType == WeworkMessageBean.ROOM_TYPE_INTERNAL_GROUP) {
+            Constant.groupSuffixRegex
+        } else {
+            Constant.suffixRegex
+        }
+        val dealTitle = title.replace(suffixRegex, "")
         LogUtils.d("dealTitle: $dealTitle", "titleList: ${titleList.joinToString()}")
         if (roomType != WeworkMessageBean.ROOM_TYPE_UNKNOWN
-            && (titleList.count { dealTitle == it.replace(Constant.suffixRegex, "") } > 0
-                    || ((!strict || !Constant.fullGroupName) && titleList.count { dealTitle.contains(it.replace(Constant.suffixRegex, "")) } > 0))
+            && (titleList.count { dealTitle == it.replace(suffixRegex, "") } > 0
+                    || ((!strict || !Constant.fullGroupName) && titleList.count { dealTitle.contains(it.replace(suffixRegex, "")) } > 0))
         ) {
             intoRoomPreInit()
             LogUtils.d("当前正在房间")
