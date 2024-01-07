@@ -63,9 +63,8 @@ Apache License, Version 2.0
 - ⭐️ 官网: https://worktool.ymdyes.cn/
 - ⭐️ 合作申请: https://admin.worktool.ymdyes.cn/form/consult (私有化/微信版/协议版/定制)
 - 💻 Email: gallonyin@163.com
-- 👍🏻 QQ群: 492831452、612832531（问题反馈）
-- ❓ 如果遇到问题欢迎在群里提问或提交issue。
-- 🤗 WorkTool志愿者开发群: 716217439
+- 🤗 QQ群: 技术交流、问题反馈
+<img src="https://cdn.asrtts.cn/static/image/QQQRcode.png"  height="200" width="200">
 
 # 版本更新
 
@@ -157,9 +156,4 @@ v1.1 2022-06-20 大幅度提高系统稳定性和响应速度
 v1.0 2022-05-27 首次可用版本更新
 </details>
 
-## 捐赠 
-
-如果觉得还不错，请作者喝杯咖啡吧 ☺
-
-<img src="https://cdn.asrtts.cn/static/image/%E5%BE%AE%E4%BF%A1%E6%89%93%E8%B5%8F.png"  height="379" width="351">
 
