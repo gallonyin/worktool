@@ -1,39 +1,20 @@
 ## WorkTool
 
-本安卓应用是一个依附于企业微信来运行的无人值守群管理机器人，非hook非侵入式，使用安卓系统原生支持的无障碍服务能力，手机无需Root，应用兼容99%的手机，长时间运行稳定且因为没有修改系统和软件所以理论上不存在被外挂监测和封号风险。
-机器人支持查看问答记录，创建群、群管理，群发等功能，还支持接入自己的问答接口来全面接管机器人。
+WorkTool是一个依附于企微/微信来运行的无人值守群管理机器人程序，您可以使用本应用程序来自动执行一个自己微信里的账号（当做机器人账号），并可通过后台调用对应的 API 来驱动机器人自动执行任务，如收发消息、建群、拉人踢人等。
 
-## 演示
+本工具所有技术实现均基于Android官方系统SDK和企微/微信官方SDK，原理上保证本工具的合法合规性，请勿用于非法用途，一经发现立即封停！
 
-**发送消息**
+### 本程序分为安卓端APP和任务调度平台
 
-<img src="https://github.com/gallonyin/worktool/blob/master/images/send_message.gif"  height="500" width="280">
-注：动图为机器人自动运行
-更多演示看这里
-https://worktool.apifox.cn/doc-840833
+* 安卓端APP需要您**自己提供一台手机**（需可运行企微/微信，手机型号和系统版本不限，本软件兼容99%的安卓手机）。
+    如果您是开发者可以自行编译源码运行，进行测试和学习；如果没有研发能力，可使用打包版本[WorkTool APP安装包：点击下载](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)
 
+风险提示：
 
-<img src="https://github.com/gallonyin/worktool/blob/master/images/chatgpt.png"  height="500" width="360">
-机器人集成ChatGPT效果
-
-
-## 兼容版本（重要）
-
-⏬ 开源版兼容：企业微信 4.0.2 至 4.1.10  
-⏬ 商业版兼容：企业微信 4.0.2 至 4.1.22（最新版本）、企业微信政务版
-
-⚠️ 开源版本请修改包名后再自行编译测试
-
-## 快速使用
-
-💡 [快速入门文档](https://worktool.apifox.cn/)
-
-
-1. 安卓端APP需要您自己提供一台手机（需可运行企业微信，手机型号和系统版本不限，本软件兼容99%的安卓手机 系统要求>=Android7.0）。
-2. 如果您是开发者可以自行编译源码运行，建议改造包名或者集成到其他项目中使用；如果没有研发能力，我们更推荐您使用我们准备好的商业版WorkTool APP安装包：[点击下载](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)
-3. 任务调度平台公有云服务(SaaS)由官方提供，您只需要在您的业务中使用申请好的机器人id(即robot_id），调用对应的 API 完成对接即可。
-
-如果您想使用自己开发的QA回调接口接收机器人收到的所有消息并定制回答，请参考[第三方QA回调接口规范(点击这里)](https://worktool.apifox.cn/doc-861677)开发接口，并在[机器人第三方QA配置(点击这里)](https://worktool.apifox.cn/api-22587884)提交您的机器人id和回调接口地址
+* 本APP采用Google安卓系统的**官方无障碍服务**，并在此基础上**自研自动化框架，无hook函数、无侵入、无破坏、无内存修改，与PC端RPA完全不同**，手机无需破解Root权限，兼容绝大部分机型，支持长时间运行稳定。工信部发文要求各大APP必须进行无障碍改造，这是**政府和官方支持的唯一自动化方案**，请拒绝黑产，拒绝影响微信生态的任何行为，鼓励无障碍服务改造！[点进跳转工信部文章链接](https://www.cnii.com.cn/zcjd/202012/t20201228_243049.html)
+* 如果您的使用场景对信息极为敏感，数据独立隔离或有其他定制需求，可以提交[定制申请](https://admin.worktool.ymdyes.cn/form/consult)获取更高级数据安全方案。
+* 如果您的账号曾有被封或禁言等行为，请勿使用本工具！如您的行为违反**腾讯运营规范**或**国家法律规定**，请勿使用本工具！
+[点进跳转企业微信安全指南链接](https://open.work.weixin.qq.com/help2/pc/cat?person_id=1&is_tencent=&doc_id=14664)
 
 ## 文档
 
@@ -45,10 +26,6 @@ https://worktool.apifox.cn/doc-840833
 
 📝 https://worktool.apifox.cn/doc-850007
 
-## 零代码集成
-
-- 🤗 集简云: https://www.jijyun.cn/apps/detail/1000983
-
 ## 混淆
 
 绝大部分代码均可以混淆，但由于使用的类库如okhttp、umeng不能混淆等情况，已经列在proguard-rules.pro当中，可以直接使用
@@ -58,10 +35,8 @@ https://worktool.apifox.cn/doc-840833
 Apache License, Version 2.0
 
 #  联系方式
-
-- ⭐️ 官网: https://worktool.ymdyes.cn/
-- ⭐️ 合作申请: https://admin.worktool.ymdyes.cn/form/consult (私有化/微信版/协议/定制)
-- 💻 Email: gallonyin@163.com
+- ⭐️ 合作申请: https://admin.worktool.ymdyes.cn/form/consult
+- 💻 Email: feedback@yameida.cc
 - 🤗 QQ群: 技术交流、问题反馈
 <img src="https://cdn.asrtts.cn/static/image/QQQRcode.png"  height="200" width="200">
 
