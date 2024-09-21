@@ -7,11 +7,11 @@ WorkTool是一个依附于企微/微信来运行的无人值守群管理机器�
 ### 本程序分为安卓端APP和任务调度平台
 
 * 安卓端APP需要您**自己提供一台手机**（需可运行企微/微信，手机型号和系统版本不限，本软件兼容99%的安卓手机）。
-    如果您是开发者可以自行编译源码运行，进行测试和学习；如果没有研发能力，可使用打包版本[WorkTool APP安装包：点击下载](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)（兼容4.1.8~4.1.22）
+    如果您是开发者可以自行编译源码运行，进行测试和学习；如果没有研发能力，可使用打包版本[WorkTool APP安装包：点击下载（2024-09-13更新）](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)（兼容4.1.8~4.1.28）
 
 风险提示：
 
-* 本APP采用Google安卓系统的**官方无障碍服务**，并在此基础上**自研自动化框架，无hook函数、无侵入、无破坏、无内存修改，与PC端RPA完全不同**，手机无需破解Root权限，兼容绝大部分机型，支持长时间运行稳定。工信部发文要求各大APP必须进行无障碍改造，这是**政府和官方支持的唯一自动化方案**，请拒绝黑产，拒绝影响微信生态的任何行为，鼓励无障碍服务改造！[点进跳转工信部文章链接](https://www.cnii.com.cn/zcjd/202012/t20201228_243049.html)
+* 本APP采用Google安卓系统的**官方无障碍服务**，并在此基础上**自研自动化框架，无hook函数、无侵入、无破坏、无内存修改，与PC端RPA完全不同**，手机无需破解Root权限，兼容绝大部分机型，支持长时间运行稳定。工信部发文要求各大APP必须进行无障碍改造，这是**政府和官方支持的唯一自动化方案**，请拒绝黑产，拒绝影响微信生态的任何行为，鼓励无障碍服务改造！[点进跳转工信部文章链接](https://www.gov.cn/zhengce/zhengceku/2020-12/26/content_5573472.htm)
 * 如果您的使用场景对信息极为敏感，数据独立隔离或有其他定制需求，可以提交[定制申请](https://admin.worktool.ymdyes.cn/form/consult)获取更高级数据安全方案。
 * 如果您的账号曾有被封或禁言等行为，请勿使用本工具！如您的行为违反**腾讯运营规范**或**国家法律规定**，请勿使用本工具！
 [点进跳转企业微信安全指南链接](https://open.work.weixin.qq.com/help2/pc/cat?person_id=1&is_tencent=&doc_id=14664)
@@ -26,10 +26,6 @@ WorkTool是一个依附于企微/微信来运行的无人值守群管理机器�
 
 📝 https://worktool.apifox.cn/doc-850007
 
-## 混淆
-
-绝大部分代码均可以混淆，但由于使用的类库如okhttp、umeng不能混淆等情况，已经列在proguard-rules.pro当中，可以直接使用
-
 #  Copyright
 
 Apache License, Version 2.0
@@ -38,9 +34,9 @@ Apache License, Version 2.0
 - ⭐️ 合作申请: https://admin.worktool.ymdyes.cn/form/consult
 - 💻 Email: feedback@yameida.cc
 - 🤗 QQ群: 技术交流、问题反馈 872359043
-<img src="https://cdn.asrtts.cn/static/image/QQQRcode.png"  height="200" width="200">
+<img src="https://github.com/user-attachments/assets/23b58643-d2f7-4512-ac30-fd3d4b2a8940"  height="200" width="200">
 
-# 版本更新
+# 版本更新（开源版）
 
 v2.8.1 2023-11-19 自动通过好友请求开关;执行队列去重算法优化
 
@@ -48,14 +44,14 @@ v2.8.0 2023-10-18 兼容企微4.1.10;其他已知问题优化
 
 v2.7.4 2023-10-15 消息发送优化和准确率提升
 
+<details>
+<summary><b>往期更新</b></summary>
+
 v2.7.3 2023-10-12 发送消息优化
 
 v2.7.2 2023-10-10 已知问题修复
 
 v2.7.1 2023-09-11 优化兼容鸿蒙;优化获取群名;其他已知问题修复
-
-<details>
-<summary><b>往期更新</b></summary>
 
 v2.7.0 2023-08-27 兼容企微4.1.9;其他已知问题优化
 
