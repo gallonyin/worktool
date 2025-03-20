@@ -1,121 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="org.yameida.worktool">
-
-    <queries>
-        <package android:name="com.tencent.wework" />
-    </queries>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
-    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name="org.yameida.worktool.MyApplication"
         android:allowBackup="true"
-        tools:replace="android:allowBackup"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true">
+        android:theme="@style/Theme.AppCompat.Light">
 
         <activity
-            android:name="org.yameida.worktool.activity.ListenActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme">
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.LoginActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.SettingsActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.SettingsAdvanceActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.BrowserActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.FloatViewGuideActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="org.yameida.worktool.activity.AccessibilityGuideActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name=".activity.GetScreenShotActivity"
-            android:autoRemoveFromRecents="true"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.TranslucentNoTitleFullscreen" />
-        <service
-            android:name="org.yameida.worktool.service.WeworkService"
-            android:enabled="true"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:foregroundServiceType="dataSync"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
-        <service
-            android:foregroundServiceType="mediaProjection"
-            android:name=".service.PlayNotifyService" />
-
-        <provider
-            android:name=".utils.GenericFileProvider"
-            android:authorities="org.yameida.worktool.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
-
-        <meta-data android:name="TD_APP_ID" android:value="80E9C84E39904DAFB28562910FF7C86C" />
-        <meta-data android:name="TD_CHANNEL_ID" android:value="worktool_master" />
     </application>
 
 </manifest>

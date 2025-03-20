@@ -1,0 +1,52 @@
+# 顶层EditorConfig文件
+root = true
+
+# 所有文件通用配置
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 100
+trim_trailing_whitespace = true
+
+# Kotlin文件专用配置
+[*.{kt,kts}]
+# ktlint规则
+ktlint_code_style = official
+ktlint_function_naming_ignore_when_annotated_with = Composable
+ktlint_standard_trailing-comma-on-call-site = disabled
+
+# 禁用一些过于严格的规则
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_filename = disabled
+
+# 括号和空格规则
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_line_break_after_multiline_when_entry = true
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+ij_kotlin_packages_to_use_import_on_demand = unset
+
+# XML文件配置
+[*.xml]
+indent_size = 4
+
+# Markdown文件配置
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = unset
+
+# YAML文件配置
+[*.{yml,yaml}]
+indent_size = 2
+
+# Properties文件配置
+[*.properties]
+indent_size = 2
+
+# Shell脚本配置
+[*.{sh,bash}]
+indent_size = 2

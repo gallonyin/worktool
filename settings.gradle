@@ -1,3 +1,0 @@
-include ':app', ':baselibrary'
-include ':floatwindow'
-rootProject.name = "WorkTool"
