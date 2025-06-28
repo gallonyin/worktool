@@ -7,7 +7,7 @@ WorkTool是一个依附于企微/微信来运行的无人值守群管理机器�
 ### 本程序分为安卓端APP和任务调度平台
 
 * 安卓端APP需要您**自己提供一台手机**（需可运行企微/微信，手机型号和系统版本不限，本软件兼容99%的安卓手机）。
-    如果您是开发者可以自行编译源码运行，进行测试和学习；如果没有研发能力，可使用打包版本[WorkTool APP安装包：点击下载（2024-09-13更新）](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)（兼容4.1.8~4.1.28）
+    如果您是开发者可以自行编译源码运行，进行测试和学习；如果没有研发能力，可使用打包版本[WorkTool APP安装包：点击下载（2025-06-28更新）](https://cdn.asrtts.cn/uploads/worktool/apk/worktool-latest.apk)（兼容4.1.8~4.1.36）
 
 风险提示：
 
