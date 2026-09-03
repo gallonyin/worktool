@@ -39,7 +39,7 @@ Apache License, Version 2.0
 #  联系方式
 - ⭐️ 合作申请: https://www.ymdyes.cn/contact
 - 💻 Email: feedback@yameida.cc
-- 🤗 QQ群: 技术交流、问题反馈 1103379322
+- 🤗 QQ群: 技术交流、问题反馈 1016798508
 <img src="https://github.com/user-attachments/assets/244c6e0b-07a1-428d-ba4f-109c07332d56"  height="200" width="200">
 
 # 开源版历史版本记录
